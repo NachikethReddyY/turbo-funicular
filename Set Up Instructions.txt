@@ -1,0 +1,12 @@
+MySQL database Setup:
+1)Go to your MYSQL Workbench>Connect to your local instance>Administration tab>Data Import/Restore>Import from self contained file>Browse to spgames_sc.sql>Import
+
+
+Code files Setup:
+1)Under the model folder change the password for databaseConfig.js file
+2)Run npm install in both the frontend and backend sub directories
+3)Run node server.js in both the frontend and backend sub directories
+
+
+In Browser:
+1)Open localhost:3001
