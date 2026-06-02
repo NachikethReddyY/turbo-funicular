@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ST2515 — Workload Delegation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d14;
+  --surface: #15151f;
+  --surface-2: #1d1d2b;
+  --surface-3: #26263a;
+  --border: #2a2a40;
+  --text: #eeebe2;
+  --text-dim: #9a95a2;
+  --text-faint: #63607a;
+  --gold: #e8b84b;
+  --gold-dim: #b8892a;
+  --gold-bg: rgba(232, 184, 75, 0.08);
+  --teal: #4ecdc4;
+  --teal-dim: #2d9a92;
+  --teal-bg: rgba(78, 205, 196, 0.08);
+  --rose: #e8667a;
+  --rose-dim: #b84054;
+  --purple: #9b6bdb;
+  --purple-dim: #7a4bbd;
+  --green: #5cd68a;
+  --green-dim: #38a86c;
+  --blue: #5b9fd4;
+  --blue-dim: #3578b0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.hero {
+  padding: 5rem 1.5rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -15%;
+  width: 130%;
+  height: 150%;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 35%, rgba(232, 184, 75, 0.06), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 30% 55%, rgba(78, 205, 196, 0.04), transparent 70%);
+  pointer-events: none;
+}
+
+.hero .inner {
+  position: relative;
+}
+
+.accent-line {
+  width: 2.5rem;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--teal));
+  margin: 0 auto 1.2rem;
+  border-radius: 2px;
+  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  font-size: 3.4rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  animation: fadeUp 0.8s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, var(--gold), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero .sub {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-top: 0.4rem;
+  animation: fadeUp 0.8s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero .meta {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  margin-top: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  animation: fadeUp 0.8s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.global-progress-wrap {
+  max-width: 500px;
+  margin: 1.5rem auto 0;
+  animation: fadeUp 0.8s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.global-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 0.35rem;
+}
+
+.global-progress-label .pct {
+  color: var(--gold);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.global-progress-track {
+  width: 100%;
+  height: 4px;
+  background: var(--surface-3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.global-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--teal));
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+section {
+  padding: 2.5rem 0;
+}
+
+section h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.8rem;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+section h2 .week-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--gold-bg);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
+section h2 .dates {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text-faint);
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.section-intro {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.person-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.person-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1), border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.person-card:hover {
+  border-color: var(--gold-dim);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.person-card:active {
+  transform: scale(0.98);
+}
+
+.person-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 0 2px 2px 0;
+}
+
+.person-card.card-gold::before { background: var(--gold); }
+.person-card.card-teal::before { background: var(--teal); }
+.person-card.card-rose::before { background: var(--rose); }
+.person-card.card-purple::before { background: var(--purple); }
+.person-card.card-green::before { background: var(--green); }
+.person-card.card-blue::before { background: var(--blue); }
+
+.person-card .person-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.person-card .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.avatar.gold { background: linear-gradient(135deg, var(--gold-dim), var(--gold)); }
+.avatar.teal { background: linear-gradient(135deg, var(--teal-dim), var(--teal)); }
+.avatar.rose { background: linear-gradient(135deg, var(--rose-dim), var(--rose)); }
+.avatar.purple { background: linear-gradient(135deg, var(--purple-dim), var(--purple)); }
+.avatar.green { background: linear-gradient(135deg, var(--green-dim), var(--green)); }
+.avatar.blue { background: linear-gradient(135deg, var(--blue-dim), var(--blue)); }
+
+.person-card .person-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.person-card .person-tasks {
+  list-style: none;
+  padding: 0;
+}
+
+.person-card .person-tasks li {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  padding: 0.25rem 0;
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+.person-card .person-tasks li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6rem;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.person-card .person-tasks li strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.6rem 0 0;
+}
+
+.task-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  transition: color 0.2s;
+}
+
+.task-list li.checked {
+  color: var(--text-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-faint);
+}
+
+.task-list li input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+  background: var(--surface-2);
+}
+
+.task-list li input[type="checkbox"]:hover {
+  border-color: var(--gold-dim);
+}
+
+.task-list li input[type="checkbox"]:active {
+  transform: scale(0.85);
+}
+
+.task-list li input[type="checkbox"]:checked {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.task-list li input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 7px;
+  border: solid #fff;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
+.week-complete {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 1rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.week-complete:hover {
+  border-color: var(--teal-dim);
+  background: var(--surface-2);
+}
+
+.week-complete:active {
+  transform: scale(0.99);
+}
+
+.week-complete input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.3rem;
+  height: 1.3rem;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  background: var(--surface-2);
+}
+
+.week-complete input[type="checkbox"]:hover {
+  border-color: var(--teal);
+}
+
+.week-complete input[type="checkbox"]:active {
+  transform: scale(0.85);
+}
+
+.week-complete input[type="checkbox"]:checked {
+  background: var(--teal);
+  border-color: var(--teal);
+  box-shadow: 0 0 12px rgba(78, 205, 196, 0.3);
+}
+
+.week-complete input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.week-complete .label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+.week-complete .label strong {
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.week-complete .status-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.week-complete .status-badge.pending {
+  background: var(--surface-3);
+  color: var(--text-faint);
+}
+
+.week-complete .status-badge.done {
+  background: var(--teal-bg);
+  color: var(--teal);
+}
+
+.aws-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.aws-section h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: var(--gold);
+}
+
+.aws-section .hint {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  margin-bottom: 0.8rem;
+}
+
+.aws-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.6rem;
+}
+
+.aws-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  transition: all 0.15s;
+}
+
+.aws-item:hover {
+  border-color: var(--gold-dim);
+}
+
+.aws-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+  background: var(--surface-3);
+}
+
+.aws-item input[type="checkbox"]:hover { border-color: var(--gold-dim); }
+.aws-item input[type="checkbox"]:active { transform: scale(0.85); }
+.aws-item input[type="checkbox"]:checked {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.aws-item input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 4px;
+  height: 6px;
+  border: solid #0d0d14;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
+.aws-item.checked {
+  color: var(--text-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-faint);
+}
+
+.team-summary {
+  margin-top: 1.5rem;
+}
+
+.team-summary h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.6rem;
+}
+
+.team-member {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.team-member:active { transform: scale(0.97); }
+
+.team-member .tm-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.team-member .tm-info .tm-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.team-member .tm-info .tm-role {
+  font-size: 0.68rem;
+  color: var(--text-faint);
+}
+
+.findings-wrap {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+
+.findings-wrap h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+th {
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  vertical-align: top;
+}
+
+td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+tr:hover td {
+  background: var(--surface);
+}
+
+.detail-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+}
+
+.detail-badge.detailed {
+  background: var(--gold-bg);
+  color: var(--gold);
+}
+
+.detail-badge.brief {
+  background: var(--teal-bg);
+  color: var(--teal);
+}
+
+.cat-tag {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  background: var(--surface-3);
+  color: var(--text-faint);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+footer {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+}
+
+footer p {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+footer .reset-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+footer .reset-btn:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+
+footer .reset-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  html { font-size: 15px; }
+  .hero { padding: 3rem 1rem 2rem; }
+  .hero h1 { font-size: 2rem; }
+  .person-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: 1fr 1fr; }
+  .aws-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container inner">
+    <div class="accent-line"></div>
+    <h1>Workload <span>Delegation</span></h1>
+    <p class="sub">ST2515 &mdash; Secure Coding &middot; Web Vulnerability Analysis</p>
+    <p class="meta">4 People &nbsp;&middot;&nbsp; 3 Weeks &nbsp;&middot;&nbsp; Due 29 June 2026</p>
+    <div class="global-progress-wrap">
+      <div class="global-progress-label">
+        <span>Overall Progress</span>
+        <span class="pct" id="globalPct">0%</span>
+      </div>
+      <div class="global-progress-track">
+        <div class="global-progress-fill" id="globalFill"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ─── TEAM ─── -->
+  <section>
+    <h2><span class="week-num" style="background:rgba(155,107,219,0.08);border-color:var(--purple-dim);color:var(--purple);">T</span> Team</h2>
+    <p class="section-intro">Four members each own specific OWASP categories. 10 findings total across 5 categories.</p>
+    <div class="team-grid">
+      <div class="team-member">
+        <div class="tm-avatar gold">N</div>
+        <div class="tm-info">
+          <div class="tm-name">Nachiketh</div>
+          <div class="tm-role">A01 — Broken Access Control + A09 — Logging &amp; Monitoring</div>
+        </div>
+      </div>
+      <div class="team-member">
+        <div class="tm-avatar teal">M</div>
+        <div class="tm-info">
+          <div class="tm-name">Mike</div>
+          <div class="tm-role">A03 — Injection</div>
+        </div>
+      </div>
+      <div class="team-member">
+        <div class="tm-avatar rose">K</div>
+        <div class="tm-info">
+          <div class="tm-name">Keefe</div>
+          <div class="tm-role">A07 — Auth Failures + Weekly Logs</div>
+        </div>
+      </div>
+      <div class="team-member">
+        <div class="tm-avatar purple">S</div>
+        <div class="tm-info">
+          <div class="tm-name">Sitt</div>
+          <div class="tm-role">A04 — Insecure Design</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINDINGS OVERVIEW ─── -->
+  <section>
+    <h2><span class="week-num" style="background:var(--gold-bg);border-color:var(--gold-dim);color:var(--gold);">F</span> Findings Distribution</h2>
+    <p class="section-intro">5 categories &times; 2 vulnerabilities each = 10 total. Each category: 1 detailed + 1 brief.</p>
+    <div class="findings-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Person</th>
+            <th>OWASP</th>
+            <th>Detailed</th>
+            <th>Brief</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nachiketh</td>
+            <td>
+              <span class="cat-tag">A01</span> Broken Access Control<br>
+              <span class="cat-tag">A09</span> Logging &amp; Monitoring
+            </td>
+            <td>
+              <span class="detail-badge detailed">DETAILED</span> Missing auth on admin endpoints<br>
+              <span class="detail-badge detailed">DETAILED</span> No audit logs on sensitive ops
+            </td>
+            <td>
+              <span class="detail-badge brief">BRIEF</span> <span class="cat-tag" style="font-size:0.55rem;">A01</span> <code>GET /users</code> leaks all data<br>
+              <span class="detail-badge brief">BRIEF</span> <span class="cat-tag" style="font-size:0.55rem;">A09</span> Error info leakage
+            </td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>Mike</td>
+            <td><span class="cat-tag">A03</span> Injection</td>
+            <td>
+              <span class="detail-badge detailed">DETAILED</span> <code>getUserByUserid</code> SQLi
+            </td>
+            <td>
+              <span class="detail-badge brief">BRIEF</span> <code>insertGame</code> / <code>updateGame</code> SQLi
+            </td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>Keefe</td>
+            <td><span class="cat-tag">A07</span> Auth Failures</td>
+            <td>
+              <span class="detail-badge detailed">DETAILED</span> Plain-text password storage
+            </td>
+            <td>
+              <span class="detail-badge brief">BRIEF</span> Hard-coded JWT secret
+            </td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>Sitt</td>
+            <td><span class="cat-tag">A04</span> Insecure Design</td>
+            <td>
+              <span class="detail-badge detailed">DETAILED</span> Client-side only admin checks
+            </td>
+            <td>
+              <span class="detail-badge brief">BRIEF</span> No input validation on forms
+            </td>
+            <td>2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── WEEK 1 ─── -->
+  <section>
+    <h2>
+      <span class="week-num">1</span>
+      Setup &amp; Reconnaissance
+      <span class="dates">Tue 2 Jun &ndash; Sun 14 Jun</span>
+    </h2>
+    <p class="section-intro">Get the app running, read every source file, map endpoints, and draft the first finding for each category.</p>
+
+    <div class="person-grid">
+      <div class="person-card card-gold">
+        <div class="person-header">
+          <div class="avatar gold">N</div>
+          <div class="person-name">Nachiketh</div>
+        </div>
+        <ul class="task-list" data-week="1" data-person="Nachiketh">
+          <li><input type="checkbox"> Set up MySQL, import <code>spgames_SC.sql</code>, get both servers running</li>
+          <li><input type="checkbox"> Map all API endpoints; test each with curl/Postman</li>
+          <li><input type="checkbox"> Check which endpoints lack auth (<code>POST /game</code>, <code>DELETE /game/:id</code>, <code>GET /users</code>)</li>
+          <li><input type="checkbox"> Identify logging gaps: no audit trail, no failed-login records, error verbosity</li>
+          <li><input type="checkbox"> Draft findings for <strong>A01 + A09</strong></li>
+        </ul>
+      </div>
+      <div class="person-card card-teal">
+        <div class="person-header">
+          <div class="avatar teal">M</div>
+          <div class="person-name">Mike</div>
+        </div>
+        <ul class="task-list" data-week="1" data-person="Mike">
+          <li><input type="checkbox"> Read all model files: <code>users.js</code>, <code>game.js</code>, <code>category.js</code>, <code>platform.js</code>, <code>review.js</code></li>
+          <li><input type="checkbox"> Identify all plain-text SQL vs parameterised queries; note line numbers</li>
+          <li><input type="checkbox"> Verify SQLi in <code>getUserByUserid</code> + <code>insertGame</code>/<code>updateGame</code></li>
+          <li><input type="checkbox"> Draft finding for <strong>A03 — Injection</strong></li>
+        </ul>
+      </div>
+      <div class="person-card card-rose">
+        <div class="person-header">
+          <div class="avatar rose">K</div>
+          <div class="person-name">Keefe</div>
+        </div>
+        <ul class="task-list" data-week="1" data-person="Keefe">
+          <li><input type="checkbox"> Read <code>auth/verifyToken.js</code>, <code>config.js</code>; trace full JWT flow</li>
+          <li><input type="checkbox"> Confirm passwords are stored in plain text in DB + login query</li>
+          <li><input type="checkbox"> Check JWT strength: hard-coded secret <code>'Assignment2key'</code>, expiry, algorithm</li>
+          <li><input type="checkbox"> Draft finding for <strong>A07 — Auth Failures</strong></li>
+          <li><input type="checkbox"> Write <strong>Week 1 progress log</strong></li>
+        </ul>
+      </div>
+      <div class="person-card card-purple">
+        <div class="person-header">
+          <div class="avatar purple">S</div>
+          <div class="person-name">Sitt</div>
+        </div>
+        <ul class="task-list" data-week="1" data-person="Sitt">
+          <li><input type="checkbox"> Read <code>controller/app.js</code> fully; trace request flow for admin pages</li>
+          <li><input type="checkbox"> Check frontend <code>admin.html</code> JS — confirm role check is client-side only</li>
+          <li><input type="checkbox"> Check all form handlers for input validation / sanitisation</li>
+          <li><input type="checkbox"> Draft finding for <strong>A04 — Insecure Design</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <label class="week-complete" data-week="1">
+      <input type="checkbox">
+      <span class="label">Week 1 — <strong>Complete?</strong></span>
+      <span class="status-badge pending">Pending</span>
+    </label>
+  </section>
+
+  <!-- ─── WEEK 2 ─── -->
+  <section>
+    <h2>
+      <span class="week-num">2</span>
+      Deep Analysis &amp; Report Writing
+      <span class="dates">Mon 15 Jun &ndash; Sun 21 Jun</span>
+    </h2>
+    <p class="section-intro">Finalise all 10 findings with code snippets, write exploit scripts, produce fixes, and begin report assembly.</p>
+
+    <div class="person-grid">
+      <div class="person-card card-gold">
+        <div class="person-header">
+          <div class="avatar gold">N</div>
+          <div class="person-name">Nachiketh</div>
+        </div>
+        <ul class="task-list" data-week="2" data-person="Nachiketh">
+          <li><input type="checkbox"> Finalise <strong>A01</strong> — detailed: missing auth, brief: <code>GET /users</code> leaks data</li>
+          <li><input type="checkbox"> Finalise <strong>A09</strong> — detailed: no audit logs, brief: error info leakage</li>
+          <li><input type="checkbox"> Write exploit scripts/demos for A01 + A09</li>
+          <li><input type="checkbox"> Write code-fix snippets for all 4 findings</li>
+        </ul>
+      </div>
+      <div class="person-card card-teal">
+        <div class="person-header">
+          <div class="avatar teal">M</div>
+          <div class="person-name">Mike</div>
+        </div>
+        <ul class="task-list" data-week="2" data-person="Mike">
+          <li><input type="checkbox"> Finalise <strong>A03</strong> — detailed: <code>getUserByUserid</code> SQLi; brief: <code>insertGame</code>/<code>updateGame</code> SQLi</li>
+          <li><input type="checkbox"> Write exploit scripts using SQLmap or manual payloads</li>
+          <li><input type="checkbox"> Write code-fix snippets (parameterised queries) for both findings</li>
+        </ul>
+      </div>
+      <div class="person-card card-rose">
+        <div class="person-header">
+          <div class="avatar rose">K</div>
+          <div class="person-name">Keefe</div>
+        </div>
+        <ul class="task-list" data-week="2" data-person="Keefe">
+          <li><input type="checkbox"> Finalise <strong>A07</strong> — detailed: plain-text passwords; brief: hard-coded JWT secret</li>
+          <li><input type="checkbox"> Write exploit: extract password hashes / forge JWT token</li>
+          <li><input type="checkbox"> Write code-fix snippets (bcrypt, env-based secret)</li>
+          <li><input type="checkbox"> Write <strong>Week 2 progress log</strong></li>
+        </ul>
+      </div>
+      <div class="person-card card-purple">
+        <div class="person-header">
+          <div class="avatar purple">S</div>
+          <div class="person-name">Sitt</div>
+        </div>
+        <ul class="task-list" data-week="2" data-person="Sitt">
+          <li><input type="checkbox"> Finalise <strong>A04</strong> — detailed: client-side admin checks; brief: no input validation</li>
+          <li><input type="checkbox"> Write exploit: bypass admin frontend, send malicious payloads directly</li>
+          <li><input type="checkbox"> Write code-fix snippets (server-side auth middleware, input sanitisation)</li>
+          <li><input type="checkbox"> Begin report structure: title page, TOC, introduction, methodology</li>
+        </ul>
+      </div>
+    </div>
+
+    <label class="week-complete" data-week="2">
+      <input type="checkbox">
+      <span class="label">Week 2 — <strong>Complete?</strong></span>
+      <span class="status-badge pending">Pending</span>
+    </label>
+  </section>
+
+  <!-- ─── WEEK 3 ─── -->
+  <section>
+    <h2>
+      <span class="week-num">3</span>
+      Polish, Presentation &amp; Submit
+      <span class="dates">Mon 22 Jun &ndash; Sun 28 Jun</span>
+    </h2>
+    <p class="section-intro">Build the presentation, rehearse the live demo, finalise the report, and submit by the deadline.</p>
+
+    <div class="person-grid">
+      <div class="person-card card-gold">
+        <div class="person-header">
+          <div class="avatar gold">N</div>
+          <div class="person-name">Nachiketh</div>
+        </div>
+        <ul class="task-list" data-week="3" data-person="Nachiketh">
+          <li><input type="checkbox"> Build presentation slides: structure, A01 + A09 findings, demo flow</li>
+          <li><input type="checkbox"> Rehearse demo; record screencast as backup</li>
+          <li><input type="checkbox"> Refine slides with speaker notes</li>
+          <li><input type="checkbox"> Write executive summary + best practices section for report</li>
+        </ul>
+      </div>
+      <div class="person-card card-teal">
+        <div class="person-header">
+          <div class="avatar teal">M</div>
+          <div class="person-name">Mike</div>
+        </div>
+        <ul class="task-list" data-week="3" data-person="Mike">
+          <li><input type="checkbox"> Build live demo environment: servers running, A03 exploit payloads ready</li>
+          <li><input type="checkbox"> Rehearse demo; record screencast as backup</li>
+          <li><input type="checkbox"> Refine slides</li>
+          <li><input type="checkbox"> Write tools-used section + appendix for report</li>
+        </ul>
+      </div>
+      <div class="person-card card-rose">
+        <div class="person-header">
+          <div class="avatar rose">K</div>
+          <div class="person-name">Keefe</div>
+        </div>
+        <ul class="task-list" data-week="3" data-person="Keefe">
+          <li><input type="checkbox"> Compile all code-fix snippets into final report</li>
+          <li><input type="checkbox"> Final report formatting, proofreading, references</li>
+          <li><input type="checkbox"> Prepare academic integrity form</li>
+          <li><input type="checkbox"> Cross-check rubric coverage for all 10 findings</li>
+          <li><input type="checkbox"> Write <strong>Week 3 progress log + overall summary</strong></li>
+        </ul>
+      </div>
+      <div class="person-card card-purple">
+        <div class="person-header">
+          <div class="avatar purple">S</div>
+          <div class="person-name">Sitt</div>
+        </div>
+        <ul class="task-list" data-week="3" data-person="Sitt">
+          <li><input type="checkbox"> Integrate all 5 category sections into final report; ensure consistent tone</li>
+          <li><input type="checkbox"> Build presentation backup slides; dry-run with team</li>
+          <li><input type="checkbox"> Final review: spelling, formatting, rubric compliance</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-top:0.75rem;">
+      <label class="week-complete" data-week="3-report">
+        <input type="checkbox">
+        <span class="label">Report <strong>Finalised</strong></span>
+        <span class="status-badge pending">Pending</span>
+      </label>
+      <label class="week-complete" data-week="3-presentation">
+        <input type="checkbox">
+        <span class="label">Presentation <strong>Rehearsed</strong></span>
+        <span class="status-badge pending">Pending</span>
+      </label>
+    </div>
+
+    <label class="week-complete" data-week="3">
+      <input type="checkbox">
+      <span class="label">Week 3 — <strong>All Done (Ready to Submit)</strong></span>
+      <span class="status-badge pending">Pending</span>
+    </label>
+  </section>
+
+  <!-- ─── SUBMISSION CHECKLIST ─── -->
+  <section>
+    <h2>
+      <span class="week-num" style="background:var(--green-bg, rgba(92,214,138,0.08));border-color:var(--green-dim);color:var(--green);">&#10003;</span>
+      Submission Checklist
+      <span class="dates">Deadline: Mon 29 Jun 2026, 2359</span>
+    </h2>
+    <p class="section-intro">Everything that must be submitted. Tick off as each item is confirmed ready.</p>
+
+    <div class="aws-section">
+      <h3>&#128196; Report (80 marks)</h3>
+      <div class="aws-grid">
+        <label class="aws-item"><input type="checkbox"> Title page with all 4 names + admin number</label>
+        <label class="aws-item"><input type="checkbox"> Table of contents</label>
+        <label class="aws-item"><input type="checkbox"> Introduction &amp; methodology</label>
+        <label class="aws-item"><input type="checkbox"> <strong>A01</strong> — Broken Access Control (1 detailed + 1 brief)</label>
+        <label class="aws-item"><input type="checkbox"> <strong>A03</strong> — Injection (1 detailed + 1 brief)</label>
+        <label class="aws-item"><input type="checkbox"> <strong>A04</strong> — Insecure Design (1 detailed + 1 brief)</label>
+        <label class="aws-item"><input type="checkbox"> <strong>A07</strong> — Auth Failures (1 detailed + 1 brief)</label>
+        <label class="aws-item"><input type="checkbox"> <strong>A09</strong> — Logging &amp; Monitoring (1 detailed + 1 brief)</label>
+        <label class="aws-item"><input type="checkbox"> Tools &amp; methods used section</label>
+        <label class="aws-item"><input type="checkbox"> Best secure coding practices section</label>
+        <label class="aws-item"><input type="checkbox"> Executive summary</label>
+        <label class="aws-item"><input type="checkbox"> Appendices (exploit scripts, code snippets)</label>
+        <label class="aws-item"><input type="checkbox"> References</label>
+      </div>
+    </div>
+
+    <div class="aws-section" style="margin-top:0.75rem;">
+      <h3>&#127912; Presentation (20 marks)</h3>
+      <div class="aws-grid">
+        <label class="aws-item"><input type="checkbox"> Slide deck finalised</label>
+        <label class="aws-item"><input type="checkbox"> Live demo environment working</label>
+        <label class="aws-item"><input type="checkbox"> All 5 categories covered in demo</label>
+        <label class="aws-item"><input type="checkbox"> Screencast backup recorded</label>
+        <label class="aws-item"><input type="checkbox"> Speaker notes prepared</label>
+        <label class="aws-item"><input type="checkbox"> Dry-run completed with whole team</label>
+      </div>
+    </div>
+
+    <div class="aws-section" style="margin-top:0.75rem;">
+      <h3>&#128221; Administrative</h3>
+      <div class="aws-grid">
+        <label class="aws-item"><input type="checkbox"> Academic integrity form signed by all</label>
+        <label class="aws-item"><input type="checkbox"> PDF report exported &amp; named correctly</label>
+        <label class="aws-item"><input type="checkbox"> Presentation file exported</label>
+        <label class="aws-item"><input type="checkbox"> Source code bundled (if required)</label>
+        <label class="aws-item"><input type="checkbox"> Uploaded to PoliteMall before 2359</label>
+      </div>
+    </div>
+
+    <label class="week-complete" data-week="submission">
+      <input type="checkbox">
+      <span class="label">Submission — <strong>All Done. Submitted.</strong></span>
+      <span class="status-badge pending">Pending</span>
+    </label>
+  </section>
+
+  <!-- ─── OPTIONAL: AWS ─── -->
+  <section>
+    <h2>
+      <span class="week-num" style="background:var(--teal-bg);border-color:var(--teal-dim);color:var(--teal);">+</span>
+      Optional — AWS Deployment
+      <span class="dates">Bonus marks</span>
+    </h2>
+    <p class="section-intro">Extra features for higher marks. Start in week 2 once core findings are stable.</p>
+
+    <div class="aws-section">
+      <h3>&#9733; Cloud Infrastructure Checklist</h3>
+      <div class="aws-grid">
+        <label class="aws-item">
+          <input type="checkbox"> Host frontend in <strong>AWS S3</strong> (static website bucket)
+        </label>
+        <label class="aws-item">
+          <input type="checkbox"> Host backend on AWS EC2 or Elastic Beanstalk
+        </label>
+        <label class="aws-item">
+          <input type="checkbox"> Migrate MySQL to <strong>AWS RDS</strong>
+        </label>
+        <label class="aws-item">
+          <input type="checkbox"> Store secrets in <strong>AWS Secrets Manager</strong>
+        </label>
+        <label class="aws-item">
+          <input type="checkbox"> Use <strong>AWS Cognito</strong> for authentication
+        </label>
+        <label class="aws-item">
+          <input type="checkbox"> Set up <strong>CloudFront</strong> CDN for frontend
+        </label>
+        <label class="aws-item">
+          <input type="checkbox"> Configure custom domain via <strong>Route 53</strong>
+        </label>
+        <label class="aws-item">
+          <input type="checkbox"> Keep everything within <strong>free tier</strong>
+        </label>
+      </div>
+    </div>
+
+    <div class="aws-section" style="margin-top:0.75rem;">
+      <h3>&#9733; Suggested AWS Task Split</h3>
+      <p class="hint">Spread across weeks 2–3; everyone contributes after their core findings are finalised.</p>
+      <div class="person-grid" style="margin-bottom:0;">
+        <div class="person-card card-gold">
+          <div class="person-header">
+            <div class="avatar gold">N</div>
+            <div class="person-name">Nachiketh</div>
+          </div>
+          <ul class="person-tasks">
+            <li>S3 frontend hosting + CloudFront CDN</li>
+          </ul>
+        </div>
+        <div class="person-card card-teal">
+          <div class="person-header">
+            <div class="avatar teal">M</div>
+            <div class="person-name">Mike</div>
+          </div>
+          <ul class="person-tasks">
+            <li>EC2 / Elastic Beanstalk backend + RDS migration</li>
+          </ul>
+        </div>
+        <div class="person-card card-rose">
+          <div class="person-header">
+            <div class="avatar rose">K</div>
+            <div class="person-name">Keefe</div>
+          </div>
+          <ul class="person-tasks">
+            <li>AWS Secrets Manager + Cognito user pool</li>
+          </ul>
+        </div>
+        <div class="person-card card-purple">
+          <div class="person-header">
+            <div class="avatar purple">S</div>
+            <div class="person-name">Sitt</div>
+          </div>
+          <ul class="person-tasks">
+            <li>Route 53 domain + free-tier tracking + integration testing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <label class="week-complete" data-week="aws">
+      <input type="checkbox">
+      <span class="label">AWS — <strong>All Optional Tasks Complete</strong></span>
+      <span class="status-badge pending">Pending</span>
+    </label>
+  </section>
+
+</main>
+
+<footer>
+  <p>ST2515 &mdash; School of Computing &nbsp;&middot;&nbsp; ST0527 Secure Coding Project &nbsp;&middot;&nbsp; 2026/2027 Semester 1</p>
+  <button class="reset-btn" onclick="resetAll()">&#8634; Reset All Checkboxes</button>
+</footer>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'tf-delegation';
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function getAllCheckboxIds() {
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      if (!cb.getAttribute('data-id')) {
+        cb.setAttribute('data-id', generateId(cb));
+      }
+    });
+  }
+
+  let idCounter = 0;
+  function generateId(cb) {
+    const parent = cb.closest('[data-week]') || cb.closest('.aws-item');
+    const week = parent ? (parent.getAttribute('data-week') || '0') : '0';
+    const person = cb.closest('[data-person]');
+    const p = person ? person.getAttribute('data-person') : 'X';
+    return `cb-${week}-${p}-${++idCounter}`;
+  }
+
+  function applyState() {
+    const state = loadState();
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      const id = cb.getAttribute('data-id');
+      if (id && state[id]) {
+        cb.checked = true;
+        const li = cb.closest('li');
+        if (li) li.classList.add('checked');
+        const awsItem = cb.closest('.aws-item');
+        if (awsItem) awsItem.classList.add('checked');
+      }
+    });
+    updateWeekBadges();
+    updateGlobalProgress();
+  }
+
+  function handleCheck(e) {
+    const cb = e.target;
+    if (cb.type !== 'checkbox') return;
+    const id = cb.getAttribute('data-id');
+    if (!id) return;
+    const state = loadState();
+    state[id] = cb.checked;
+    saveState(state);
+    const li = cb.closest('li');
+    if (li) li.classList.toggle('checked', cb.checked);
+    const awsItem = cb.closest('.aws-item');
+    if (awsItem) awsItem.classList.toggle('checked', cb.checked);
+    updateWeekBadges();
+    updateGlobalProgress();
+  }
+
+  function updateWeekBadges() {
+    document.querySelectorAll('.week-complete').forEach(w => {
+      const cb = w.querySelector('input[type="checkbox"]');
+      const badge = w.querySelector('.status-badge');
+      if (cb && badge) {
+        badge.textContent = cb.checked ? 'Done' : 'Pending';
+        badge.className = 'status-badge ' + (cb.checked ? 'done' : 'pending');
+      }
+    });
+  }
+
+  function updateGlobalProgress() {
+    const all = document.querySelectorAll('input[type="checkbox"]');
+    const checked = document.querySelectorAll('input[type="checkbox"]:checked');
+    const pct = all.length ? Math.round((checked.length / all.length) * 100) : 0;
+    document.getElementById('globalPct').textContent = pct + '%';
+    document.getElementById('globalFill').style.width = pct + '%';
+  }
+
+  function init() {
+    getAllCheckboxIds();
+    applyState();
+    document.addEventListener('change', handleCheck);
+  }
+
+  window.resetAll = function () {
+    if (!confirm('Reset all checkboxes? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.checked = false;
+      const li = cb.closest('li');
+      if (li) li.classList.remove('checked');
+      const awsItem = cb.closest('.aws-item');
+      if (awsItem) awsItem.classList.remove('checked');
+    });
+    updateWeekBadges();
+    updateGlobalProgress();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+</body>
+</html>
