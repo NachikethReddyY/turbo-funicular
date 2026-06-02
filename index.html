@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>turbo-funicular — Project Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0b0a;--surface:#12110f;--surface-2:#1a1815;--surface-3:#24211d;--border:#2e2a24;--text:#ece4da;--text-dim:#8a8278;--text-faint:#5a5450;--gold:#d4803a;--gold-dim:#a86028;--teal:#2a7a6a;--teal-dim:#1d5548;--red:#d44a3a;--red-dim:#8a2d24;--blue:#5080c8;--blue-dim:#305080;--green:#48c080;--green-dim:#2d8050;--purple:#b050a0;--purple-dim:#703060;--orange:#d48a4a}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.container{max-width:1200px;margin:0 auto;padding:0 1.5rem}
+
+/* ── HEADER ── */
+header{padding:5rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-60%;left:-20%;width:140%;height:160%;background:radial-gradient(ellipse 70% 50% at 50% 35%,rgba(212,128,58,0.06),transparent 70%),radial-gradient(ellipse 50% 40% at 30% 55%,rgba(42,122,106,0.04),transparent 70%);pointer-events:none}
+header .inner{position:relative}
+.deco-line{width:2.5rem;height:3px;background:var(--gold);margin:0 auto 1.2rem;border-radius:2px;animation:fadeUp .8s both}
+header h1{font-family:'Fraunces',Georgia,serif;font-size:3.2rem;font-weight:700;letter-spacing:-.02em;line-height:1.1;animation:fadeUp .8s .1s both}
+header h1 span{color:var(--gold)}
+header .sub{color:var(--text-dim);font-size:1.05rem;margin-top:.3rem;animation:fadeUp .8s .15s both}
+header .meta{color:var(--text-faint);font-size:.8rem;margin-top:.3rem;text-transform:uppercase;letter-spacing:.04em;animation:fadeUp .8s .2s both}
+header .nav-links{display:flex;justify-content:center;gap:.5rem;margin-top:1.5rem;flex-wrap:wrap;animation:fadeUp .8s .25s both}
+header .nav-links a{display:inline-block;padding:.35rem .9rem;border:1px solid var(--border);border-radius:6px;color:var(--text-dim);font-size:.8rem;text-decoration:none;transition:all .2s;cursor:pointer}
+header .nav-links a:hover{border-color:var(--gold);color:var(--gold)}
+header .nav-links a:active{transform:scale(.95)}
+
+/* ── SECTIONS ── */
+section{padding:2.5rem 0}
+section h2{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;font-weight:600;margin-bottom:1.2rem;padding-bottom:.5rem;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:.6rem}
+section h2 .num{color:var(--gold);font-weight:400;font-size:.9rem}
+section h2 .badge{font-size:.6rem;font-weight:600;background:var(--surface-3);color:var(--text-dim);padding:.15rem .6rem;border-radius:4px;letter-spacing:.03em}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.8rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;transition:transform .15s cubic-bezier(.32,.72,0,1),border-color .2s}
+.card:hover{border-color:var(--gold);transform:translateY(-3px)}
+.card:active{transform:scale(.97)}
+.card .icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.8rem;margin-bottom:.6rem}
+.card h3{font-size:.85rem;font-weight:600;margin-bottom:.2rem}
+.card p{font-size:.75rem;color:var(--text-dim);line-height:1.5}
+.card .tag{display:inline-block;font-size:.65rem;padding:.1rem .5rem;border-radius:3px;margin-top:.4rem;background:var(--surface-3);color:var(--text-faint)}
+.cards .card:nth-child(1){animation:fadeUp .5s .05s both}
+.cards .card:nth-child(2){animation:fadeUp .5s .1s both}
+.cards .card:nth-child(3){animation:fadeUp .5s .15s both}
+.cards .card:nth-child(4){animation:fadeUp .5s .2s both}
+.cards .card:nth-child(5){animation:fadeUp .5s .25s both}
+.cards .card:nth-child(6){animation:fadeUp .5s .3s both}
+
+/* ── TREE ── */
+.tree-root{margin:1rem 0}
+.tree-row{display:flex;align-items:center;gap:.5rem;padding:.2rem 0;font-size:.82rem;font-family:'JetBrains Mono',monospace;color:var(--text-dim);transition:color .15s}
+.tree-row:hover{color:var(--text)}
+.tree-row .indent{display:inline-block;flex-shrink:0}
+.tree-row .icon{flex-shrink:0;width:18px;text-align:center;font-size:.7rem;opacity:.5}
+.tree-row .name{font-weight:500;color:var(--text)}
+.tree-row .desc{font-size:.7rem;color:var(--text-faint);margin-left:.5rem}
+.tree-row .vuln{flex-shrink:0;margin-left:auto;font-size:.6rem;background:var(--red-dim);color:#f0b0a0;padding:.1rem .5rem;border-radius:3px;opacity:.8}
+.tree-row .report{flex-shrink:0;margin-left:auto;font-size:.6rem;background:var(--gold-dim);color:#f0d8a0;padding:.1rem .5rem;border-radius:3px;opacity:.8}
+
+/* ── SVG DIAGRAM ── */
+.diagram-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;overflow-x:auto;margin:1rem 0}
+.diagram-wrap svg{display:block;width:100%;height:auto;max-width:1100px;margin:0 auto}
+.diagram-label{text-align:center;font-size:.7rem;color:var(--text-faint);margin-top:.5rem}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;margin:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+th{text-align:left;padding:.6rem .8rem;background:var(--surface-2);color:var(--text-dim);font-weight:600;border-bottom:2px solid var(--border);white-space:nowrap}
+td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-dim)}
+td:first-child{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--gold)}
+tr:hover td{background:var(--surface)}
+tr .method{display:inline-block;font-size:.65rem;font-weight:700;padding:.1rem .4rem;border-radius:3px;margin-right:.3rem}
+tr .method.get{background:var(--blue-dim);color:#b0c8e8}
+tr .method.post{background:var(--green-dim);color:#b0e8c8}
+tr .method.delete{background:var(--red-dim);color:#f0b0a0}
+
+/* ── FLOW / LEGEND ── */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;margin:1rem 0;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:.75rem}
+.legend-item{display:flex;align-items:center;gap:.4rem;color:var(--text-dim)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.flow-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem;margin:1rem 0}
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;text-align:center;transition:transform .15s cubic-bezier(.32,.72,0,1)}
+.flow-step:active{transform:scale(.97)}
+.flow-step .numm{font-size:.7rem;color:var(--gold);font-weight:700}
+.flow-step .label{font-size:.8rem;font-weight:500;margin-top:.15rem}
+.flow-step .desc{font-size:.7rem;color:var(--text-dim)}
+.flow-step:nth-child(1){animation:fadeUp .6s .1s both}
+.flow-step:nth-child(2){animation:fadeUp .6s .15s both}
+.flow-step:nth-child(3){animation:fadeUp .6s .2s both}
+.flow-step:nth-child(4){animation:fadeUp .6s .25s both}
+.flow-step:nth-child(5){animation:fadeUp .6s .3s both}
+.flow-step:nth-child(6){animation:fadeUp .6s .35s both}
+
+/* ── VULNERABILITY CARDS ── */
+.vuln-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:.8rem;margin:1rem 0}
+.vuln-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;border-left:3px solid var(--red);transition:transform .15s cubic-bezier(.32,.72,0,1),border-color .2s}
+.vuln-card:hover{border-color:var(--red);transform:translateY(-3px)}
+.vuln-card:active{transform:scale(.97)}
+.vuln-card .cat{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--red);margin-bottom:.3rem}
+.vuln-card h3{font-size:.85rem;font-weight:600;margin-bottom:.2rem}
+.vuln-card p{font-size:.73rem;color:var(--text-dim);line-height:1.5}
+.vuln-card .file{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--gold-dim);margin-top:.4rem;padding-top:.4rem;border-top:1px solid var(--border)}
+.vuln-card:nth-child(1){animation:fadeUp .5s .05s both}
+.vuln-card:nth-child(2){animation:fadeUp .5s .1s both}
+.vuln-card:nth-child(3){animation:fadeUp .5s .15s both}
+.vuln-card:nth-child(4){animation:fadeUp .5s .2s both}
+.vuln-card:nth-child(5){animation:fadeUp .5s .25s both}
+.vuln-card:nth-child(6){animation:fadeUp .5s .3s both}
+.vuln-card:nth-child(7){animation:fadeUp .5s .35s both}
+
+/* ── SVG text styles ── */
+.svg-text{font-family:'DM Sans',sans-serif}
+.svg-mono{font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <div class="deco-line"></div>
+    <h1>turbo-<span>funicular</span></h1>
+    <p class="sub">Game Store &middot; Full-Stack Architecture Visualisation</p>
+    <p class="meta">ST2515 Secure Coding &middot; OWASP Vulnerability Mapping</p>
+    <div class="nav-links">
+      <a href="#arch">Architecture</a>
+      <a href="#tree">File Tree</a>
+      <a href="#api">API Endpoints</a>
+      <a href="#flow">Data Flow</a>
+      <a href="#vulns">Vulnerabilities</a>
+      <a href="assignment.html">Report</a>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 1: THREE-TIER ARCHITECTURE SVG     -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="arch">
+  <h2><span class="num">01</span>Three-Tier Architecture</h2>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:1rem">How the browser, frontend server, backend API, and database connect to serve the game store application.</p>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 1060 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1a1815"/>
+          <stop offset="100%" stop-color="#12110f"/>
+        </linearGradient>
+        <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#24211d"/>
+          <stop offset="100%" stop-color="#1a1815"/>
+        </linearGradient>
+        <linearGradient id="gBk" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1e2636"/>
+          <stop offset="100%" stop-color="#121e24"/>
+        </linearGradient>
+        <linearGradient id="gDB" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#182420"/>
+          <stop offset="100%" stop-color="#101e18"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <marker id="arrowGold" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#d4803a" stroke-width="1.2"/>
+        </marker>
+        <marker id="arrowTeal" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#2a7a6a" stroke-width="1.2"/>
+        </marker>
+      </defs>
+
+      <!-- Background -->
+      <rect x="0" y="0" width="1060" height="520" rx="8" fill="url(#gB)"/>
+
+      <!-- ── TIER 1: BROWSER ── -->
+      <rect x="40" y="40" width="260" height="440" rx="10" fill="url(#gF)" stroke="#2e2a24" stroke-width="1"/>
+      <text x="170" y="72" text-anchor="middle" class="svg-text" fill="#d4803a" font-size="11" font-weight="700" letter-spacing="2">TIER 1</text>
+      <text x="170" y="92" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="14" font-weight="600">Client Browser</text>
+      <text x="170" y="108" text-anchor="middle" fill="#8a8278" font-size="10">localhost:3001</text>
+
+      <rect x="60" y="125" width="220" height="50" rx="6" fill="#24211d" stroke="#383430" stroke-width=".8"/>
+      <text x="170" y="148" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="11" font-weight="600">HTML Pages</text>
+      <text x="170" y="164" text-anchor="middle" fill="#8a8278" font-size="9">index.html &middot; login.html &middot; gamesSearch.html</text>
+      <text x="170" y="175" text-anchor="middle" fill="#8a8278" font-size="9">newGame-Detail.html &middot; admin.html &middot; …</text>
+
+      <rect x="60" y="185" width="220" height="38" rx="6" fill="#24211d" stroke="#383430" stroke-width=".8"/>
+      <text x="170" y="205" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="11" font-weight="600">CSS &amp; Assets</text>
+      <text x="170" y="218" text-anchor="middle" fill="#8a8278" font-size="9">style.css &middot; bootstrap &middot; img/ &middot; js/</text>
+
+      <rect x="60" y="233" width="220" height="38" rx="6" fill="#24211d" stroke="#383430" stroke-width=".8"/>
+      <text x="170" y="253" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="11" font-weight="600">Inline JS (fetch API)</text>
+      <text x="170" y="266" text-anchor="middle" fill="#8a8278" font-size="9">localStorage JWT &middot; DOM rendering</text>
+
+      <!-- Browser -> FrontEnd arrow -->
+      <line x1="300" y1="180" x2="370" y2="180" stroke="#d4803a" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrowGold)"/>
+      <text x="335" y="172" text-anchor="middle" fill="#8a8278" font-size="8">HTTP GET</text>
+
+      <!-- ── TIER 2: FRONTEND SERVER ── -->
+      <rect x="380" y="40" width="280" height="440" rx="10" fill="url(#gF)" stroke="#2e2a24" stroke-width="1"/>
+      <text x="520" y="72" text-anchor="middle" class="svg-text" fill="#d4803a" font-size="11" font-weight="700" letter-spacing="2">TIER 2</text>
+      <text x="520" y="92" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="14" font-weight="600">FrontEnd Server</text>
+      <text x="520" y="108" text-anchor="middle" fill="#8a8278" font-size="10">Node.js &middot; Express &middot; port 3001</text>
+
+      <rect x="400" y="125" width="240" height="44" rx="6" fill="#24211d" stroke="#383430" stroke-width=".8"/>
+      <text x="520" y="143" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="11" font-weight="600">server.js</text>
+      <text x="520" y="158" text-anchor="middle" fill="#8a8278" font-size="9">Static file server (GET-only)</text>
+
+      <rect x="400" y="180" width="240" height="160" rx="6" fill="#1a1815" stroke="#383430" stroke-width=".8"/>
+      <text x="520" y="198" text-anchor="middle" fill="#8a8278" font-size="9" font-style="italic">Serves:</text>
+      <text x="520" y="216" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="10" font-weight="500">Public/ directory</text>
+      <text x="520" y="234" text-anchor="middle" fill="#8a8278" font-size="9">index.html &middot; login.html</text>
+      <text x="520" y="250" text-anchor="middle" fill="#8a8278" font-size="9">register.html &middot; newHome.html</text>
+      <text x="520" y="266" text-anchor="middle" fill="#8a8278" font-size="9">gamesSearch.html &middot; newGame-Detail.html</text>
+      <text x="520" y="282" text-anchor="middle" fill="#8a8278" font-size="9">addNewGame.html &middot; addNewCategory.html</text>
+      <text x="520" y="298" text-anchor="middle" fill="#8a8278" font-size="9">addNewPlatform.html &middot; admin.html</text>
+      <text x="520" y="314" text-anchor="middle" fill="#8a8278" font-size="9">css/ &middot; js/ &middot; img/ &middot; icon-fonts/</text>
+
+      <rect x="400" y="350" width="240" height="38" rx="6" fill="#24211d" stroke="#383430" stroke-width=".8"/>
+      <text x="520" y="370" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="11" font-weight="600">package.json</text>
+      <text x="520" y="383" text-anchor="middle" fill="#8a8278" font-size="9">express &middot; cors &middot; jsonwebtoken &middot; mysql</text>
+
+      <!-- FrontEnd -> BackEnd arrow -->
+      <line x1="660" y1="260" x2="730" y2="260" stroke="#2a7a6a" stroke-width="1.5" marker-end="url(#arrowTeal)"/>
+      <text x="695" y="252" text-anchor="middle" fill="#8a8278" font-size="8">fetch() API</text>
+      <text x="695" y="265" text-anchor="middle" fill="#5a5450" font-size="7">localhost:8081</text>
+
+      <!-- ── TIER 3: BACKEND SERVER ── -->
+      <rect x="740" y="40" width="280" height="440" rx="10" fill="url(#gBk)" stroke="#222f3f" stroke-width="1"/>
+      <text x="880" y="72" text-anchor="middle" class="svg-text" fill="#5080c8" font-size="11" font-weight="700" letter-spacing="2">TIER 3</text>
+      <text x="880" y="92" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="14" font-weight="600">BackEnd Server</text>
+      <text x="880" y="108" text-anchor="middle" fill="#8a8278" font-size="10">Node.js &middot; Express &middot; port 8081</text>
+
+      <rect x="760" y="125" width="240" height="44" rx="6" fill="#24211d" stroke="#383430" stroke-width=".8"/>
+      <text x="880" y="143" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="11" font-weight="600">server.js → controller/app.js</text>
+      <text x="880" y="158" text-anchor="middle" fill="#8a8278" font-size="9">REST API router &middot; multer upload &middot; CORS</text>
+
+      <rect x="760" y="180" width="240" height="40" rx="6" fill="#1a1815" stroke="#383430" stroke-width=".8"/>
+      <text x="880" y="197" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="10" font-weight="600">auth/verifyToken.js</text>
+      <text x="880" y="213" text-anchor="middle" fill="#8a8278" font-size="9">JWT middleware</text>
+
+      <rect x="760" y="230" width="240" height="80" rx="6" fill="#1a1815" stroke="#383430" stroke-width=".8"/>
+      <text x="880" y="248" text-anchor="middle" fill="#8a8278" font-size="9" font-style="italic">Model layer (MySQL queries):</text>
+      <text x="880" y="265" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="10" font-weight="500">users.js &middot; game.js</text>
+      <text x="880" y="281" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="10" font-weight="500">category.js &middot; platform.js</text>
+      <text x="880" y="297" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="10" font-weight="500">review.js</text>
+
+      <rect x="760" y="320" width="240" height="28" rx="6" fill="#1a1815" stroke="#383430" stroke-width=".8"/>
+      <text x="880" y="339" text-anchor="middle" fill="#8a8278" font-size="9">model/databaseConfig.js</text>
+
+      <rect x="760" y="358" width="240" height="28" rx="6" fill="#1a1815" stroke="#383430" stroke-width=".8"/>
+      <text x="880" y="377" text-anchor="middle" fill="#8a8278" font-size="9">config.js (JWT secret)</text>
+
+      <!-- BackEnd -> DB arrow -->
+      <line x1="880" y1="400" x2="880" y2="445" stroke="#5080c8" stroke-width="1.5" marker-end="url(#arrowGold)"/>
+      <text x="895" y="428" fill="#8a8278" font-size="8">mysql2</text>
+
+      <!-- ── DATABASE ── -->
+      <rect x="780" y="450" width="200" height="28" rx="6" fill="url(#gDB)" stroke="#2a4836" stroke-width="1"/>
+      <text x="880" y="469" text-anchor="middle" class="svg-text" fill="#48c080" font-size="11" font-weight="600">MySQL &middot; sp_games</text>
+    </svg>
+    <div class="diagram-label">Client → FrontEnd (port 3001) → BackEnd API (port 8081) → MySQL Database</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 2: FULL FILE TREE                  -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="tree">
+  <h2><span class="num">02</span>Project File Tree <span class="badge">60+ files</span></h2>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:.8rem">Every file in the repository, annotated with purpose and security relevance.</p>
+
+  <div class="tree-root">
+    <!-- Root -->
+    <div class="tree-row"><span class="indent" style="width:0"></span><span class="icon">📁</span><span class="name">turbo-funicular/</span><span class="desc">Project root</span></div>
+
+    <!-- Root files -->
+    <div class="tree-row"><span class="indent" style="width:20px">├─</span><span class="icon">📄</span><span class="name">index.html</span><span class="desc">← YOU ARE HERE — Architecture visualisation</span></div>
+    <div class="tree-row"><span class="indent" style="width:20px">├─</span><span class="icon">📄</span><span class="name">assignment.html</span><span class="desc">ST2515 assignment brief — OWASP report reference</span><span class="report">report</span></div>
+    <div class="tree-row"><span class="indent" style="width:20px">├─</span><span class="icon">📄</span><span class="name">Set Up Instructions.txt</span><span class="desc">How to run the project: MySQL + npm + node</span></div>
+    <div class="tree-row"><span class="indent" style="width:20px">├─</span><span class="icon">📄</span><span class="name">spgames_SC.sql</span><span class="desc">MySQL schema + seed data (180 KB)</span></div>
+
+    <!-- Assignment/BackEndServer -->
+    <div class="tree-row"><span class="indent" style="width:20px">├─</span><span class="icon">📁</span><span class="name">Assignment/BackEndServer/</span><span class="desc">REST API server (port 8081)</span></div>
+
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📄</span><span class="name">server.js</span><span class="desc">Entry point — loads controller/app.js</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📄</span><span class="name">config.js</span><span class="desc">JWT secret: 'Assignment2key'</span><span class="vuln">A02</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📄</span><span class="name">package.json</span><span class="desc">Dependencies: express, mysql2, jwt, multer, cors</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📁</span><span class="name">auth/</span><span class="desc"></span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">└─</span><span class="icon">📄</span><span class="name">verifyToken.js</span><span class="desc">JWT Bearer token verification middleware</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📁</span><span class="name">controller/</span><span class="desc"></span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">└─</span><span class="icon">📄</span><span class="name">app.js</span><span class="desc">13+ API routes — CORS, multer, all model imports</span><span class="vuln">A01 A04</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📁</span><span class="name">model/</span><span class="desc"></span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">databaseConfig.js</span><span class="desc">MySQL connection (pw: root)</span><span class="vuln">A02 A05</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">users.js</span><span class="desc">User CRUD + login (generates JWT)</span><span class="vuln">A03 A07</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">game.js</span><span class="desc">Game CRUD — string-interpolated SQL</span><span class="vuln">A03</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">category.js</span><span class="desc">Category queries (unused jwt import)</span><span class="vuln">A03</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">platform.js</span><span class="desc">Platform queries (unused jwt import)</span><span class="vuln">A03</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">└─</span><span class="icon">📄</span><span class="name">review.js</span><span class="desc">Review CRUD — joins users table</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📁</span><span class="name">public/</span><span class="desc"></span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">error.html</span><span class="desc">Generic error page</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">└─</span><span class="icon">📁</span><span class="name">image/</span><span class="desc">6 user profile pictures (jpeg)</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">└─</span><span class="icon">📁</span><span class="name">GameImage/</span><span class="desc">Sample game images (Cyberpunk, Minecraft, …)</span></div>
+
+    <!-- Assignment/FrontEndServer -->
+    <div class="tree-row"><span class="indent" style="width:20px">└─</span><span class="icon">📁</span><span class="name">Assignment/FrontEndServer/</span><span class="desc">Static file server (port 3001)</span></div>
+
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📄</span><span class="name">server.js</span><span class="desc">GET-only static server</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">├─</span><span class="icon">📄</span><span class="name">package.json</span><span class="desc">express, cors, jsonwebtoken, mysql</span></div>
+    <div class="tree-row"><span class="indent" style="width:40px">└─</span><span class="icon">📁</span><span class="name">Public/</span><span class="desc">Static assets served to browser</span></div>
+
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">index.html</span><span class="desc">Landing page — hero + search + role check</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">newHome.html</span><span class="desc">Post-login home page</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">login.html</span><span class="desc">Login form — POST to /users/login</span><span class="vuln">A07</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">register.html</span><span class="desc">Registration form</span><span class="vuln">A07</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">gamesSearch.html</span><span class="desc">Browse/search games — filter by platform, category</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">newGame-Detail.html</span><span class="desc">Game detail + reviews — base64 image rendering</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">addNewGame.html</span><span class="desc">Admin form — multipart game upload</span><span class="vuln">A01</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">addNewCategory.html</span><span class="desc">Admin form — new category</span><span class="vuln">A01</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">addNewPlatform.html</span><span class="desc">Admin form — new platform</span><span class="vuln">A01</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📄</span><span class="name">admin.html</span><span class="desc">Admin dashboard — role-check on load</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📁</span><span class="name">css/</span><span class="desc">8 stylesheets (bootstrap, style, animate, …)</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📁</span><span class="name">js/</span><span class="desc">7 JS files (jQuery, bootstrap, plugins, main.js)</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📁</span><span class="name">img/</span><span class="desc">Backgrounds, logos, icons (1.2 MB)</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">├─</span><span class="icon">📁</span><span class="name">icon-fonts/</span><span class="desc">Font Awesome webfonts</span></div>
+    <div class="tree-row"><span class="indent" style="width:60px">└─</span><span class="icon">📁</span><span class="name">Source/</span><span class="desc">SCSS source + archived library zips</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 3: API ENDPOINT MAP                -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="api">
+  <h2><span class="num">03</span>API Endpoint Map <span class="badge">13 routes</span></h2>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:.8rem">Every REST endpoint exposed by the BackEnd server, with auth status and frontend consumers.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Model</th><th>Purpose</th><th>Called By</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="method get">GET</span> /CheckRole</td><td colspan="5">Checks if JWT user is Admin</td></tr>
+        <tr><td></td><td>verifyToken ✓</td><td>—</td><td>reads req.type</td><td>Check admin role</td><td>gamesSearch, admin, addNew* pages</td></tr>
+
+        <tr><td><span class="method get">GET</span> /category</td><td colspan="5">Get all game categories</td></tr>
+        <tr><td></td><td>No auth</td><td>—</td><td>category.getAllCat()</td><td>List categories</td><td>gamesSearch, addNewGame, addNewCategory</td></tr>
+
+        <tr><td><span class="method post">POST</span> /category</td><td colspan="5">Create new category <span style="color:var(--red)">— BROKEN ACCESS CONTROL</span></td></tr>
+        <tr><td></td><td><span style="color:var(--red)">NO auth middleware</span></td><td>—</td><td>category.insertCategory()</td><td>Add category</td><td>addNewCategory.html</td></tr>
+
+        <tr><td><span class="method get">GET</span> /platform</td><td colspan="5">Get all platforms</td></tr>
+        <tr><td></td><td>No auth</td><td>—</td><td>platform.getAllPlat()</td><td>List platforms</td><td>gamesSearch, addNewGame, addNewPlatform</td></tr>
+
+        <tr><td><span class="method post">POST</span> /platform</td><td colspan="5">Create new platform <span style="color:var(--red)">— BROKEN ACCESS CONTROL</span></td></tr>
+        <tr><td></td><td><span style="color:var(--red)">NO auth middleware</span></td><td>—</td><td>platform.insertPlatform()</td><td>Add platform</td><td>addNewPlatform.html</td></tr>
+
+        <tr><td><span class="method post">POST</span> /users/login</td><td colspan="5">Authenticate user, return JWT</td></tr>
+        <tr><td></td><td>No auth</td><td>—</td><td>users.loginUser()</td><td>Login</td><td>login.html</td></tr>
+
+        <tr><td><span class="method post">POST</span> /users</td><td colspan="5">Register new user</td></tr>
+        <tr><td></td><td>No auth</td><td>—</td><td>users.insertUser()</td><td>Register</td><td>register.html</td></tr>
+
+        <tr><td><span class="method post">POST</span> /game</td><td colspan="5">Add new game (multipart + image)</td></tr>
+        <tr><td></td><td>verifyToken ✓</td><td>multer</td><td>game.insertGame() + platform/category</td><td>Create game</td><td>addNewGame.html</td></tr>
+
+        <tr><td><span class="method post">POST</span> /searchgame</td><td colspan="5">Search games by title + platform + category</td></tr>
+        <tr><td></td><td>No auth</td><td>—</td><td>game.getSearchGame()</td><td>Browse games</td><td>gamesSearch.html</td></tr>
+
+        <tr><td><span class="method get">GET</span> /searchgamedetails/:id</td><td colspan="5">Get full game details with pricing</td></tr>
+        <tr><td></td><td>No auth</td><td>—</td><td>game.getSearchGameDetail()</td><td>Game page</td><td>newGame-Detail.html</td></tr>
+
+        <tr><td><span class="method get">GET</span> /game/:id/review</td><td colspan="5">Get all reviews for a game</td></tr>
+        <tr><td></td><td>No auth</td><td>—</td><td>review.getReviewByGameID()</td><td>Show reviews</td><td>newGame-Detail.html</td></tr>
+
+        <tr><td><span class="method post">POST</span> /users/:uid/game/:gid/review</td><td colspan="5">Submit a review for a game</td></tr>
+        <tr><td></td><td>verifyToken ✓</td><td>—</td><td>review.insertReview()</td><td>Add review</td><td>newGame-Detail.html</td></tr>
+
+        <tr><td><span class="method get">GET</span> /game/:id</td><td colspan="5">Get single game by ID</td></tr>
+        <tr><td></td><td>No auth</td><td>—</td><td>game.getGameByGameID()</td><td>Game data</td><td>(direct call)</td></tr>
+
+        <tr><td><span class="method delete">DEL</span> /game/:id</td><td colspan="5">Delete a game <span style="color:var(--red)">— NO AUTH</span></td></tr>
+        <tr><td></td><td><span style="color:var(--red)">NO auth middleware</span></td><td>—</td><td>game.deleteGame()</td><td>Delete game</td><td>(exposed but unused)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 4: DATA FLOW + REQUEST PATTERN     -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="flow">
+  <h2><span class="num">04</span>Request Data Flow</h2>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:.8rem">How a user request travels from clicking a link to seeing rendered content — and where vulnerabilities are introduced.</p>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> FrontEnd (static)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span> BackEnd (API)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Database</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span> Vulnerability point</div>
+  </div>
+
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="numm">Step 1</div>
+      <div class="label">🌐 Browser loads page</div>
+      <div class="desc">GET localhost:3001/index.html → FrontEnd server serves static HTML</div>
+    </div>
+    <div class="flow-step">
+      <div class="numm">Step 2</div>
+      <div class="label">📄 Page renders + JS runs</div>
+      <div class="desc">Inline script checks localStorage for JWT → calls /CheckRole</div>
+    </div>
+    <div class="flow-step">
+      <div class="numm">Step 3</div>
+      <div class="label">🔁 fetch() to BackEnd</div>
+      <div class="desc">JS calls localhost:8081/… with Bearer token in Authorization header</div>
+    </div>
+    <div class="flow-step">
+      <div class="numm">Step 4</div>
+      <div class="label" style="color:var(--red)">⚠️ Unprotected route</div>
+      <div class="desc">Some endpoints (POST /category, POST /platform) skip verifyToken — <strong>anyone can call</strong></div>
+    </div>
+    <div class="flow-step">
+      <div class="numm">Step 5</div>
+      <div class="label">🗃️ SQL query runs</div>
+      <div class="desc">Model builds SQL string — <strong>string interpolation</strong> (no prepared statements) → SQLi possible</div>
+    </div>
+    <div class="flow-step">
+      <div class="numm">Step 6</div>
+      <div class="label">📦 JSON response</div>
+      <div class="desc">BackEnd returns JSON → browser JS renders into DOM</div>
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 1060 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gD2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#12110f"/>
+          <stop offset="100%" stop-color="#1a1815"/>
+        </linearGradient>
+        <marker id="arrG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#d4803a" stroke-width="1.2"/>
+        </marker>
+        <marker id="arrB" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#5080c8" stroke-width="1.2"/>
+        </marker>
+        <marker id="arrR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#d44a3a" stroke-width="1.5"/>
+        </marker>
+      </defs>
+      <rect x="0" y="0" width="1060" height="300" rx="8" fill="url(#gD2)"/>
+
+      <!-- Nodes -->
+      <rect x="40" y="90" width="160" height="50" rx="8" fill="#24211d" stroke="#d4803a" stroke-width="1.2"/>
+      <text x="120" y="119" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="12" font-weight="600">Browser</text>
+      <text x="120" y="133" text-anchor="middle" fill="#8a8278" font-size="9">localhost:3001</text>
+
+      <rect x="290" y="90" width="180" height="50" rx="8" fill="#24211d" stroke="#d4803a" stroke-width="1.2"/>
+      <text x="380" y="119" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="12" font-weight="600">FrontEnd Server</text>
+      <text x="380" y="133" text-anchor="middle" fill="#8a8278" font-size="9">Static file serving</text>
+
+      <rect x="560" y="90" width="180" height="50" rx="8" fill="#24211d" stroke="#5080c8" stroke-width="1.2"/>
+      <text x="650" y="119" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="12" font-weight="600">BackEnd Server</text>
+      <text x="650" y="133" text-anchor="middle" fill="#8a8278" font-size="9">API + JWT auth</text>
+
+      <rect x="830" y="90" width="180" height="50" rx="8" fill="#24211d" stroke="#48c080" stroke-width="1.2"/>
+      <text x="920" y="119" text-anchor="middle" class="svg-text" fill="#ece4da" font-size="12" font-weight="600">MySQL Database</text>
+      <text x="920" y="133" text-anchor="middle" fill="#8a8278" font-size="9">sp_games</text>
+
+      <!-- Edges -->
+      <line x1="200" y1="115" x2="288" y2="115" stroke="#d4803a" stroke-width="1.5" marker-end="url(#arrG)"/>
+      <text x="244" y="108" text-anchor="middle" fill="#8a8278" font-size="9">HTTP GET</text>
+
+      <line x1="470" y1="115" x2="558" y2="115" stroke="#5080c8" stroke-width="1.5" marker-end="url(#arrB)"/>
+      <text x="514" y="108" text-anchor="middle" fill="#8a8278" font-size="9">fetch() API</text>
+
+      <line x1="740" y1="115" x2="828" y2="115" stroke="#48c080" stroke-width="1.5" marker-end="url(#arrG)"/>
+      <text x="784" y="108" text-anchor="middle" fill="#8a8278" font-size="9">mysql2 queries</text>
+
+      <!-- Vulnerability spots -->
+      <rect x="360" y="190" width="300" height="38" rx="6" fill="#2a1412" stroke="#d44a3a" stroke-width="1"/>
+      <text x="510" y="213" text-anchor="middle" class="svg-text" fill="#f0b0a0" font-size="10">🚨 SQL Injection — string interpolation in model/*.js</text>
+      <line x1="650" y1="140" x2="560" y2="190" stroke="#d44a3a" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrR)"/>
+
+      <rect x="100" y="190" width="300" height="38" rx="6" fill="#2a1412" stroke="#d44a3a" stroke-width="1"/>
+      <text x="250" y="213" text-anchor="middle" class="svg-text" fill="#f0b0a0" font-size="10">🚨 Broken Access Control — missing verifyToken on POST /category, /platform, DELETE /game/:id</text>
+      <line x1="470" y1="175" x2="390" y2="190" stroke="#d44a3a" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrR)"/>
+
+      <!-- Legend -->
+      <rect x="40" y="250" width="12" height="12" rx="2" fill="#d4803a"/>
+      <text x="58" y="260" fill="#8a8278" font-size="10">Request path</text>
+      <rect x="170" y="250" width="12" height="12" rx="2" fill="#d44a3a"/>
+      <text x="188" y="260" fill="#8a8278" font-size="10">Vulnerability</text>
+    </svg>
+    <div class="diagram-label">Request flow with vulnerability injection points highlighted</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 5: VULNERABILITY MAP (OWASP x REPORT) -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="vulns">
+  <h2><span class="num">05</span>OWASP Vulnerability Map <span class="badge">for ST2515 Report</span></h2>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:.8rem">Each vulnerability found in the codebase mapped to an OWASP Top 10 category — ready for the assignment report. The assignment brief requires <strong>5 categories × 2 vulnerabilities</strong> (1 detailed + 1 brief).</p>
+
+  <div class="vuln-grid">
+
+    <!-- A01 -->
+    <div class="vuln-card">
+      <div class="cat">A01 — Broken Access Control</div>
+      <h3>1. Missing auth on POST /category and POST /platform</h3>
+      <p>These endpoints lack the <code style="font-size:.7rem">verifyToken</code> middleware. Any unauthenticated user can call them. The frontend checks admin role client-side, but the backend never re-verifies.</p>
+      <div class="file">controller/app.js:87-93, model/category.js, model/platform.js</div>
+      <h3 style="margin-top:.5rem">2. Missing auth on DELETE /game/:id</h3>
+      <p>Game deletion has no auth middleware — anyone can delete games via a direct API call.</p>
+      <div class="file">controller/app.js:110</div>
+    </div>
+
+    <!-- A02 -->
+    <div class="vuln-card">
+      <div class="cat">A02 — Cryptographic Failures</div>
+      <h3>1. Passwords stored in plaintext</h3>
+      <p>No hashing (bcrypt/argon2) is used when storing or verifying passwords. If the DB is breached, all credentials are exposed.</p>
+      <div class="file">model/users.js:30-40</div>
+      <h3 style="margin-top:.5rem">2. JWT secret hardcoded in config.js</h3>
+      <p>The signing key <code style="font-size:.7rem">'Assignment2key'</code> is stored in plaintext in source control. Anyone with repo access can forge tokens.</p>
+      <div class="file">config.js</div>
+    </div>
+
+    <!-- A03 -->
+    <div class="vuln-card">
+      <div class="cat">A03 — Injection (SQLi)</div>
+      <h3>1. String-interpolated SQL in game.js</h3>
+      <p>User input is concatenated directly into SQL strings instead of using parameterised queries. Example: <code style="font-size:.7rem">`SELECT * FROM game WHERE title LIKE '%${searchTerm}%'`</code></p>
+      <div class="file">model/game.js:20-80</div>
+      <h3 style="margin-top:.5rem">2. Interpolated queries in users.js, category.js, platform.js</h3>
+      <p>Multiple model files build SQL via template literals with unsanitised user input — classic SQL injection.</p>
+      <div class="file">model/users.js, model/category.js, model/platform.js</div>
+    </div>
+
+    <!-- A04 -->
+    <div class="vuln-card">
+      <div class="cat">A04 — Insecure Design</div>
+      <h3>1. Client-side admin gating</h3>
+      <p>Admin functionality is hidden client-side via JS (hiding .admin-tab elements). The backend doesn't verify admin role for several privileged operations — the design trusts the client.</p>
+      <div class="file">gamesSearch.html, admin.html, controller/app.js</div>
+      <h3 style="margin-top:.5rem">2. No input validation architecture</h3>
+      <p>No consistent input validation/sanitisation layer exists. Each endpoint handles (or doesn't handle) validation ad-hoc, if at all.</p>
+      <div class="file">All controllers and models</div>
+    </div>
+
+    <!-- A05 -->
+    <div class="vuln-card">
+      <div class="cat">A05 — Security Misconfiguration</div>
+      <h3>1. DB credentials in source code</h3>
+      <p>MySQL username <code style="font-size:.7rem">root</code> and password <code style="font-size:.7rem">root</code> are hardcoded in <code>databaseConfig.js</code>.</p>
+      <div class="file">model/databaseConfig.js</div>
+      <h3 style="margin-top:.5rem">2. CORS fully open</h3>
+      <p><code style="font-size:.7rem">cors()</code> is used without any origin restriction — any website can make API calls to the backend.</p>
+      <div class="file">controller/app.js:28</div>
+    </div>
+
+    <!-- A07 -->
+    <div class="vuln-card">
+      <div class="cat">A07 — Identification &amp; Authentication Failures</div>
+      <h3>1. No password complexity rules</h3>
+      <p>Registration accepts any password with no length, character, or strength requirements. No MFA available.</p>
+      <div class="file">register.html, model/users.js</div>
+      <h3 style="margin-top:.5rem">2. rememberMe in localStorage</h3>
+      <p>The "remember me" feature stores credentials/tokens in <code>localStorage</code> — vulnerable to XSS theft.</p>
+      <div class="file">login.html:95-110</div>
+    </div>
+
+    <!-- A09 -->
+    <div class="vuln-card">
+      <div class="cat">A09 — Security Logging &amp; Monitoring Failures</div>
+      <h3>1. No audit logging</h3>
+      <p>No login attempts, failed auth, or admin actions are logged. Intruders can probe undetected.</p>
+      <div class="file">Entire backend</div>
+      <h3 style="margin-top:.5rem">2. No request logging middleware</h3>
+      <p>No morgan/winston/pino — no record of incoming requests, IPs, or timestamps exists.</p>
+      <div class="file">server.js, controller/app.js</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 6: CONNECTION TO REPORT            -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <h2><span class="num">06</span>How This Supports Your Report</h2>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:1rem">The assignment requires you to find vulnerabilities across 5 OWASP categories. This visualisation maps every file, endpoint, and connection in the project — so you can trace exactly where each flaw lives.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="icon" style="background:var(--gold-dim)">🗺️</div>
+      <h3>Architecture map</h3>
+      <p>See how browser → frontend → backend → database connect. Understand the attack surface.</p>
+      <span class="tag">Section 1</span>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:var(--blue-dim)">📂</div>
+      <h3>Annotated file tree</h3>
+      <p>Every file with its purpose and vulnerability tags (A01-A10). Spot at a glance which files to inspect.</p>
+      <span class="tag">Section 2</span>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:var(--green-dim)">🔌</div>
+      <h3>API endpoint map</h3>
+      <p>All 13 routes with auth status — identify unprotected endpoints immediately.</p>
+      <span class="tag">Section 3</span>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:var(--red-dim)">🔴</div>
+      <h3>Vulnerability catalogue</h3>
+      <p>Pre-mapped OWASP categories with file paths + exploit descriptions + code locations.</p>
+      <span class="tag">Section 5</span>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:var(--purple-dim)">📋</div>
+      <h3>Report template structure</h3>
+      <p>Matches the assignment rubric: 5 categories × 2 vulns (1 detailed + 1 brief) per row.</p>
+      <span class="tag">assignment.html</span>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:var(--teal-dim)">🔐</div>
+      <h3>Security hotspots</h3>
+      <p>Data flow diagram shows exactly where vulnerabilities are introduced in the request lifecycle.</p>
+      <span class="tag">Section 4</span>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.5rem;margin-top:1.5rem">
+    <h3 style="font-size:.9rem;font-weight:600;color:var(--gold);margin-bottom:.5rem">📄 Use the assignment brief</h3>
+    <p style="font-size:.8rem;color:var(--text-dim);line-height:1.6">Open <a href="assignment.html" style="color:var(--teal)">assignment.html</a> (moved to root) to read the full brief: 5 OWASP categories required, 2 vulnerabilities each (1 detailed + 1 brief), presentation demo guidelines, and grading rubric. Cross-reference with the vulnerability map above to write your report efficiently.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ═══════════════════════════════════════════ -->
+</main>
+
+<footer style="border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;margin-top:2rem">
+  <p style="font-size:.75rem;color:var(--text-faint)">turbo-funicular &middot; ST2515 Secure Coding &middot; 2026/2027 Semester 1</p>
+  <p style="font-size:.65rem;color:var(--text-faint);margin-top:.3rem">Architecture visualisation generated from source analysis &middot; Report: <a href="assignment.html" style="color:var(--gold-dim)">assignment.html</a></p>
+</footer>
+
+</body>
+</html>
