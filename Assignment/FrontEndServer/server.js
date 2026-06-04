@@ -2,12 +2,13 @@
 Summary: The server.js is used to start the  frontend server and website.
 */
 
+require('dotenv').config();
 //const app = require('./controller/app');
 const express=require('express');
 const serveStatic=require('serve-static');
 
-var hostname="localhost";
-var port=3001;
+var hostname=process.env.HOST || "localhost";
+var port=process.env.PORT || 3001;
 
 var app=express();
 

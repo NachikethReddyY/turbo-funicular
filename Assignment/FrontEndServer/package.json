@@ -11,8 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "serve-static": "^2.2.1"
   }
 }
