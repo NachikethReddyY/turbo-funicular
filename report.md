@@ -158,8 +158,22 @@ Additionally, protect the endpoint with `verifyToken` and restrict to admin user
 ## A07 — Identification & Authentication Failures (Detailed)
 ### Finding 1: Plain-text Password Storage and Lack of Hashing ###
 
---- 
+Type of flaw: Identification & Authentication Failures — Insecure credential storage allowing unauthorized access upon database compromise.
 
+Location: - Assignment/BackEndServer/model/users.js (Inside registration and login query handlers)
+
+<img width="536" height="233" alt="image" src="https://github.com/user-attachments/assets/637df0b0-6a13-4145-997b-93c8f948b0f2" />
+
+
+--- 
+## A07 — Identification & Authentication Failures (Brief)
+### Finding 2: Hardcoded / Weak JWT Secret Key ###
+
+Type of flaw: Identification & Authentication Failures — Weak session token signing mechanism allowing token forging due to hardcoded credentials.
+
+Location: Assignment/BackEndServer/config/config.js lines 1–2 (or your exact config file path)
+
+<img width="452" height="78" alt="image" src="https://github.com/user-attachments/assets/c9392fb8-ed5d-44b6-a681-11298581a089" />
 
 
 
