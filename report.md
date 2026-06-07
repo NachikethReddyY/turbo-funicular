@@ -155,6 +155,16 @@ Additionally, protect the endpoint with `verifyToken` and restrict to admin user
 
 
 --- 
+## A04 — Insecure Design (Detailed)
+(Content to be filled by Sitt)
+
+
+--- 
+## A04 — Insecure Design (Brief)
+(Content to be filled by Sitt)
+
+
+--- 
 ## A07 — Identification & Authentication Failures (Detailed)
 ### Finding 1: Plain-text Password Storage and Lack of Hashing ###
 
