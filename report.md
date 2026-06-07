@@ -174,6 +174,27 @@ Location: - Assignment/BackEndServer/model/users.js (Inside registration and log
 
 <img width="536" height="233" alt="image" src="https://github.com/user-attachments/assets/637df0b0-6a13-4145-997b-93c8f948b0f2" />
 
+The password is being saved into the database by the SQL workbench, we can see that the password is not properly hashed and displayed in plain text
+
+<img width="455" height="230" alt="image" src="https://github.com/user-attachments/assets/8fee31e8-c8a8-4672-95df-90917641f237" />
+
+## Impact
+
+Passwords are stored in plain text within the database instead of being hashed before storage. If an attacker gains access to the database through a data breach, misconfiguration, or another vulnerability, all user passwords would be immediately exposed.
+
+### Potential Consequences
+
+- Unauthorized access to user accounts.
+- Credential stuffing attacks against other services where users reuse the same password.
+- Exposure of sensitive user information and application data.
+- Potential privilege escalation if administrator credentials are compromised.
+- Non-compliance with security best practices outlined in OWASP A07:2021 – Identification and Authentication Failures.
+
+### Risk Assessment
+
+**Risk Level:** High
+
+Since passwords are stored without hashing, attackers can directly use exposed credentials without performing password-cracking attacks, significantly increasing the severity and impact of the vulnerability.
 
 --- 
 ## A07 — Identification & Authentication Failures (Brief)
