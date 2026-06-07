@@ -143,3 +143,24 @@ var getUserSql = `select userid, username, email, type, profile_pic_url,
 Additionally, protect the endpoint with `verifyToken` and restrict to admin users only.
 
 **Best Secure Coding Practice:** Never expose internal user IDs or credentials in API responses. Apply the principle of data minimization — only return fields the client legitimately needs.
+
+--- 
+## A03 — Broken Access Control (Detailed)
+(Content to be filled by Mike)
+
+
+--- 
+## A03 — Broken Access Control (Brief)
+(Content to be filled by Mike)
+
+
+--- 
+## A07 — Identification & Authentication Failures (Detailed)
+### Finding 1: Plain-text Password Storage and Lack of Hashing ###
+
+--- 
+
+
+
+
+
