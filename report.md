@@ -170,7 +170,7 @@ Additionally, protect the endpoint with `verifyToken` and restrict to admin user
 
 Type of flaw: Identification & Authentication Failures — Insecure credential storage allowing unauthorized access upon database compromise.
 
-Location: - Assignment/BackEndServer/model/users.js (Inside registration and login query handlers)
+- Location: - Assignment/BackEndServer/model/users.js (Inside registration and login query handlers)
 
 <img width="536" height="233" alt="image" src="https://github.com/user-attachments/assets/637df0b0-6a13-4145-997b-93c8f948b0f2" />
 
@@ -190,13 +190,105 @@ Passwords are stored in plain text within the database instead of being hashed b
 - Potential privilege escalation if administrator credentials are compromised.
 - Non-compliance with security best practices outlined in OWASP A07:2021 – Identification and Authentication Failures.
 
+### Tools Used
+- MySQL Workbench  
+- Browser Developer Tools  
+
+---
+
 ### Risk Assessment
 
-**Risk Level:** High
+**Risk Level:** High  
 
-Since passwords are stored without hashing, attackers can directly use exposed credentials without performing password-cracking attacks, significantly increasing the severity and impact of the vulnerability.
+Storing passwords in plain text is a critical security vulnerability. If the database is compromised, attackers can directly access user credentials without needing to perform any cracking or decryption. This significantly increases the severity of the breach, potentially leading to unauthorized account access and data exploitation.
+
+---
+
+### Recommendation
+
+To protect user passwords, they should never be stored in plain text. Instead, passwords should be secured using modern hashing algorithms such as **bcrypt** or **Argon2**.
+
+These hashing algorithms convert passwords into irreversible hashed values (a fixed string of characters), ensuring that:
+
+- The original password cannot be retrieved from the stored value  
+- Even if the database is exposed, user credentials remain protected  
+- Each password is uniquely hashed using a salt, making brute-force attacks much harder  
+
+#### Example:
+
+Instead of storing:
+```bash
+password123
+```
+
+The system should store a hashed value such as:
+```bash
+
+$2a$10$N9qo8uLOickgx2ZMRZoMye...
+
+```
+
+---
+
+### Impact of Fix
+
+Implementing password hashing significantly improves system security by:
+- Preventing direct credential theft from database leaks  
+- Reducing risk of account takeover  
+- Aligning with industry security standards (OWASP best practices)  
 
 --- 
+
+### Example of Fix
+
+To mitigate the risk of password exposure, the application should implement **bcrypt hashing** for password storage and authentication. Instead of storing passwords in plain text, passwords are hashed before being saved to the database, making them significantly more difficult for attackers to obtain and misuse.
+
+The figure below shows an example of the changes made to incorporate bcrypt hashing into the application, where passwords are hashed before being stored in the database.
+
+<img width="291" height="59" alt="image" src="https://github.com/user-attachments/assets/36f19f7b-4005-4d8f-9902-a006658c111e" />
+
+**Fixed code:**
+```bash
+insertUser: function (username, email, password, type, profile_pic_url, callback) {
+
+    var dbConn = db.getConnection();
+
+    dbConn.connect(function (err) {
+
+        if (err) {
+            return callback(err, null);
+        }
+
+        bcrypt.hash(password, saltRounds, function (err, hash) {
+
+            if (err) {
+                dbConn.end();
+                return callback(err, null);
+            }
+
+            var insertUserSql =
+                "INSERT INTO users(username,email,password,type,profile_pic_url) VALUES(?,?,?,?,?)";
+
+            dbConn.query(
+                insertUserSql,
+                [username, email, hash, type, profile_pic_url],
+                function (err, results) {
+
+                    dbConn.end();
+
+                    if (err) {
+                        return callback(err, null);
+                    }
+
+                    return callback(null, results);
+                }
+            );
+        });
+    });
+}
+
+```
+
 ## A07 — Identification & Authentication Failures (Brief)
 ### Finding 2: Hardcoded / Weak JWT Secret Key ###
 
