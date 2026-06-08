@@ -11,8 +11,9 @@ var app = require('./controller/app.js');
 
 var port = process.env.PORT || 8081;
 
-app.use(serveStatic(__dirname + '/public')); 
+app.use(serveStatic(__dirname + '/public'));
+app.use(serveStatic(__dirname + '/../FrontEndServer/Public'));
 
 var server = app.listen(port, function(){
-    console.log('Web App Hosted at http://localhost:%s', port);
+    console.log('Running on http://localhost:%s', port);
 });
