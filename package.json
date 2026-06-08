@@ -2,8 +2,6 @@
   "name": "turbo-funicular",
   "private": true,
   "scripts": {
-    "dev": "pnpm --dir Assignment/BackEndServer start",
-    "dev:backend": "pnpm --dir Assignment/BackEndServer start",
-    "dev:frontend": "pnpm --dir Assignment/FrontEndServer start"
+    "dev": "pnpm --prefix Assignment/BackEndServer start"
   }
 }
