@@ -1,0 +1,15 @@
+info:
+  name: 03 - List Platforms - GET /platform
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: http://localhost:3001/platform
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

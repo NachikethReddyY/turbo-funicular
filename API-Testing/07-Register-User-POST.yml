@@ -1,0 +1,28 @@
+info:
+  name: 07 - Register User - POST /users
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: http://localhost:3001/users
+  auth: inherit
+  body: json
+  headers:
+    Content-Type: application/json
+
+body:
+  json: >
+    {
+      "username": "testuser",
+      "email": "test@test.com",
+      "password": "test123",
+      "type": "Customer",
+      "profile_pic_url": ""
+    }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

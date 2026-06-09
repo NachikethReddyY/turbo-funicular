@@ -1,0 +1,26 @@
+info:
+  name: 06 - Search Games - POST /searchgame
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: http://localhost:3001/searchgame
+  auth: inherit
+  body: json
+  headers:
+    Content-Type: application/json
+
+body:
+  json: >
+    {
+      "input": "Cyber",
+      "platID": "",
+      "catID": ""
+    }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

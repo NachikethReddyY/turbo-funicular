@@ -1,0 +1,25 @@
+info:
+  name: 09 - Login - POST /users/login
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: http://localhost:3001/users/login
+  auth: inherit
+  body: json
+  headers:
+    Content-Type: application/json
+
+body:
+  json: >
+    {
+      "email": "terry@gmail.com",
+      "password": "abc123"
+    }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

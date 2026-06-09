@@ -1,0 +1,15 @@
+info:
+  name: 14 - Delete Game (No Auth) - DELETE /game/14 (VULNERABILITY)
+  type: http
+  seq: 14
+
+http:
+  method: DELETE
+  url: http://localhost:3001/game/14
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

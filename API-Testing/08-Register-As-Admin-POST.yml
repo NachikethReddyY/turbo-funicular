@@ -1,0 +1,28 @@
+info:
+  name: 08 - Register as Admin - POST /users (VULNERABILITY)
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: http://localhost:3001/users
+  auth: inherit
+  body: json
+  headers:
+    Content-Type: application/json
+
+body:
+  json: >
+    {
+      "username": "hacker",
+      "email": "hacker@x.com",
+      "password": "hack123",
+      "type": "admin",
+      "profile_pic_url": ""
+    }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
