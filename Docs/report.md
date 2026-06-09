@@ -145,13 +145,117 @@ Additionally, protect the endpoint with `verifyToken` and restrict to admin user
 **Best Secure Coding Practice:** Never expose internal user IDs or credentials in API responses. Apply the principle of data minimization — only return fields the client legitimately needs.
 
 --- 
-## A03 — Broken Access Control (Detailed)
-(Content to be filled by Mike)
+## A03 — Injection (Detailed)
+
+### Finding 1: SQL Injection in `GET /users/:userid`
+
+**Type of flaw:** SQL Injection caused by unsafe string interpolation in the database query.
+
+**Location:**
+- `Assignment/BackEndServer/controller/app.js:308-320`
+- `Assignment/BackEndServer/model/users.js:87-103`
+
+**Vulnerable code snippet:**
+
+```javascript
+// controller/app.js
+app.get('/users/:userid', function (req, res) {
+    var userid = req.params.userid;
+
+    userDB.getUserByUserid(userid, function (err, results) {
+        ...
+    });
+});
+```
+
+```javascript
+// model/users.js
+var getUserByUserIDSql = `select userid, username, email, password, type, profile_pic_url,
+                            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM users where userid = ${userid};`;
+```
+
+**Why this is vulnerable:**
+The `userid` value from the URL is inserted directly into the SQL statement without parameterization or validation. Because the value is treated as part of the SQL text, an attacker can manipulate the query structure and attempt to retrieve data outside the intended record.
+
+**How it can be exploited:**
+This endpoint is public and does not require authentication. An attacker can supply crafted input such as `1 OR 1=1` or other SQL syntax in the `userid` path parameter to try to change the query behavior. If the database accepts the payload, the response may reveal unintended user records.
+
+**Impact:**
+- Unauthorized access to user data
+- Exposure of usernames, emails, passwords, and profile information
+- Possible account compromise if exposed credentials are reused
+- Loss of confidentiality and trust in the application
+
+**Recommendation:**
+Use a parameterized query instead of string interpolation. The endpoint should also be protected by authentication and authorization checks so users can only access records they are allowed to see.
+
+**Fixed code:**
+
+```javascript
+var getUserByUserIDSql = `
+    SELECT userid, username, email, type, profile_pic_url,
+           DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+    FROM users
+    WHERE userid = ?;
+`;
+
+dbConn.query(getUserByUserIDSql, [userid], function (err, results) {
+    ...
+});
+```
+
+**Best Secure Coding Practice:**
+Always use prepared statements or parameterized queries for database access. Never concatenate user input into SQL strings. Combine this with access control checks so users can only access their own records unless they have explicit admin privileges.
 
 
 --- 
-## A03 — Broken Access Control (Brief)
-(Content to be filled by Mike)
+## A03 — Injection (Brief)
+
+### Finding 2: SQL Injection in `POST /game`
+
+**Type of flaw:** SQL Injection caused by unsafe string interpolation in the game creation query.
+
+**Location:**
+- `Assignment/BackEndServer/controller/app.js:435-471`
+- `Assignment/BackEndServer/model/game.js:153-160`
+
+**Vulnerable code snippet:**
+
+```javascript
+// controller/app.js
+app.post('/game', upload.single('game_image'), function (req, res) {
+    var title = req.body.title;
+    var game_description = req.body.description;
+    var year = req.body.year;
+    var game_image = req.file;
+
+    gameDB.insertGame(title, game_description, year, game_image, function (err, results) {
+        ...
+    });
+});
+```
+
+```javascript
+// model/game.js
+var insertGameSql = `INSERT INTO game (title, game_description, year, game_image) VALUES ('${title}', '${game_description}', '${year}', ?);`;
+```
+
+**Impact:** The `title`, `game_description`, and `year` fields are copied directly into the SQL statement. If an attacker submits crafted values, the database query can be altered or broken, which can corrupt game data or cause unexpected behavior.
+
+**Fixed code:**
+
+```javascript
+var insertGameSql = `
+    INSERT INTO game (title, game_description, year, game_image)
+    VALUES (?, ?, ?, ?)
+`;
+
+dbConn.query(insertGameSql, [title, game_description, year, game_image.buffer], function (err, results) {
+    ...
+});
+```
+
+**Best Secure Coding Practice:** Use parameterized queries for every database write operation and validate incoming form fields before they reach the model layer.
 
 
 --- 
