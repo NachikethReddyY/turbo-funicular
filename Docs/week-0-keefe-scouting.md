@@ -8,7 +8,7 @@
 
 **Collaborators:** Team Members (Nachiketh, Mike, Sitt)
 
-**Reviewed by:** _____________________
+**Reviewed by:** 
 
 **Date:** 08-Jun-2026
 
@@ -17,7 +17,7 @@
 # 1. Owner
 
 - **Name:** Keefe Chen
-- **GitHub Username:** _____________________
+- **GitHub Username:** Keefeinfotech
 - **Assigned OWASP Category:** A07 – Identification & Authentication Failures
 - **Date:** 08-Jun-2026
 
