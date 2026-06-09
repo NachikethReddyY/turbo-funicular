@@ -124,3 +124,41 @@ User passwords are inserted directly into the database without hashing.
 // Example structure
 INSERT INTO users(username, password)
 VALUES (?, ?)
+```
+
+## 6. Fix Direction
+
+- Recommended approach: Implement secure password handling by hashing all user passwords before storage using a strong hashing algorithm such as bcrypt. Ensure that plaintext passwords are never stored or logged. Additionally, enforce proper authentication validation during login by comparing hashed values instead of raw strings.
+- Code area to change: `Assignment/BackEndServer/model/users.js` (registration + login functions), and any authentication-related controller routes that handle user credential processing
+- Libraries/middleware needed: bcrypt (for hashing passwords), optional dotenv (for secure configuration of authentication secrets)
+- Possible side effects: Existing user accounts stored in plaintext will need to be migrated or reset since hashed passwords cannot be directly compared with existing values
+
+---
+
+## 7. Tools and Methods Used
+
+- Tool/method: Manual code review + database inspection
+- What I tested: User registration flow, login validation logic, and database storage of credentials
+- Result: Confirmed that passwords are stored in plaintext and authentication logic does not apply hashing or secure comparison
+
+---
+
+## 8. What I Want To Do Next
+
+Turn scouting into Week 1 action items.
+
+- [x] Review authentication flow in `users.js`
+- [x] Verify database credential storage
+- [x] Identify missing password hashing mechanism
+- [ ] Capture screenshots of plaintext password storage
+- [ ] Create proof-of-concept login with exposed credentials
+- [ ] Implement bcrypt hashing fix in registration flow
+- [ ] Update login validation logic to compare hashed passwords
+- [ ] Test authentication after fix implementation
+
+---
+
+## 9. Questions / Blockers
+
+- Need confirmation on whether existing user accounts should be migrated or reset after implementing bcrypt hashing
+- Need team agreement on password policy (minimum length / complexity requirements)
