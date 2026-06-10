@@ -312,10 +312,13 @@ The attacker parses the exposed dataset to select valid, active credential pairs
 
 Frontend session management state showing that the user's raw password (1) is explicitly written to persistent browser localStorage under the key logPassword
 
+## Identify code snippet exposing the vulnerability
+The core authentication failure spans across both the frontend client-side session management and the backend persistence layer. Below are the specific code implementations introducing these flaws:
 
+- 1. Frontend Client-Side: Insecure Credential Exposure (localStorage)
+Located in the frontend login script handler, the application captures the user's raw input strings and explicitly writes the plaintext password into persistent browser storage when the "Remember Me" option is checked.
 
-
-
+<img width="581" height="279" alt="image" src="https://github.com/user-attachments/assets/3b90d35d-65b7-482e-b6f6-fd0ac3bdd043" />
 
 
 
