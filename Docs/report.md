@@ -320,8 +320,6 @@ Located in the frontend login script handler, the application captures the user'
 
 <img width="581" height="279" alt="image" src="https://github.com/user-attachments/assets/3b90d35d-65b7-482e-b6f6-fd0ac3bdd043" />
 
-
-
 ## Impact
 
 Passwords are stored in plain text within the database instead of being hashed before storage. If an attacker gains access to the database through a data breach, misconfiguration, or another vulnerability, all user passwords would be immediately exposed.
@@ -349,6 +347,14 @@ Storing passwords in plain text is a critical security vulnerability. If the dat
 ---
 
 ### Recommendation
+To mitigate the risk of credential exposure, the application was updated to implement secure password handling using two complementary approaches:
+
+- Method 1: bcrypt password hashing (application-level fix)
+- Method 2: AWS Cognito for authentication (cloud-based identity management)
+
+Previously, passwords were stored in plain text, allowing any database compromise to immediately expose user credentials. The following methods address this issue using both local and cloud-based security improvements.
+
+### Method 1 — bcrypt Password Hashing (Application-Level Fix)
 
 To protect user passwords, they should never be stored in plain text. Instead, passwords should be secured using modern hashing algorithms such as **bcrypt** or **Argon2**.
 
@@ -383,60 +389,96 @@ Implementing password hashing significantly improves system security by:
 
 --- 
 
-### Example of Fix
+# Example of Fix
 
-To mitigate the risk of password exposure, the application should implement **bcrypt hashing** for password storage and authentication. Instead of storing passwords in plain text, passwords are hashed before being saved to the database, making them significantly more difficult for attackers to obtain and misuse.
+To mitigate the risk of credential exposure, the application was updated to implement **bcrypt password hashing** during user registration and authentication. Previously, passwords were stored in plain text, allowing anyone with access to the database to immediately view and misuse user credentials.
 
-The figure below shows an example of the changes made to incorporate bcrypt hashing into the application, where passwords are hashed before being stored in the database.
+By implementing bcrypt, passwords are transformed into a one-way cryptographic hash before being stored in the database. This ensures that the original password cannot be directly recovered, even if the database is compromised. During login, the application compares the user-provided password against the stored hash using bcrypt's verification mechanism rather than performing a direct string comparison.
+
+The figure below shows the modifications made to integrate bcrypt hashing into the application.
 
 <img width="291" height="59" alt="image" src="https://github.com/user-attachments/assets/36f19f7b-4005-4d8f-9902-a006658c111e" />
 
-**Fixed code:**
-```bash
-insertUser: function (username, email, password, type, profile_pic_url, callback) {
+## Registration Logic (`model/user.js`)
 
-    var dbConn = db.getConnection();
+During account creation, the user's password is hashed using bcrypt before being inserted into the database. Instead of storing the original password, the generated hash value is stored.
 
-    dbConn.connect(function (err) {
+```javascript
+bcrypt.hash(password, saltRounds, function (err, hash) {
+    var insertUserSql =
+    "INSERT INTO users(username,email,password,type,profile_pic_url) VALUES(?,?,?,?,?)";
 
-        if (err) {
-            return callback(err, null);
-        }
-
-        bcrypt.hash(password, saltRounds, function (err, hash) {
-
-            if (err) {
-                dbConn.end();
-                return callback(err, null);
-            }
-
-            var insertUserSql =
-                "INSERT INTO users(username,email,password,type,profile_pic_url) VALUES(?,?,?,?,?)";
-
-            dbConn.query(
-                insertUserSql,
-                [username, email, hash, type, profile_pic_url],
-                function (err, results) {
-
-                    dbConn.end();
-
-                    if (err) {
-                        return callback(err, null);
-                    }
-
-                    return callback(null, results);
-                }
-            );
+    dbConn.query(insertUserSql,
+        [username, email, hash, type, profile_pic_url],
+        function (err, results) {
+            ...
         });
-    });
-}
-
+});
 ```
+
+## Authentication Logic (`model/user.js`)
+
+During login, the application retrieves the stored password hash associated with the user's email address and uses `bcrypt.compare()` to verify the supplied password.
+
+```javascript
+bcrypt.compare(password, user.password, function (err, isMatch) {
+    if (isMatch) {
+        var token = jwt.sign(
+            { userid: user.userid, type: user.type },
+            config.key,
+            { expiresIn: 86400 }
+        );
+    }
+});
+```
+
+## Security Improvements Achieved
+
+* Passwords are no longer stored in plain text.
+* Database compromise does not immediately reveal user credentials.
+* Attackers cannot directly read passwords from database records.
+* bcrypt automatically incorporates salting, reducing the effectiveness of rainbow table attacks.
+* Authentication is performed through secure hash comparison rather than direct password matching.
+
+## Result
+
+Before the fix, a database record contained passwords in readable form:
+
+```bash
+Password: mypassword123
+```
+
+After implementing bcrypt, the database stores only a cryptographic hash:
+
+```bash
+$2b$10$QkJzjYkJ0vR5v3q8FQ8i6eJrjN5N6xR3Kz4F8W2sY8hL9mA7dPqXG
+```
+
+With this change, even if an attacker gains access to the database, they cannot directly determine a user's original password. This significantly reduces the risk of credential theft, unauthorized access, and account compromise.
+
+<img width="621" height="22" alt="image" src="https://github.com/user-attachments/assets/f4bbb086-833b-4f3c-853f-7ee338c0ef3d" />
+
+### Method 2 — AWS Cognito (Cloud-Based Authentication Fix)
+To further improve security, AWS Cognito is used as a managed authentication service.
+
+Instead of storing and managing user passwords within the application database, authentication is delegated to AWS Cognito.
+
+---
 
 ## A07 — Identification & Authentication Failures (Brief)
 ### Finding 2: Hardcoded / Weak JWT Secret Key ###
 
 Type of flaw: Identification & Authentication Failures — Weak session token signing mechanism allowing token forging due to hardcoded credentials.
+
+### Source Code Evidence (Repository Leakage)
+During a static code analysis of the source code repository, hardcoded symmetric signing keys were discovered directly committed to version control:
+
+<img width="959" height="398" alt="image" src="https://github.com/user-attachments/assets/9cc7e54b-ebe9-46c3-90f0-cc50ab95d06c" />
+
+### Threat Actor Reconnaissance Analysis:
+1. **Repository Discovery:** A malicious actor uses automated scanners or manual search GitHub syntax (`filename:config.js "secret"`) to find exposed credential files across public or shared code repositories.
+2. **Plaintext Extraction:** Looking at line 1 and 2, the application's global JWT signing key `secret = 'Assignment2key'` is completely unmasked.
+3. **Exploitation Vector:** An attacker does not need to compromise the hosting server to exploit this. With this single string, they can locally forge valid administrative JSON Web Tokens (JWTs), present them to the public application API endpoints, and gain immediate unauthorized access to any user account on the platform.
 
 Location: Assignment/BackEndServer/config/config.js lines 1–2 (or your exact config file path)
 
@@ -450,6 +492,11 @@ To mitigate this risk, cryptographic secrets must be completely decoupled from t
 - Implement a Secret Management System: For production environments, consider leveraging a dedicated secret management service (such as AWS Secrets Manager, HashiCorp Vault, or Azure Key Vault) to dynamically inject sensitive credentials at runtime.
 
 ## Remediation Example
+There are two common methods to remediate hardcoded secrets and sensitive credentials within an application.
+
+### Method 1: Environment Variables (.env) with .gitignore
+This approach stores sensitive values such as database credentials and JWT secrets in a local `.env` file that is excluded from version control through `.gitignore`. This prevents secrets from being accidentally exposed in source code repositories.
+
 1. Create a .env file (Stored locally, NEVER committed):
 <img width="953" height="545" alt="image" src="https://github.com/user-attachments/assets/e11246d8-efc1-4593-9ad9-edb566053e72" />
 
@@ -487,7 +534,136 @@ require('dotenv').config();
 module.exports.key = process.env.JWT_SECRET;
 ```
 
+3. Add a `.gitignore` File
 
+Add a `.gitignore` file to the root directory of the project and include the `.env` file within it.
+
+```bash
+.env
+```
+
+### Benefits of this approach 
+- Removes secrets from source code.
+- Prevents accidental exposure through GitHub repositories.
+- Allows different configurations for development, testing, and production environments.
+- Easy to implement and maintain for small to medium-sized applications.
+
+### Method 2: AWS Secrets Manager (Recommended for Production)
+While environment variables (.env) protect source control history, production servers shouldn't keep static credentials saved to a local hard disk file. Instead, cloud architectures rely on a centralized credential vault like AWS Secrets Manager.
+
+### Step 1: Run the modular AWS SDK v3 dependency installer inside your backend environment path:
+
+<img width="662" height="182" alt="image" src="https://github.com/user-attachments/assets/e3fae965-c051-459f-bfda-18a160780e7e" />
+
+### Step 2: Secure Code Implementation Example
+Replace standard static file reading blocks inside your initialization scripts with a dynamic asynchronous call directly into AWS Secrets Manager.
+
+```bash
+// Location: Assignment/BackEndServer/config.js
+require('dotenv').config(); // Hydrate short-term cloud session variables locally
+
+const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
+
+// Client hooks directly into your configured environment profile variables
+const secretsClient = new SecretsManagerClient({ region: "us-east-1" });
+
+async function fetchApplicationSecrets() {
+  const secretIdName = "assignment/backend/config"; // Case-sensitive cloud identifier path
+
+  try {
+    const cloudResponse = await secretsClient.send(
+      new GetSecretValueCommand({
+        SecretId: secretIdName,
+        VersionStage: "AWSCURRENT"
+      })
+    );
+
+    if (cloudResponse.SecretString) {
+      const parsedSecrets = JSON.parse(cloudResponse.SecretString);
+      
+      // Map retrieved properties directly to application runtime layers
+      process.env.JWT_SECRET = parsedSecrets.JWT_SECRET;
+      process.env.DB_PASSWORD = parsedSecrets.DB_PASSWORD;
+      
+      console.log("[SECURITY] System runtime properties configured via AWS Secrets Manager successfully.");
+      return parsedSecrets;
+    }
+  } catch (error) {
+    console.error("[CRITICAL ERROR] Failed to fetch credentials from AWS Vault:", error);
+    process.exit(1); // Force-close the application if it cannot fetch configurations safely
+  }
+}
+
+module.exports = { fetchApplicationSecrets };
+```
+
+### Step 3: Set up the learning lab in AWS
+Set up the secret in the AWS Learning Lab environment.
+
+<img width="491" height="301" alt="image" src="https://github.com/user-attachments/assets/26488ae0-4914-4dd0-a359-5bbee75ba04c" />
+
+Steps:
+- Open AWS Secrets Manager
+- Create a new secret
+- Store required credentials securely
+- Configure IAM permissions for access
+- Use the Secret ARN in your application
+
+### Step 4: Secure Application Bootstrap Configuration (server.js)
+Because fetching credentials from an external cloud provider is an asynchronous network operation, server.js cannot be configured using standard synchronous execution blocks. If left unchanged, Express will bind to port 8081 immediately upon boot—before the AWS SDK finish populating the application memory—resulting in standard routing and database connection failures.
+
+To fix this, the application startup routine was wrapped inside an asynchronous lifecycle bootstrap sequence. This ensures that the web application engine stalls local port binding until the remote AWS Secrets Manager handshake resolves completely.
+
+```bash
+/*
+Summary: The server.js is used to start the backend server securely with dynamic configuration.
+*/
+
+var express = require('express');
+var serveStatic = require('serve-static');
+var app = require('./controller/app.js');
+
+// Destructure the imported module to fetch the function wrapper accurately
+const { fetchApplicationSecrets } = require('./config.js'); 
+
+var port = 8081;
+
+app.use(serveStatic(__dirname + '/public')); 
+
+// Secure Asynchronous Bootstrap Wrapper
+async function bootstrapServer() {
+    try {
+        console.log("[STARTUP] Attaching to AWS Secrets Manager service space...");
+        
+        // 1. Enforce an execution hold until AWS secrets finish loading completely into memory
+        await fetchApplicationSecrets();
+
+        // 2. NOW bind the hosting port listener safely once execution variables exist
+        app.listen(port, function(){
+            console.log('[INFO] Web App Hosted successfully at http://localhost:%s', port);
+        });
+
+    } catch (bootstrapError) {
+        console.error("[CRITICAL SHUTDOWN] Bootstrap sequence intercepted a terminal failure:", bootstrapError);
+        process.exit(1);
+    }
+}
+
+// Fire the secure boot sequence execution
+bootstrapServer();
+```
+
+### Step 5: Final Remediation Verification and Runtime Logs
+To test and verify the structural integrity of the code integrations across both config.js and server.js, execute npm start inside the active console workspace terminal (/BackEndServer).
+
+The runtime diagnostics show that the asynchronous bootstrap loop successfully grabs the temporary AWS Academy Learner Lab environment credentials, reaches out to the designated container vault, extracts the properties, and activates the web listener safely:
+
+<img width="500" height="74" alt="image" src="https://github.com/user-attachments/assets/850af3c1-41da-4fb5-8af1-62b517e5ecbf" />
+
+### Remediation Metrics Confirmed:
+- Zero Disk-Persistent Plaintext Secrets: Hardcoded production configuration keys have been completely eradicated from codebase repository assets and commit history.
+- Fail-Closed Verification Complete: The application successfully authorized its identity credentials against AWS, resolving the previous ResourceNotFoundException.
+- Deferred Network Exposure: The backend infrastructure successfully held port 8081 in a closed state until database parameters were completely mapped, blocking unauthorized access requests during an unconfigured initialization phase.
 
 
 
