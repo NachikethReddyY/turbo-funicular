@@ -28,9 +28,9 @@
 
 ## Week 1 (09 Jun – 15 Jun)
 **Parent issue:** #121
-| Person                            | What Was Done | Issues Faced | Plan to Improve / Fix |
-| --------------------------------- | ------------- | ------------ | --------------------- |
-| **Nachiketh** (Nachiketh Reddy Y) |               |              |                       |
+| Person | What Was Done | Issues Faced | Plan to Improve / Fix |
+| --- | --- | --- | --- |
+| **Nachiketh** (Nachiketh Reddy Y) | • Team check-in on Week 0 progress completed<br>• Updated all 19 API test files to correct port (3001→8081) for Bruno testing<br>• Identified and documented 7 key Broken Access Control vulnerabilities:<br>&nbsp;&nbsp;- Register as admin (A01)<br>&nbsp;&nbsp;- Delete games without auth (A01)<br>&nbsp;&nbsp;- Expose all users with passwords via /users (A01)<br>&nbsp;&nbsp;- Add category/platform as non-admin (A01)<br>&nbsp;&nbsp;- JWT token forgery using hardcoded secret (A01)<br>&nbsp;&nbsp;- SQL injection in user lookup (A01)<br>&nbsp;&nbsp;- Review impersonation (A01)<br>• Created 14 screenshot evidence files in Assets/Nachiketh/ documenting exploit attempts and vulnerabilities<br>• Servers running on port 8081 for testing | • Bruno port mismatch caused initial test failures<br>• JWT token validation error in verifyToken.js line 23<br>• Frontend/backend port inconsistency (3001 vs 8081)<br>• Some API endpoints return 500 due to code bugs | • Run remaining exploit tests with Burp Suite<br>• Complete vulnerability documentation<br>• Use Kilo agents to automate remaining A09 logging analysis<br>• Add code snippet evidence to report |
 | **Keefe** (Keefe in 4Tech)        |               |              |                       |
 | **Mike** (Mike Franco Abat)       |               |              |                       |
 | **Sitt**                          |               |              |                       |

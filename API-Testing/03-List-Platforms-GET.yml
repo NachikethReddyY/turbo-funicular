@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/platform
+  url: http://localhost:8081/platform
   auth: inherit
 
 settings:

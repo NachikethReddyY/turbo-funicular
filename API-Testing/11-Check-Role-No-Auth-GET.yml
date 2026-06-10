@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/CheckRole
+  url: http://localhost:8081/CheckRole
   auth: inherit
 
 settings:

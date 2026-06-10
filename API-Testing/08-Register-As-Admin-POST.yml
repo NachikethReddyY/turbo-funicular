@@ -5,21 +5,18 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3001/users
+  url: http://localhost:8081/users
+  body:
+    type: json
+    data: |-
+      {
+        "username": "hacker",
+        "email": "hacker@test.com",
+        "password": "hack",
+        "type": "admin",
+        "profile_pic_url": ""
+      }
   auth: inherit
-  body: json
-  headers:
-    Content-Type: application/json
-
-body:
-  json: >
-    {
-      "username": "hacker",
-      "email": "hacker@x.com",
-      "password": "hack123",
-      "type": "admin",
-      "profile_pic_url": ""
-    }
 
 settings:
   encodeUrl: true

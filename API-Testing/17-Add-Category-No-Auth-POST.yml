@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3001/category
+  url: http://localhost:8081/category
   auth: inherit
   body: json
   headers:

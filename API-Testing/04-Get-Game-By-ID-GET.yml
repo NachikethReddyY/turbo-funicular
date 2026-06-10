@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/game/12
+  url: http://localhost:8081/game/12
   auth: inherit
 
 settings:

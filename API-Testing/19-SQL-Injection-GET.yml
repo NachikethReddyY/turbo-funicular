@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/users/1 OR 1=1
+  url: http://localhost:8081/users/1%20OR%201=1
   auth: inherit
 
 settings:

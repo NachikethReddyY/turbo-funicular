@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3001/users
+  url: http://localhost:8081/users
   auth: inherit
   body: json
   headers:

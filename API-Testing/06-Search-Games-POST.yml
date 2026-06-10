@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3001/searchgame
+  url: http://localhost:8081/searchgame
   auth: inherit
   body: json
   headers:
