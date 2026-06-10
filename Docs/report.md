@@ -293,7 +293,29 @@ An attacker can specifically exploit this plain-text credential storage vulnerab
 
 Below is the step-by-step demonstration of how a harvested account credential is replayed to exploit the system:
 
+- Step 1: Gain Access to Stored Credentials
+The attacker targets the application's underlying infrastructure or active transit paths to locate a vulnerable data source. This typically involves identifying secondary flaws like an unparameterized database query (SQL Injection), discovering unencrypted database backup files (.sql or .bak) left exposed in public web roots, or locating verbose backend logs.
+
+- Step 2: Extract Plain-Text Credentials
+Upon locating the storage medium, the attacker reads the raw credentials immediately. Because the application fails to process passwords through an adaptive, one-way cryptographic hash function (such as bcrypt), the attacker completely bypasses the computationally expensive "cracking" or brute-forcing phase.
+
+### Registration Ingestion Baseline
 <img width="959" height="469" alt="image" src="https://github.com/user-attachments/assets/1a965573-3916-48bc-80db-a430d298f451" />
+
+The front-end account creation interface sends raw, unhashed payloads to the backend /users endpoint upon registration. The server registers the account successfully and returns an identifier, but fails to encrypt or hash the incoming password string before persistence.
+
+- Step 3: Identify Valid Accounts
+The attacker parses the exposed dataset to select valid, active credential pairs. Simultaneously, because the frontend application replicates this plain-text data into the client's browser profile, the attacker can use a client-side vector like Cross-Site Scripting (XSS) to automatically harvest active credentials from other users' browser sessions.
+
+### Client-Side Evidence (Browser Local Storage):
+<img width="959" height="446" alt="image" src="https://github.com/user-attachments/assets/1c32503e-d787-42c4-ab4d-17f1e1193c35" />
+
+Frontend session management state showing that the user's raw password (1) is explicitly written to persistent browser localStorage under the key logPassword
+
+
+
+
+
 
 
 
@@ -418,7 +440,49 @@ Location: Assignment/BackEndServer/config/config.js lines 1–2 (or your exact c
 <img width="452" height="78" alt="image" src="https://github.com/user-attachments/assets/c9392fb8-ed5d-44b6-a681-11298581a089" />
 
 ## Reccommendation
-To prevent token forgery and authorization bypass attacks, cryptographic secret keys must never be hardcoded into the application's source code files. Instead, the application should follow standard security practices by migrating configuration parameters into environment variables (.env) that reside completely outside of the repository control system. 
+To mitigate this risk, cryptographic secrets must be completely decoupled from the application source code.
+
+- Utilize Environment Variables: Move the JWT secret key out of config.js and into an external environment file (e.g., a .env file) that resides strictly on the local hosting environment.
+- Update Source Control Configuration: Ensure that the .env file is explicitly listed in the project's .gitignore file to prevent it from ever being accidentally committed to the version control repository.
+- Implement a Secret Management System: For production environments, consider leveraging a dedicated secret management service (such as AWS Secrets Manager, HashiCorp Vault, or Azure Key Vault) to dynamically inject sensitive credentials at runtime.
+
+## Remediation Example
+1. Create a .env file (Stored locally, NEVER committed):
+<img width="953" height="545" alt="image" src="https://github.com/user-attachments/assets/e11246d8-efc1-4593-9ad9-edb566053e72" />
+
+```bash
+# =========================
+# APPLICATION CONFIG
+# =========================
+PORT=8081
+
+# =========================
+# DATABASE CONFIG
+# =========================
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_database_password
+DB_NAME=assignment2
+
+# =========================
+# JWT AUTHENTICATION
+# =========================
+JWT_SECRET=Assignment2key
+
+# =========================
+# SECURITY / ENVIRONMENT
+# =========================
+NODE_ENV=development
+```
+2. Update config.js to read from the environment:
+<img width="935" height="518" alt="image" src="https://github.com/user-attachments/assets/d9ea0934-7a63-41d2-9122-e183eb918cc6" />
+
+
+```bash
+require('dotenv').config();
+
+module.exports.key = process.env.JWT_SECRET;
+```
 
 
 
