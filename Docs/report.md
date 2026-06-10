@@ -282,6 +282,19 @@ The password is being saved into the database by the SQL workbench, we can see t
 
 <img width="455" height="230" alt="image" src="https://github.com/user-attachments/assets/8fee31e8-c8a8-4672-95df-90917641f237" />
 
+## How It Can Be Exploited Specifically
+An attacker can specifically exploit this plain-text credential storage vulnerability through direct identification and authentication failures within the application lifecycle:
+
+1. A07 Credential Harvesting: An attacker targets the authentication infrastructure directly. If the application logs account information insecurely, exposes unencrypted database backup files, or fails to implement rate-limiting on login forms, an attacker can harvest user credentials.
+
+2. Cleartext Acquisition: Because the application stores user passwords in human-readable plain text without wrapping them in an adaptive cryptographic hashing function (like bcrypt), the attacker reads the raw credentials immediately upon gaining access to the data layer. The attacker does not need to spend time running brute-force hardware arrays to crack hashes.
+
+3. Authentication UI Replay: The attacker maps these cleartext identity strings directly to the public-facing application frontend.
+
+
+
+
+
 ## Impact
 
 Passwords are stored in plain text within the database instead of being hashed before storage. If an attacker gains access to the database through a data breach, misconfiguration, or another vulnerability, all user passwords would be immediately exposed.
@@ -401,6 +414,8 @@ Type of flaw: Identification & Authentication Failures — Weak session token si
 Location: Assignment/BackEndServer/config/config.js lines 1–2 (or your exact config file path)
 
 <img width="452" height="78" alt="image" src="https://github.com/user-attachments/assets/c9392fb8-ed5d-44b6-a681-11298581a089" />
+
+
 
 
 
