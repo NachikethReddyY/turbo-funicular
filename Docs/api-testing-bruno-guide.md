@@ -1,3 +1,9 @@
+---
+title: API Testing Guide — Bruno
+author: Nachiketh Reddy
+date: 2026-06-08
+---
+
 # API Testing Guide — Bruno
 
 **Tool:** Bruno (free, open-source API client)

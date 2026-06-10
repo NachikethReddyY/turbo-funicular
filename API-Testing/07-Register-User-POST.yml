@@ -6,20 +6,17 @@ info:
 http:
   method: POST
   url: http://localhost:8081/users
+  body:
+    type: json
+    data: |-
+      {
+        "username": "testuser",
+        "email": "test@test.com",
+        "password": "test123",
+        "type": "Customer",
+        "profile_pic_url": ""
+      }
   auth: inherit
-  body: json
-  headers:
-    Content-Type: application/json
-
-body:
-  json: >
-    {
-      "username": "testuser",
-      "email": "test@test.com",
-      "password": "test123",
-      "type": "Customer",
-      "profile_pic_url": ""
-    }
 
 settings:
   encodeUrl: true

@@ -1,12 +1,12 @@
-# Week 0 - Mike Scouting Report
+---
+title: Week 0 - A03 SQL Injection Scouting
+author: Mike Franco Abat
+collaborators: Nachiketh, Sitt, Keefe
+reviewed_by:
+date: 2026-06-09
+---
 
----
-**Title:** Week 0 - A03 SQL Injection Scouting
-**Written by:** Mike Franco Abat
-**Collaborators:** Nachiketh, Sitt, Keefe
-**Reviewed by:**
-**Date:** 2026-06-09
----
+# Week 0 - Mike Scouting Report
 
 ## 1. Owner
 

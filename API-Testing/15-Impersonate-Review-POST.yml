@@ -6,17 +6,14 @@ info:
 http:
   method: POST
   url: http://localhost:8081/users/1/game/12/review
+  body:
+    type: json
+    data: |-
+      {
+        "content": "This review was posted by someone else!",
+        "rating": 5
+      }
   auth: inherit
-  body: json
-  headers:
-    Content-Type: application/json
-
-body:
-  json: >
-    {
-      "content": "This review was posted by someone else!",
-      "rating": 5
-    }
 
 settings:
   encodeUrl: true

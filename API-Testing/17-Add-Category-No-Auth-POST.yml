@@ -6,17 +6,14 @@ info:
 http:
   method: POST
   url: http://localhost:8081/category
+  body:
+    type: json
+    data: |-
+      {
+        "catname": "TestCat",
+        "description": "test"
+      }
   auth: inherit
-  body: json
-  headers:
-    Content-Type: application/json
-
-body:
-  json: >
-    {
-      "catname": "TestCat",
-      "description": "test"
-    }
 
 settings:
   encodeUrl: true

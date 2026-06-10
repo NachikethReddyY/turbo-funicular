@@ -1,8 +1,12 @@
-# Project Progress Log
-
+---
+title: Cryptix — Weekly Progress Log
+author: Team
+date: 2026-06-08
 ---
 
-## **Title:** Cryptix — Weekly Progress Log
+# Project Progress Log
+
+## Title: Cryptix — Weekly Progress Log
 **Updated:** 2026-06-08
 **Repo:** [https://github.com/NachikethReddyY/turbo-funicular](https://github.com/NachikethReddyY/turbo-funicular)
 

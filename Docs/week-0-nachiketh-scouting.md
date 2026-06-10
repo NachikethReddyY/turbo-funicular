@@ -1,12 +1,12 @@
-# Week 0 — Nachiketh Scouting Report
+---
+title: Week 0 — A01 & A09 Scouting
+author: Nachiketh Reddy Y
+collaborators: Sitt, Mike, Keefe
+reviewed_by:
+date: 2026-06-08
+---
 
----
-**Title:** Week 0 — A01 & A09 Scouting
-**Written by:** Nachiketh Reddy Y
-**Collaborators:** Sitt, Mike, Keefe
-**Reviewed by:**
-**Date:** 2026-06-08
----
+# Week 0 — Nachiketh Scouting Report
 
 ## 1. Owner
 

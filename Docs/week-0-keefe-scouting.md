@@ -1,12 +1,11 @@
-# Week 0 Scouting Findings – A07 Identification & Authentication Failures
-
+---
+title: A07 – Identification & Authentication Failures Initial Scouting Report
+author: Keefe Chen
+collaborators: Nachiketh, Mike, Sitt
+date:
 ---
 
-**Title:** A07 – Identification & Authentication Failures Initial Scouting Report
-
-**Written by:** Keefe Chen
-
-**Collaborators:** Team Members (Nachiketh, Mike, Sitt)
+# Week 0 Scouting Findings – A07 Identification & Authentication Failures
 
 **Reviewed by:** _____________________
 
