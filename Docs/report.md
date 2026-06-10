@@ -291,7 +291,9 @@ An attacker can specifically exploit this plain-text credential storage vulnerab
 
 3. Authentication UI Replay: The attacker maps these cleartext identity strings directly to the public-facing application frontend.
 
+Below is the step-by-step demonstration of how a harvested account credential is replayed to exploit the system:
 
+<img width="959" height="469" alt="image" src="https://github.com/user-attachments/assets/1a965573-3916-48bc-80db-a430d298f451" />
 
 
 
@@ -414,6 +416,9 @@ Type of flaw: Identification & Authentication Failures — Weak session token si
 Location: Assignment/BackEndServer/config/config.js lines 1–2 (or your exact config file path)
 
 <img width="452" height="78" alt="image" src="https://github.com/user-attachments/assets/c9392fb8-ed5d-44b6-a681-11298581a089" />
+
+## Reccommendation
+To prevent token forgery and authorization bypass attacks, cryptographic secret keys must never be hardcoded into the application's source code files. Instead, the application should follow standard security practices by migrating configuration parameters into environment variables (.env) that reside completely outside of the repository control system. 
 
 
 
