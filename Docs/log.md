@@ -28,12 +28,13 @@
 
 ## Week 1 (09 Jun – 15 Jun)
 **Parent issue:** #121
-| Person                            | What Was Done | Issues Faced | Plan to Improve / Fix |
-| --------------------------------- | ------------- | ------------ | --------------------- |
-| **Nachiketh** (Nachiketh Reddy Y) |               |              |                       |
-| **Keefe** (Keefe in 4Tech)        |               |              |                       |
-| **Mike** (Mike Franco Abat)       |               |              |                       |
-| **Sitt**                          |               |              |                       |
+
+| Person | What Was Done | Issues Faced | Plan to Improve / Fix |
+|--------|--------------|-------------|------------------------|
+| **Nachiketh** (Nachiketh Reddy Y) | - | - | - |
+| **Keefe** (Keefe in 4Tech) | Continued working on `report.md` and explored better secure coding practices. Identified potential attack entry points in the system. <br><br>Reviewed `login.html` and discovered that the “Remember Me” feature stores and displays the user’s password along with login fields, exposing sensitive credentials on the client side. <br><br>Explored AWS Secrets Manager as a mitigation method for A07 vulnerability, learning how it securely stores and retrieves sensitive credentials without hardcoding them in the application. | AWS services were unfamiliar at the beginning and required time to understand terminal commands and configuration. Needed external guidance from AWS documentation and AI tools. <br><br>Faced difficulty implementing bcrypt in `user.js`, with unclear code structure and HTTP 500 errors during testing. Debugging was challenging due to limited error feedback from the database. | Fix remaining vulnerabilities and explore additional attack entry points. Strengthen `register.js` and `login.js` by implementing secure password hashing (bcrypt) and input validation. Refactor authentication flow using secure coding practices. Improve documentation consistency using the report template with proper description, impact, and mitigation sections. |
+| **Mike** (Mike Franco Abat) | - | - | - |
+| **Sitt** | - | - | - |
 
 ## Week 2 (16 Jun – 22 Jun)
 **Parent issue:** #122
