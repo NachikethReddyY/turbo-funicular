@@ -9,7 +9,7 @@ A team-based cybersecurity project analyzing a web application for OWASP Top 10 
 | **Nachiketh Reddy Y** | [NachikethReddyY](https://github.com/NachikethReddyY) | A01 (Broken Access Control) + A09 (Logging & Monitoring) |
 | **Mike Franco Abat** | — | A03 (SQL Injection) |
 | **Sitt** | — | A04 (Insecure Design) |
-| **Keefe** | — | A07 (Authentication Failures) |
+| **Keefe** | https://github.com/Keefeinfotech| A07 (Authentication Failures) |
 
 ## Tech Stack
 
