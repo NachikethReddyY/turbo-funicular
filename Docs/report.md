@@ -463,6 +463,51 @@ To further improve security, AWS Cognito is used as a managed authentication ser
 
 Instead of storing and managing user passwords within the application database, authentication is delegated to AWS Cognito.
 
+### Architectural Vulnerability (Before Fix)
+
+Previously, the system had two major security weaknesses:
+
+Credentials were processed through a local endpoint (http://localhost:8081/users/login)
+Passwords were stored in plaintext inside browser localStorage
+Authentication logic was fully controlled by the client and local backend
+
+#### Risks:
+- Password exposure from browser storage
+- Database compromise leading to credential leaks
+- No centralized identity control or MFA support
+
+### Step-by-Step Implementation
+
+#### Step 1: Create Cognito User Pool
+
+<img width="746" height="223" alt="image" src="https://github.com/user-attachments/assets/9bea17fa-5cc1-4129-bdc5-059b114c8119" />
+
+In AWS Management Console:
+In the AWS Management Console, create and configure an Amazon Cognito User Pool to handle authentication securely.
+
+#### Create User Pool
+- Create a new User Pool in AWS Cognito
+- Sign-in Configuration
+- Enable sign-in using your Username and Email
+- Security Settings
+- Disable Multi-Factor Authentication (MFA) due to sandbox constraints
+- User Registration Settings
+- Enable self-registration
+- Set email as a required attribute
+- Email Delivery Configuration
+- Configure email delivery using Amazon Cognito default email service
+- App Client Setup
+- Create an App Client with the following settings:
+- Type: Single Page Application (SPA)
+- Disable client secret (required for frontend authentication)
+
+Store these securely in your application:
+```bash
+User Pool ID: us-east-1_mscUlFqxH
+App Client ID: 1q2pbm27tru11vsp2vkm31j2hn
+Cognito Authority URI:
+https://cognito-idp.us-east-1.amazonaws.com/us-east-1_mscUlFqxH
+```
 ---
 
 ## A07 — Identification & Authentication Failures (Brief)
