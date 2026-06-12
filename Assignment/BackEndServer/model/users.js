@@ -25,7 +25,7 @@ var userDB = {
 
             else {
 
-                var getUserSql = `select userid, username, email, password, type, profile_pic_url,
+                var getUserSql = `select userid, username, email, type, profile_pic_url,
                                     DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM users`;
 
                 dbConn.query(getUserSql, [], function (err, results) {
@@ -97,10 +97,10 @@ var userDB = {
 
             else {
 
-                var getUserByUserIDSql = `select userid, username, email, password, type, profile_pic_url,
-                                            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM users where userid = ${userid};`;
+                var getUserByUserIDSql = `select userid, username, email, type, profile_pic_url,
+                                            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM users where userid = ?;`;
 
-                dbConn.query(getUserByUserIDSql, [], function (err, results) {
+                dbConn.query(getUserByUserIDSql, [userid], function (err, results) {
 
                     if (err) {
 
@@ -151,7 +151,7 @@ var userDB = {
 						if (result.length == 1) {
 
 							token = jwt.sign({ userid: result[0].userid, type: result[0].type }, config.key, {expiresIn: 86400}); //expires in 24 hrs
-							console.log("@@token " + token);
+							//console.log("@@token " + token);
 							return callback(null, token, result);
 						} 
                         
