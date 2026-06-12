@@ -283,13 +283,19 @@ The password is being saved into the database by the SQL workbench, we can see t
 <img width="455" height="230" alt="image" src="https://github.com/user-attachments/assets/8fee31e8-c8a8-4672-95df-90917641f237" />
 
 ## How It Can Be Exploited Specifically
-An attacker can specifically exploit this plain-text credential storage vulnerability through direct identification and authentication failures within the application lifecycle:
+An attacker who gains access to the application's database through a separate vulnerability (such as SQL Injection, exposed database backups, misconfigured cloud storage, or server compromise) can immediately obtain all user passwords because they are stored in plaintext.
+
+Since the passwords are not protected using a cryptographic hashing algorithm, the attacker does not need to perform any password cracking or brute-force attacks. The credentials can be used directly to authenticate as legitimate users within the application.
+
+### Attack Flow
 
 1. A07 Credential Harvesting: An attacker targets the authentication infrastructure directly. If the application logs account information insecurely, exposes unencrypted database backup files, or fails to implement rate-limiting on login forms, an attacker can harvest user credentials.
 
 2. Cleartext Acquisition: Because the application stores user passwords in human-readable plain text without wrapping them in an adaptive cryptographic hashing function (like bcrypt), the attacker reads the raw credentials immediately upon gaining access to the data layer. The attacker does not need to spend time running brute-force hardware arrays to crack hashes.
 
 3. Authentication UI Replay: The attacker maps these cleartext identity strings directly to the public-facing application frontend.
+
+### Summary of Impact
 
 Below is the step-by-step demonstration of how a harvested account credential is replayed to exploit the system:
 
@@ -394,6 +400,8 @@ Implementing password hashing significantly improves system security by:
 To mitigate the risk of credential exposure, the application was updated to implement **bcrypt password hashing** during user registration and authentication. Previously, passwords were stored in plain text, allowing anyone with access to the database to immediately view and misuse user credentials.
 
 By implementing bcrypt, passwords are transformed into a one-way cryptographic hash before being stored in the database. This ensures that the original password cannot be directly recovered, even if the database is compromised. During login, the application compares the user-provided password against the stored hash using bcrypt's verification mechanism rather than performing a direct string comparison.
+
+### Final Evidence
 
 The figure below shows the modifications made to integrate bcrypt hashing into the application.
 
