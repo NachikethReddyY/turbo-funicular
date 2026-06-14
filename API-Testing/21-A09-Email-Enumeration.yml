@@ -1,0 +1,25 @@
+info:
+  name: 21 - A09 Email Enumeration - POST /users
+  type: http
+  seq: 21
+
+http:
+  method: POST
+  url: http://localhost:8081/users
+  body:
+    type: json
+    data: |-
+      {
+        "username": "John2",
+        "email": "John@gmail.com",
+        "password": "test123",
+        "type": "Customer",
+        "profile_pic_url": ""
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

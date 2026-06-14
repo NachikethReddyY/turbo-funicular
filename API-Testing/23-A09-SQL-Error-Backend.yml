@@ -1,0 +1,22 @@
+info:
+  name: 23 - A09 SQL Error - POST /game (triggers backend console error)
+  type: http
+  seq: 23
+
+http:
+  method: POST
+  url: http://localhost:8081/game
+  body:
+    type: json
+    data: |-
+      {
+        "title": "",
+        "game_description": "test"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

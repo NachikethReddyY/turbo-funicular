@@ -6,7 +6,25 @@ date: June 2026
 
 # Vulnerability Analysis Report — OWASP A01 & A09
 
-This report analyses a game catalogue web application for OWASP Top 10 2021 vulnerabilities, specifically **A01: Broken Access Control** and **A09: Security Logging & Monitoring Failures**. The application consists of an Express.js backend (port 8081), a Node.js frontend server, and a MySQL database. Each finding below follows the same seven-part structure: vulnerability description, exploitation, database storage context, affected code location, recommended fix with code, testing process, and tools used.
+## Executive Summary
+
+This report documents a security assessment of a game catalogue web application. The assessment identified **five critical/high-severity vulnerabilities** across OWASP Top 10 2021 categories A01 (Broken Access Control) and A09 (Security Logging & Monitoring Failures). The combined impact of these findings is **critical**: an unauthenticated attacker can:
+
+- Create admin-privileged accounts and perform any action (create/delete games, access user data, post reviews as any user)
+- Access the complete user database including plaintext passwords
+- Inject arbitrary SQL commands to modify or delete database records
+- Forge authentication tokens with admin privileges
+- Perform all actions without leaving any audit trail for detection or forensic analysis
+
+**Overall Risk Assessment:** The application is **unsuitable for production use** until all critical findings are remediated and password hashing, audit logging, and secrets management are implemented.
+
+---
+
+## Assessment Methodology
+
+The application consists of an Express.js backend (port 8081), a Node.js frontend server, and a MySQL database. Each finding below follows the same seven-part structure: (1) vulnerability description & type of flaw, (2) exploitation steps with proof of concept, (3) database storage context, (4) affected code location, (5) recommendations & fix code, (6) testing process, and (7) tools used.
+
+**Note on Screenshots:** Image references throughout this report point to `Assignment/Assets/Nachiketh/`. These assets should be collected via API testing tools (Bruno, curl, browser Developer Tools) and organized in this directory before final submission. Placeholder paths are included to show where evidence should be inserted.
 
 ---
 
@@ -15,6 +33,10 @@ This report analyses a game catalogue web application for OWASP Top 10 2021 vuln
 ### 1. Vulnerability & Type of Flaw
 
 **Type:** A01 — Broken Access Control (Missing Authentication & Authorisation)
+
+**CVSS 3.1 Score:** 9.8 (Critical)  
+**CVSS Vector:** `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H`  
+(Network-accessible, low attack complexity, no privileges required, no user interaction, complete confidentiality/integrity/availability impact)
 
 The backend controller (`controller/app.js`) registers numerous endpoints that handle sensitive operations (user management, game CRUD, category/platform administration) **without** any authentication middleware. Only a single endpoint (`/CheckRole`) uses the `verifyToken` middleware, and even that endpoint does not enforce role-based restrictions. No server-side role check exists anywhere in the application.
 
@@ -198,6 +220,10 @@ res.json({ success: false, message: 'Login failed' });
 
 **Type:** A01 — Broken Access Control (Insecure Direct Object Reference / Mass Assignment)
 
+**CVSS 3.1 Score:** 9.1 (Critical)  
+**CVSS Vector:** `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N`  
+(Network-accessible, low attack complexity, no privileges required, no user interaction, complete confidentiality/integrity impact)
+
 The `GET /users` endpoint returns all user records — including the `password` column — to anyone who makes a request, with no authentication required. Passwords are stored and transmitted in **plaintext** with no hashing.
 
 ### 2. Exploitation
@@ -304,7 +330,12 @@ app.get('/users', verifyToken, requireAdmin, function (req, res) { /* ... */ });
 
 ### 1. Vulnerability & Type of Flaw
 
-**Type:** A01 — Broken Access Control (SQL Injection)
+**Type:** A03 — Injection (SQL Injection)  
+**Related to A01:** Broken Access Control (gains unauthorized data access)
+
+**CVSS 3.1 Score:** 9.8 (Critical)  
+**CVSS Vector:** `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H`  
+(Network-accessible, low attack complexity, no privileges required, no user interaction, complete confidentiality/integrity/availability impact)
 
 Three database queries in the model layer build SQL strings using template literal interpolation (`${...}`) instead of parameterised placeholders (`?`). This allows an attacker to inject arbitrary SQL commands via user-controlled input fields.
 
@@ -443,7 +474,11 @@ dbConn.query(updateGameSql, [title, game_description, year, game_image.buffer, g
 
 ### 1. Vulnerability & Type of Flaw
 
-**Type:** A01 — Broken Access Control (Cryptographic Weakness)
+**Type:** A01 — Broken Access Control (Cryptographic Weakness / Secrets in Source Code)
+
+**CVSS 3.1 Score:** 7.5 (High)  
+**CVSS Vector:** `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N`  
+(Network-accessible, low attack complexity, no privileges required, no user interaction, high confidentiality/integrity impact, no availability impact)
 
 The JWT signing secret is hardcoded as `'Assignment2key'` in `config.js`. Anyone with access to the source code (including all developers, anyone who can read the repository, or anyone who finds the file via path traversal) can forge valid JWTs with arbitrary claims — including setting `type: "admin"`.
 
@@ -525,6 +560,10 @@ The server will refuse to start if `JWT_SECRET` is not set in the environment, p
 ### 1. Vulnerability & Type of Flaw
 
 **Type:** A09 — Security Logging & Monitoring Failures
+
+**CVSS 3.1 Score:** 7.5 (High)  
+**CVSS Vector:** `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N`  
+(Network-accessible, low attack complexity, no privileges required, no user interaction, high confidentiality/integrity impact due to lack of accountability and forensic trail)
 
 The application has two related issues under A09:
 
@@ -643,12 +682,42 @@ function verifyToken(req, res, next) {
 
 This analysis identifies **five distinct security findings** spanning OWASP A01 (Broken Access Control) and A09 (Security Logging & Monitoring Failures):
 
-| Finding | Category | Severity |
-|---------|----------|----------|
-| 1 — Missing Authentication & Authorisation | A01 | Critical |
-| 2 — User Data Exposure with Plaintext Passwords | A01 | Critical |
-| 3 — SQL Injection in Database Queries | A01 | Critical |
-| 4 — Hardcoded JWT Signing Secret | A01 | High |
-| 5 — Logging Failures & Information Leakage | A09 | High |
+| Finding | Category | CVSS 3.1 Score | Severity |
+|---------|----------|---|----------|
+| 1 — Missing Authentication & Authorisation | A01 | 9.8 (Critical) | Critical |
+| 2 — User Data Exposure with Plaintext Passwords | A01 | 9.1 (Critical) | Critical |
+| 3 — SQL Injection in Database Queries | A01 | 9.8 (Critical) | Critical |
+| 4 — Hardcoded JWT Signing Secret | A01 | 7.5 (High) | High |
+| 5 — Logging Failures & Information Leakage | A09 | 7.5 (High) | High |
 
-The root cause across all findings is the same: **security controls are absent or implemented on the client side rather than enforced at the server boundary**. The backend trusts client-supplied data for authentication, authorisation, role assignment, and SQL query construction. The applied fixes — adding `verifyToken` and `requireAdmin` middleware to all protected endpoints, parameterising SQL queries, removing the hardcoded JWT secret, and removing sensitive `console.log` calls — address the immediate vulnerabilities. A production-ready application would additionally require password hashing with bcrypt, structured audit logging with a dedicated library, and a secrets management strategy.
+### Root Cause
+
+The root cause across all findings is identical: **security controls are either absent entirely or implemented only on the client side, with no server-side enforcement at system boundaries**. Specifically:
+
+- The backend registers sensitive endpoints (CRUD operations, user management, admin functions) with **no authentication middleware** applied.
+- Where authentication exists (`/CheckRole`), it **does not enforce role-based access control** — the `verifyToken` middleware merely decodes the JWT without checking the user's `type` claim.
+- Critical user input (the `type` field in user registration) is **accepted directly from the client** and written to the database without server-side validation, enabling privilege escalation.
+- Database queries are constructed using **template literal string interpolation**, allowing SQL injection.
+- Sensitive configuration (JWT secret) is **hardcoded in source code**, allowing token forgery by anyone with repository access.
+- **No audit logging** records who performed what actions, when, or from which IP — making breach detection and forensic analysis impossible.
+
+### Recommended Fixes (Summary)
+
+The immediate fixes applied address the vulnerabilities:
+1. Add `verifyToken` and `requireAdmin` middleware to all protected endpoints.
+2. Parameterise all SQL queries using placeholder syntax (`?`) instead of string interpolation.
+3. Move the JWT secret to an environment variable with a startup guard.
+4. Remove all sensitive `console.log` statements from authentication and error handlers.
+5. Restrict the `type` field to server-defined defaults during user registration.
+
+### Additional Work for Production Readiness
+
+Beyond the scope of this report but critical for production deployment:
+- **Password hashing:** All passwords must be hashed with bcrypt or Argon2 before storage and verified via `bcrypt.compare()` during login.
+- **Structured audit logging:** Integrate Winston, Morgan, or Pino to log all security events (authentication, data modification, access denials) with timestamps, user IDs, and IP addresses.
+- **Account lockout policy:** Lock accounts after N consecutive failed login attempts; log and alert on repeated failures.
+- **Rate limiting:** Implement rate limiting on login and sensitive endpoints to prevent brute-force attacks.
+- **Secrets management:** Use a dedicated secrets manager (AWS Secrets Manager, HashiCorp Vault, Azure Key Vault) rather than environment variables for production.
+- **HTTPS enforcement:** All traffic must be encrypted in transit; enforce HSTS headers.
+- **Input validation:** Validate all client inputs (length, type, format) server-side before use.
+- **Content Security Policy (CSP):** Implement CSP headers to prevent XSS attacks (especially relevant to the client-side admin check bypass in Finding 1).
