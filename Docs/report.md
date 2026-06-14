@@ -320,8 +320,6 @@ Located in the frontend login script handler, the application captures the user'
 
 <img width="581" height="279" alt="image" src="https://github.com/user-attachments/assets/3b90d35d-65b7-482e-b6f6-fd0ac3bdd043" />
 
-
-
 ## Impact
 
 Passwords are stored in plain text within the database instead of being hashed before storage. If an attacker gains access to the database through a data breach, misconfiguration, or another vulnerability, all user passwords would be immediately exposed.
@@ -334,9 +332,46 @@ Passwords are stored in plain text within the database instead of being hashed b
 - Potential privilege escalation if administrator credentials are compromised.
 - Non-compliance with security best practices outlined in OWASP A07:2021 – Identification and Authentication Failures.
 
-### Tools Used
-- MySQL Workbench  
-- Browser Developer Tools  
+### Tools and Methods Used to Test the Web System
+
+The following tools were used to identify and verify security vulnerabilities within the application.
+
+---
+
+####  MySQL Workbench
+
+**Purpose:**  
+Used to inspect and validate database-level storage of user credentials.
+
+**Testing Activities:**
+- Queried the `users` table to examine how passwords were stored.
+- Verified whether passwords were stored in plain text or hashed format.
+- Checked newly inserted user records after registration.
+- Compared database records before and after implementing password hashing.
+
+**Evidence:**
+
+The screenshot below shows how the password storage was tested by creating or modifying user records and inspecting the resulting values stored in the database. This was used to verify whether passwords were stored in plain text or securely hashed.
+
+<img width="485" height="232" alt="MySQL Workbench Password Verification" src="https://github.com/user-attachments/assets/59c0f3cd-9e79-4ad1-a339-38a39dad8a75" />
+
+---
+
+#### Browser Developer Tools (Chrome DevTools)
+
+**Purpose:**  
+Used to inspect client-side storage and analyse authentication-related data exposure.
+
+**Testing Activities:**
+- Inspected **Application → Local Storage** to identify sensitive data stored in the browser.
+- Verified whether user credentials, session information, or authentication tokens were stored insecurely.
+- Monitored the **Network** tab during login and registration requests.
+- Analysed API requests and responses for potential exposure of sensitive information.
+
+**Evidence:**
+
+
+---
 
 ---
 
