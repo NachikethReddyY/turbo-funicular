@@ -283,19 +283,13 @@ The password is being saved into the database by the SQL workbench, we can see t
 <img width="455" height="230" alt="image" src="https://github.com/user-attachments/assets/8fee31e8-c8a8-4672-95df-90917641f237" />
 
 ## How It Can Be Exploited Specifically
-An attacker who gains access to the application's database through a separate vulnerability (such as SQL Injection, exposed database backups, misconfigured cloud storage, or server compromise) can immediately obtain all user passwords because they are stored in plaintext.
-
-Since the passwords are not protected using a cryptographic hashing algorithm, the attacker does not need to perform any password cracking or brute-force attacks. The credentials can be used directly to authenticate as legitimate users within the application.
-
-### Attack Flow
+An attacker can specifically exploit this plain-text credential storage vulnerability through direct identification and authentication failures within the application lifecycle:
 
 1. A07 Credential Harvesting: An attacker targets the authentication infrastructure directly. If the application logs account information insecurely, exposes unencrypted database backup files, or fails to implement rate-limiting on login forms, an attacker can harvest user credentials.
 
 2. Cleartext Acquisition: Because the application stores user passwords in human-readable plain text without wrapping them in an adaptive cryptographic hashing function (like bcrypt), the attacker reads the raw credentials immediately upon gaining access to the data layer. The attacker does not need to spend time running brute-force hardware arrays to crack hashes.
 
 3. Authentication UI Replay: The attacker maps these cleartext identity strings directly to the public-facing application frontend.
-
-### Summary of Impact
 
 Below is the step-by-step demonstration of how a harvested account credential is replayed to exploit the system:
 
@@ -319,12 +313,87 @@ The attacker parses the exposed dataset to select valid, active credential pairs
 Frontend session management state showing that the user's raw password (1) is explicitly written to persistent browser localStorage under the key logPassword
 
 ## Identify code snippet exposing the vulnerability
-The core authentication failure spans across both the frontend client-side session management and the backend persistence layer. Below are the specific code implementations introducing these flaws:
 
-- 1. Frontend Client-Side: Insecure Credential Exposure (localStorage)
-Located in the frontend login script handler, the application captures the user's raw input strings and explicitly writes the plaintext password into persistent browser storage when the "Remember Me" option is checked.
+The authentication weakness spans both the frontend client-side session management and backend API responses. The following code snippets demonstrate the insecure handling of credentials and authentication data.
 
-<img width="581" height="279" alt="image" src="https://github.com/user-attachments/assets/3b90d35d-65b7-482e-b6f6-fd0ac3bdd043" />
+---
+
+### 1. Frontend Client-Side: Insecure Credential Storage (localStorage)
+
+The application stores sensitive authentication data in browser localStorage when the "Remember Me" feature is enabled.
+
+```javascript
+localStorage.setItem('logEmail', email);
+localStorage.setItem('logPassword', pwd);
+```
+
+#### Security Issue:
+- Password is stored in plain text in the browser
+- Accessible via JavaScript
+- Can be stolen via XSS attacks
+- Not secure for persistent authentication storage
+
+### 2. Registration sends raw password to backend
+
+The frontend sends the password directly to the backend /users endpoint without encryption.
+
+<img width="551" height="301" alt="image" src="https://github.com/user-attachments/assets/0922ec36-a6c4-41d6-8807-787a23c84c7e" />
+
+``` javascript
+async function registerUser() {
+
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const type = document.getElementById('type').value;
+    const profile_pic_url = document.getElementById('profile_pic_url').value;
+
+    const res = await fetch('http://localhost:8081/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username,
+            email,
+            password,
+            type,
+            profile_pic_url
+        })
+    });
+}
+```
+
+#### Security Issue:
+- Password is transmitted in raw form
+- No client-side encryption or hashing
+- Relies fully on backend security (which was initially missing hashing)
+
+### 3. Login API response exposes sensitive authentication data
+
+The login endpoint returns both JWT token and user information to the client.
+
+``` bash
+{
+    "success": true,
+    "UserData": "[{\"userid\":46,\"username\":\"hacker1\",\"email\":\"hacker1@gmail.com\",\"type\":\"user\",\"profile_pic_url\":\"\",\"created_at\":\"2026-06-15T01:42:50.000Z\"}]",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....",
+    "status": "You are successfully logged in!"
+}
+```
+
+#### Security Issue:
+- JWT token is exposed directly in API response
+- User data is unnecessarily exposed to client
+- Increases risk if combined with XSS or insecure storage
+- Encourages insecure client-side token handling
+---
+
+#### Security Issue:
+JWT token is exposed in plain API response
+User identity data is returned to the client unnecessarily
+If intercepted (e.g., via XSS or insecure network), it can be reused for session hijacking
+Encourages insecure client-side storage of authentication data
 
 ## Impact
 
@@ -338,9 +407,60 @@ Passwords are stored in plain text within the database instead of being hashed b
 - Potential privilege escalation if administrator credentials are compromised.
 - Non-compliance with security best practices outlined in OWASP A07:2021 – Identification and Authentication Failures.
 
-### Tools Used
-- MySQL Workbench  
-- Browser Developer Tools  
+### Tools and Methods Used to Test the Web System
+
+The following tools were used to identify and verify security vulnerabilities within the application.
+
+---
+
+####  MySQL Workbench
+
+**Purpose:**  
+Used to inspect and validate database-level storage of user credentials.
+
+**Testing Activities:**
+- Queried the `users` table to examine how passwords were stored.
+- Verified whether passwords were stored in plain text or hashed format.
+- Checked newly inserted user records after registration.
+- Compared database records before and after implementing password hashing.
+
+**Evidence:**
+
+The screenshot below shows how the password storage was tested by creating or modifying user records and inspecting the resulting values stored in the database. This was used to verify whether passwords were stored in plain text or securely hashed.
+
+<img width="485" height="232" alt="MySQL Workbench Password Verification" src="https://github.com/user-attachments/assets/59c0f3cd-9e79-4ad1-a339-38a39dad8a75" />
+
+---
+
+#### Browser Developer Tools (Chrome DevTools)
+
+**Purpose:**  
+Used to inspect client-side storage and analyse authentication-related data exposure.
+
+**Testing Activities:**
+- Inspected **Application → Local Storage** to identify sensitive data stored in the browser.
+- Verified whether user credentials, session information, or authentication tokens were stored insecurely.
+- Monitored the **Network** tab during login and registration requests.
+- Analysed API requests and responses for potential exposure of sensitive information.
+
+**Evidence:**
+<img width="959" height="461" alt="image" src="https://github.com/user-attachments/assets/60543c09-f509-4fc1-a745-a87bf77ffc0f" />
+
+---
+
+#### Postman
+
+<img width="557" height="303" alt="image" src="https://github.com/user-attachments/assets/3478ab6d-6a8d-41a1-8106-acbc744f35da" />
+
+**Purpose:**  
+Used to test and verify backend authentication and user-related API endpoints independently of the frontend application.
+
+**Testing Activities:**
+- Sent HTTP requests directly to `/users/login` and `/users` endpoints
+- Verified whether passwords are transmitted in plain text during login and registration
+- Checked API responses for exposed sensitive data such as JWT tokens and user details
+- Validated server-side handling of authentication requests without frontend interference
+- Confirmed whether authentication controls rely on backend validation or client-side input
 
 ---
 
@@ -353,14 +473,6 @@ Storing passwords in plain text is a critical security vulnerability. If the dat
 ---
 
 ### Recommendation
-To mitigate the risk of credential exposure, the application was updated to implement secure password handling using two complementary approaches:
-
-- Method 1: bcrypt password hashing (application-level fix)
-- Method 2: AWS Cognito for authentication (cloud-based identity management)
-
-Previously, passwords were stored in plain text, allowing any database compromise to immediately expose user credentials. The following methods address this issue using both local and cloud-based security improvements.
-
-### Method 1 — bcrypt Password Hashing (Application-Level Fix)
 
 To protect user passwords, they should never be stored in plain text. Instead, passwords should be secured using modern hashing algorithms such as **bcrypt** or **Argon2**.
 
@@ -395,143 +507,60 @@ Implementing password hashing significantly improves system security by:
 
 --- 
 
-# Example of Fix
+### Example of Fix
 
-To mitigate the risk of credential exposure, the application was updated to implement **bcrypt password hashing** during user registration and authentication. Previously, passwords were stored in plain text, allowing anyone with access to the database to immediately view and misuse user credentials.
+To mitigate the risk of password exposure, the application should implement **bcrypt hashing** for password storage and authentication. Instead of storing passwords in plain text, passwords are hashed before being saved to the database, making them significantly more difficult for attackers to obtain and misuse.
 
-By implementing bcrypt, passwords are transformed into a one-way cryptographic hash before being stored in the database. This ensures that the original password cannot be directly recovered, even if the database is compromised. During login, the application compares the user-provided password against the stored hash using bcrypt's verification mechanism rather than performing a direct string comparison.
-
-### Final Evidence
-
-The figure below shows the modifications made to integrate bcrypt hashing into the application.
+The figure below shows an example of the changes made to incorporate bcrypt hashing into the application, where passwords are hashed before being stored in the database.
 
 <img width="291" height="59" alt="image" src="https://github.com/user-attachments/assets/36f19f7b-4005-4d8f-9902-a006658c111e" />
 
-## Registration Logic (`model/user.js`)
+**Fixed code:**
+```bash
+insertUser: function (username, email, password, type, profile_pic_url, callback) {
 
-During account creation, the user's password is hashed using bcrypt before being inserted into the database. Instead of storing the original password, the generated hash value is stored.
+    var dbConn = db.getConnection();
 
-```javascript
-bcrypt.hash(password, saltRounds, function (err, hash) {
-    var insertUserSql =
-    "INSERT INTO users(username,email,password,type,profile_pic_url) VALUES(?,?,?,?,?)";
+    dbConn.connect(function (err) {
 
-    dbConn.query(insertUserSql,
-        [username, email, hash, type, profile_pic_url],
-        function (err, results) {
-            ...
+        if (err) {
+            return callback(err, null);
+        }
+
+        bcrypt.hash(password, saltRounds, function (err, hash) {
+
+            if (err) {
+                dbConn.end();
+                return callback(err, null);
+            }
+
+            var insertUserSql =
+                "INSERT INTO users(username,email,password,type,profile_pic_url) VALUES(?,?,?,?,?)";
+
+            dbConn.query(
+                insertUserSql,
+                [username, email, hash, type, profile_pic_url],
+                function (err, results) {
+
+                    dbConn.end();
+
+                    if (err) {
+                        return callback(err, null);
+                    }
+
+                    return callback(null, results);
+                }
+            );
         });
-});
+    });
+}
+
 ```
-
-## Authentication Logic (`model/user.js`)
-
-During login, the application retrieves the stored password hash associated with the user's email address and uses `bcrypt.compare()` to verify the supplied password.
-
-```javascript
-bcrypt.compare(password, user.password, function (err, isMatch) {
-    if (isMatch) {
-        var token = jwt.sign(
-            { userid: user.userid, type: user.type },
-            config.key,
-            { expiresIn: 86400 }
-        );
-    }
-});
-```
-
-## Security Improvements Achieved
-
-* Passwords are no longer stored in plain text.
-* Database compromise does not immediately reveal user credentials.
-* Attackers cannot directly read passwords from database records.
-* bcrypt automatically incorporates salting, reducing the effectiveness of rainbow table attacks.
-* Authentication is performed through secure hash comparison rather than direct password matching.
-
-## Result
-
-Before the fix, a database record contained passwords in readable form:
-
-```bash
-Password: mypassword123
-```
-
-After implementing bcrypt, the database stores only a cryptographic hash:
-
-```bash
-$2b$10$QkJzjYkJ0vR5v3q8FQ8i6eJrjN5N6xR3Kz4F8W2sY8hL9mA7dPqXG
-```
-
-With this change, even if an attacker gains access to the database, they cannot directly determine a user's original password. This significantly reduces the risk of credential theft, unauthorized access, and account compromise.
-
-<img width="621" height="22" alt="image" src="https://github.com/user-attachments/assets/f4bbb086-833b-4f3c-853f-7ee338c0ef3d" />
-
-### Method 2 — AWS Cognito (Cloud-Based Authentication Fix)
-To further improve security, AWS Cognito is used as a managed authentication service.
-
-Instead of storing and managing user passwords within the application database, authentication is delegated to AWS Cognito.
-
-### Architectural Vulnerability (Before Fix)
-
-Previously, the system had two major security weaknesses:
-
-Credentials were processed through a local endpoint (http://localhost:8081/users/login)
-Passwords were stored in plaintext inside browser localStorage
-Authentication logic was fully controlled by the client and local backend
-
-#### Risks:
-- Password exposure from browser storage
-- Database compromise leading to credential leaks
-- No centralized identity control or MFA support
-
-### Step-by-Step Implementation
-
-#### Step 1: Create Cognito User Pool
-
-<img width="746" height="223" alt="image" src="https://github.com/user-attachments/assets/9bea17fa-5cc1-4129-bdc5-059b114c8119" />
-
-In AWS Management Console:
-In the AWS Management Console, create and configure an Amazon Cognito User Pool to handle authentication securely.
-
-#### Create User Pool
-- Create a new User Pool in AWS Cognito
-- Sign-in Configuration
-- Enable sign-in using your Username and Email
-- Security Settings
-- Disable Multi-Factor Authentication (MFA) due to sandbox constraints
-- User Registration Settings
-- Enable self-registration
-- Set email as a required attribute
-- Email Delivery Configuration
-- Configure email delivery using Amazon Cognito default email service
-- App Client Setup
-- Create an App Client with the following settings:
-- Type: Single Page Application (SPA)
-- Disable client secret (required for frontend authentication)
-
-Store these securely in your application:
-```bash
-User Pool ID: us-east-1_mscUlFqxH
-App Client ID: 1q2pbm27tru11vsp2vkm31j2hn
-Cognito Authority URI:
-https://cognito-idp.us-east-1.amazonaws.com/us-east-1_mscUlFqxH
-```
----
 
 ## A07 — Identification & Authentication Failures (Brief)
 ### Finding 2: Hardcoded / Weak JWT Secret Key ###
 
 Type of flaw: Identification & Authentication Failures — Weak session token signing mechanism allowing token forging due to hardcoded credentials.
-
-### Source Code Evidence (Repository Leakage)
-During a static code analysis of the source code repository, hardcoded symmetric signing keys were discovered directly committed to version control:
-
-<img width="959" height="398" alt="image" src="https://github.com/user-attachments/assets/9cc7e54b-ebe9-46c3-90f0-cc50ab95d06c" />
-
-### Threat Actor Reconnaissance Analysis:
-1. **Repository Discovery:** A malicious actor uses automated scanners or manual search GitHub syntax (`filename:config.js "secret"`) to find exposed credential files across public or shared code repositories.
-2. **Plaintext Extraction:** Looking at line 1 and 2, the application's global JWT signing key `secret = 'Assignment2key'` is completely unmasked.
-3. **Exploitation Vector:** An attacker does not need to compromise the hosting server to exploit this. With this single string, they can locally forge valid administrative JSON Web Tokens (JWTs), present them to the public application API endpoints, and gain immediate unauthorized access to any user account on the platform.
 
 Location: Assignment/BackEndServer/config/config.js lines 1–2 (or your exact config file path)
 
@@ -545,11 +574,6 @@ To mitigate this risk, cryptographic secrets must be completely decoupled from t
 - Implement a Secret Management System: For production environments, consider leveraging a dedicated secret management service (such as AWS Secrets Manager, HashiCorp Vault, or Azure Key Vault) to dynamically inject sensitive credentials at runtime.
 
 ## Remediation Example
-There are two common methods to remediate hardcoded secrets and sensitive credentials within an application.
-
-### Method 1: Environment Variables (.env) with .gitignore
-This approach stores sensitive values such as database credentials and JWT secrets in a local `.env` file that is excluded from version control through `.gitignore`. This prevents secrets from being accidentally exposed in source code repositories.
-
 1. Create a .env file (Stored locally, NEVER committed):
 <img width="953" height="545" alt="image" src="https://github.com/user-attachments/assets/e11246d8-efc1-4593-9ad9-edb566053e72" />
 
@@ -580,144 +604,177 @@ NODE_ENV=development
 2. Update config.js to read from the environment:
 <img width="935" height="518" alt="image" src="https://github.com/user-attachments/assets/d9ea0934-7a63-41d2-9122-e183eb918cc6" />
 
-
 ```bash
 require('dotenv').config();
 
 module.exports.key = process.env.JWT_SECRET;
 ```
 
-3. Add a `.gitignore` File
+3. Add .gitignore to prevent secret leakage
 
-Add a `.gitignore` file to the root directory of the project and include the `.env` file within it.
-
-```bash
+To ensure sensitive configuration files are not exposed in version control, the .env file must be excluded from the repository using .gitignore.
+``` bash
+# Environment variables
 .env
+
+# Dependency folders
+node_modules/
+
+# Logs
+logs
+*.log
+
+# OS files
+.DS_Store
 ```
 
-### Benefits of this approach 
-- Removes secrets from source code.
-- Prevents accidental exposure through GitHub repositories.
-- Allows different configurations for development, testing, and production environments.
-- Easy to implement and maintain for small to medium-sized applications.
+### Impact of Fix
 
-### Method 2: AWS Secrets Manager (Recommended for Production)
-While environment variables (.env) protect source control history, production servers shouldn't keep static credentials saved to a local hard disk file. Instead, cloud architectures rely on a centralized credential vault like AWS Secrets Manager.
+Implementing secure secret management improves system security by:
 
-### Step 1: Run the modular AWS SDK v3 dependency installer inside your backend environment path:
+Preventing JWT secret exposure through version control leaks
+Protecting authentication integrity
+Reducing risk of credential compromise
+Ensuring sensitive environment variables are not publicly accessible
+Aligning with OWASP A07:2021 security best practices
 
-<img width="662" height="182" alt="image" src="https://github.com/user-attachments/assets/e3fae965-c051-459f-bfda-18a160780e7e" />
+## A07 — Identification & Authentication Failures (Optional)
+### Finding 3: Session Hijacking via Client-Side Token Substitution ###
 
-### Step 2: Secure Code Implementation Example
-Replace standard static file reading blocks inside your initialization scripts with a dynamic asynchronous call directly into AWS Secrets Manager.
+#### Overview
 
-```bash
-// Location: Assignment/BackEndServer/config.js
-require('dotenv').config(); // Hydrate short-term cloud session variables locally
+This finding describes a security weakness in the application’s session management mechanism. The application stores JWT authentication tokens in localStorage, which introduces risks related to token exposure, manipulation, and session reuse.
 
-const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
+Although JWT itself is secure when properly signed, improper storage and handling on the client side weakens overall session security.
 
-// Client hooks directly into your configured environment profile variables
-const secretsClient = new SecretsManagerClient({ region: "us-east-1" });
+#### Affected Component
+Frontend authentication module
+Browser localStorage session storage
+API requests using JWT Authorization headers
+#### Technical Description
 
-async function fetchApplicationSecrets() {
-  const secretIdName = "assignment/backend/config"; // Case-sensitive cloud identifier path
+The application stores authentication data in the browser after login:
 
-  try {
-    const cloudResponse = await secretsClient.send(
-      new GetSecretValueCommand({
-        SecretId: secretIdName,
-        VersionStage: "AWSCURRENT"
-      })
-    );
+localStorage.setItem('Token', token);
+localStorage.setItem('user', JSON.stringify(user));
 
-    if (cloudResponse.SecretString) {
-      const parsedSecrets = JSON.parse(cloudResponse.SecretString);
-      
-      // Map retrieved properties directly to application runtime layers
-      process.env.JWT_SECRET = parsedSecrets.JWT_SECRET;
-      process.env.DB_PASSWORD = parsedSecrets.DB_PASSWORD;
-      
-      console.log("[SECURITY] System runtime properties configured via AWS Secrets Manager successfully.");
-      return parsedSecrets;
-    }
-  } catch (error) {
-    console.error("[CRITICAL ERROR] Failed to fetch credentials from AWS Vault:", error);
-    process.exit(1); // Force-close the application if it cannot fetch configurations safely
+These values are used to maintain user sessions and authenticate API requests.
+
+Because localStorage is accessible via browser developer tools and JavaScript execution context, stored tokens can be:
+
+Viewed
+Modified
+Replaced
+Extracted by malicious scripts
+#### Security Issue
+
+The system relies on client-side stored JWT tokens as a session identifier.
+
+If an attacker obtains a valid token, it can be reused in another session until expiration. This is commonly referred to as:
+
+Session Token Replay / Token Substitution (Session Hijacking Concept)
+
+#### Security Weaknesses Identified
+1. Insecure Token Storage
+
+Storing tokens in localStorage exposes them to:
+
+Browser DevTools access
+Cross-Site Scripting (XSS) attacks
+Malicious browser extensions
+2. Weak Trust in Client-Side Data
+
+The application stores user session data locally:
+
+const user = JSON.parse(localStorage.getItem('user'));
+
+This introduces risk if frontend logic relies on this data for authorization decisions instead of backend validation.
+
+3. Missing Secure Cookie Controls
+
+The application does not use:
+
+HttpOnly cookies
+Secure cookie flags
+SameSite protection
+
+This increases exposure of authentication credentials.
+
+#### Testing Methodology
+Browser Developer Tools
+Inspected localStorage
+Verified JWT token and user object storage
+Manually modified stored values to observe session behavior
+Postman API Testing
+
+Tested endpoints:
+
+GET /users
+GET /CheckRole
+
+Example request:
+
+GET /CheckRole HTTP/1.1
+Authorization: Bearer <JWT_TOKEN>
+
+Observations:
+
+Endpoints rely on JWT for authentication
+Access control depends on backend validation of token claims
+Frontend Network Inspection
+
+Monitored requests using DevTools:
+
+fetch('http://localhost:8081/CheckRole', {
+  headers: {
+    Authorization: `Bearer ${token}`
   }
-}
+});
 
-module.exports = { fetchApplicationSecrets };
-```
+Confirmed that authentication relies on client-supplied tokens.
 
-### Step 3: Set up the learning lab in AWS
-Set up the secret in the AWS Learning Lab environment.
+#### Impact
+Potential session reuse if tokens are exposed
+Risk of account impersonation in compromised environments
+Weak separation between client-side and server-side security logic
+Increased exposure to XSS-based token theft
 
-<img width="491" height="301" alt="image" src="https://github.com/user-attachments/assets/26488ae0-4914-4dd0-a359-5bbee75ba04c" />
+Risk Level: Medium
 
-Steps:
-- Open AWS Secrets Manager
-- Create a new secret
-- Store required credentials securely
-- Configure IAM permissions for access
-- Use the Secret ARN in your application
+#### Recommendations
 
-### Step 4: Secure Application Bootstrap Configuration (server.js)
-Because fetching credentials from an external cloud provider is an asynchronous network operation, server.js cannot be configured using standard synchronous execution blocks. If left unchanged, Express will bind to port 8081 immediately upon boot—before the AWS SDK finish populating the application memory—resulting in standard routing and database connection failures.
+- 1. Use HttpOnly Cookies
 
-To fix this, the application startup routine was wrapped inside an asynchronous lifecycle bootstrap sequence. This ensures that the web application engine stalls local port binding until the remote AWS Secrets Manager handshake resolves completely.
+Store JWTs in:
 
-```bash
-/*
-Summary: The server.js is used to start the backend server securely with dynamic configuration.
-*/
+HttpOnly cookies
+Secure flag enabled (HTTPS only)
+SameSite policy set to Strict or Lax
 
-var express = require('express');
-var serveStatic = require('serve-static');
-var app = require('./controller/app.js');
+- 2. Avoid localStorage for Sensitive Data
 
-// Destructure the imported module to fetch the function wrapper accurately
-const { fetchApplicationSecrets } = require('./config.js'); 
+Do not store:
 
-var port = 8081;
+JWT tokens
+Authorization-critical user data
 
-app.use(serveStatic(__dirname + '/public')); 
+- 3. Enforce Backend Authorization
 
-// Secure Asynchronous Bootstrap Wrapper
-async function bootstrapServer() {
-    try {
-        console.log("[STARTUP] Attaching to AWS Secrets Manager service space...");
-        
-        // 1. Enforce an execution hold until AWS secrets finish loading completely into memory
-        await fetchApplicationSecrets();
+Ensure:
 
-        // 2. NOW bind the hosting port listener safely once execution variables exist
-        app.listen(port, function(){
-            console.log('[INFO] Web App Hosted successfully at http://localhost:%s', port);
-        });
+Every protected route validates JWT properly
+Role checks are performed server-side
+No reliance on frontend user state for access control
 
-    } catch (bootstrapError) {
-        console.error("[CRITICAL SHUTDOWN] Bootstrap sequence intercepted a terminal failure:", bootstrapError);
-        process.exit(1);
-    }
-}
+- 4. Implement XSS Protections
+Input sanitization for all user inputs
+Implement Content Security Policy (CSP)
+Avoid unsafe DOM usage such as innerHTML
 
-// Fire the secure boot sequence execution
-bootstrapServer();
-```
+#### Conclusion
 
-### Step 5: Final Remediation Verification and Runtime Logs
-To test and verify the structural integrity of the code integrations across both config.js and server.js, execute npm start inside the active console workspace terminal (/BackEndServer).
+The application’s authentication system is functional but exposed to risks due to insecure token storage in localStorage. While JWT integrity remains valid, the current implementation increases the attack surface for token theft and session reuse.
 
-The runtime diagnostics show that the asynchronous bootstrap loop successfully grabs the temporary AWS Academy Learner Lab environment credentials, reaches out to the designated container vault, extracts the properties, and activates the web listener safely:
-
-<img width="500" height="74" alt="image" src="https://github.com/user-attachments/assets/850af3c1-41da-4fb5-8af1-62b517e5ecbf" />
-
-### Remediation Metrics Confirmed:
-- Zero Disk-Persistent Plaintext Secrets: Hardcoded production configuration keys have been completely eradicated from codebase repository assets and commit history.
-- Fail-Closed Verification Complete: The application successfully authorized its identity credentials against AWS, resolving the previous ResourceNotFoundException.
-- Deferred Network Exposure: The backend infrastructure successfully held port 8081 in a closed state until database parameters were completely mapped, blocking unauthorized access requests during an unconfigured initialization phase.
-
-
+Improving storage mechanisms and enforcing stricter backend authorization will significantly enhance overall security posture.
 
 
