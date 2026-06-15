@@ -371,30 +371,6 @@ async function registerUser() {
 
 ### 3. Login API response exposes sensitive authentication data
 
-The login endpoint returns both JWT token and user information to the client.
-
-``` bash
-{
-    "success": true,
-    "UserData": "[{\"userid\":46,\"username\":\"hacker1\",\"email\":\"hacker1@gmail.com\",\"type\":\"user\",\"profile_pic_url\":\"\",\"created_at\":\"2026-06-15T01:42:50.000Z\"}]",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....",
-    "status": "You are successfully logged in!"
-}
-```
-
-#### Security Issue:
-- JWT token is exposed directly in API response
-- User data is unnecessarily exposed to client
-- Increases risk if combined with XSS or insecure storage
-- Encourages insecure client-side token handling
----
-
-#### Security Issue:
-JWT token is exposed in plain API response
-User identity data is returned to the client unnecessarily
-If intercepted (e.g., via XSS or insecure network), it can be reused for session hijacking
-Encourages insecure client-side storage of authentication data
-
 ## Impact
 
 Passwords are stored in plain text within the database instead of being hashed before storage. If an attacker gains access to the database through a data breach, misconfiguration, or another vulnerability, all user passwords would be immediately exposed.
@@ -461,6 +437,9 @@ Used to test and verify backend authentication and user-related API endpoints in
 - Checked API responses for exposed sensitive data such as JWT tokens and user details
 - Validated server-side handling of authentication requests without frontend interference
 - Confirmed whether authentication controls rely on backend validation or client-side input
+
+
+---
 
 ---
 
