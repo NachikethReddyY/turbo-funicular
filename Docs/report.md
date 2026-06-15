@@ -313,12 +313,63 @@ The attacker parses the exposed dataset to select valid, active credential pairs
 Frontend session management state showing that the user's raw password (1) is explicitly written to persistent browser localStorage under the key logPassword
 
 ## Identify code snippet exposing the vulnerability
-The core authentication failure spans across both the frontend client-side session management and the backend persistence layer. Below are the specific code implementations introducing these flaws:
 
-- 1. Frontend Client-Side: Insecure Credential Exposure (localStorage)
-Located in the frontend login script handler, the application captures the user's raw input strings and explicitly writes the plaintext password into persistent browser storage when the "Remember Me" option is checked.
+The authentication weakness spans both the frontend client-side session management and backend API responses. The following code snippets demonstrate the insecure handling of credentials and authentication data.
 
-<img width="581" height="279" alt="image" src="https://github.com/user-attachments/assets/3b90d35d-65b7-482e-b6f6-fd0ac3bdd043" />
+---
+
+### 1. Frontend Client-Side: Insecure Credential Storage (localStorage)
+
+The application stores sensitive authentication data in browser localStorage when the "Remember Me" feature is enabled.
+
+```javascript
+localStorage.setItem('logEmail', email);
+localStorage.setItem('logPassword', pwd);
+```
+
+#### Security Issue:
+- Password is stored in plain text in the browser
+- Accessible via JavaScript
+- Can be stolen via XSS attacks
+- Not secure for persistent authentication storage
+
+### 2. Registration sends raw password to backend
+
+The frontend sends the password directly to the backend /users endpoint without encryption.
+
+<img width="551" height="301" alt="image" src="https://github.com/user-attachments/assets/0922ec36-a6c4-41d6-8807-787a23c84c7e" />
+
+``` javascript
+async function registerUser() {
+
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const type = document.getElementById('type').value;
+    const profile_pic_url = document.getElementById('profile_pic_url').value;
+
+    const res = await fetch('http://localhost:8081/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username,
+            email,
+            password,
+            type,
+            profile_pic_url
+        })
+    });
+}
+```
+
+#### Security Issue:
+- Password is transmitted in raw form
+- No client-side encryption or hashing
+- Relies fully on backend security (which was initially missing hashing)
+
+### 3. Login API response exposes sensitive authentication data
 
 ## Impact
 
@@ -369,6 +420,23 @@ Used to inspect client-side storage and analyse authentication-related data expo
 - Analysed API requests and responses for potential exposure of sensitive information.
 
 **Evidence:**
+<img width="959" height="461" alt="image" src="https://github.com/user-attachments/assets/60543c09-f509-4fc1-a745-a87bf77ffc0f" />
+
+---
+
+#### Postman
+
+<img width="557" height="303" alt="image" src="https://github.com/user-attachments/assets/3478ab6d-6a8d-41a1-8106-acbc744f35da" />
+
+**Purpose:**  
+Used to test and verify backend authentication and user-related API endpoints independently of the frontend application.
+
+**Testing Activities:**
+- Sent HTTP requests directly to `/users/login` and `/users` endpoints
+- Verified whether passwords are transmitted in plain text during login and registration
+- Checked API responses for exposed sensitive data such as JWT tokens and user details
+- Validated server-side handling of authentication requests without frontend interference
+- Confirmed whether authentication controls rely on backend validation or client-side input
 
 
 ---
@@ -515,15 +583,177 @@ NODE_ENV=development
 2. Update config.js to read from the environment:
 <img width="935" height="518" alt="image" src="https://github.com/user-attachments/assets/d9ea0934-7a63-41d2-9122-e183eb918cc6" />
 
-
 ```bash
 require('dotenv').config();
 
 module.exports.key = process.env.JWT_SECRET;
 ```
 
+3. Add .gitignore to prevent secret leakage
 
+To ensure sensitive configuration files are not exposed in version control, the .env file must be excluded from the repository using .gitignore.
+``` bash
+# Environment variables
+.env
 
+# Dependency folders
+node_modules/
 
+# Logs
+logs
+*.log
+
+# OS files
+.DS_Store
+```
+
+### Impact of Fix
+
+Implementing secure secret management improves system security by:
+
+Preventing JWT secret exposure through version control leaks
+Protecting authentication integrity
+Reducing risk of credential compromise
+Ensuring sensitive environment variables are not publicly accessible
+Aligning with OWASP A07:2021 security best practices
+
+## A07 — Identification & Authentication Failures (Optional)
+### Finding 3: Session Hijacking via Client-Side Token Substitution ###
+
+#### Overview
+
+This finding describes a security weakness in the application’s session management mechanism. The application stores JWT authentication tokens in localStorage, which introduces risks related to token exposure, manipulation, and session reuse.
+
+Although JWT itself is secure when properly signed, improper storage and handling on the client side weakens overall session security.
+
+#### Affected Component
+Frontend authentication module
+Browser localStorage session storage
+API requests using JWT Authorization headers
+#### Technical Description
+
+The application stores authentication data in the browser after login:
+
+localStorage.setItem('Token', token);
+localStorage.setItem('user', JSON.stringify(user));
+
+These values are used to maintain user sessions and authenticate API requests.
+
+Because localStorage is accessible via browser developer tools and JavaScript execution context, stored tokens can be:
+
+Viewed
+Modified
+Replaced
+Extracted by malicious scripts
+#### Security Issue
+
+The system relies on client-side stored JWT tokens as a session identifier.
+
+If an attacker obtains a valid token, it can be reused in another session until expiration. This is commonly referred to as:
+
+Session Token Replay / Token Substitution (Session Hijacking Concept)
+
+#### Security Weaknesses Identified
+1. Insecure Token Storage
+
+Storing tokens in localStorage exposes them to:
+
+Browser DevTools access
+Cross-Site Scripting (XSS) attacks
+Malicious browser extensions
+2. Weak Trust in Client-Side Data
+
+The application stores user session data locally:
+
+const user = JSON.parse(localStorage.getItem('user'));
+
+This introduces risk if frontend logic relies on this data for authorization decisions instead of backend validation.
+
+3. Missing Secure Cookie Controls
+
+The application does not use:
+
+HttpOnly cookies
+Secure cookie flags
+SameSite protection
+
+This increases exposure of authentication credentials.
+
+#### Testing Methodology
+Browser Developer Tools
+Inspected localStorage
+Verified JWT token and user object storage
+Manually modified stored values to observe session behavior
+Postman API Testing
+
+Tested endpoints:
+
+GET /users
+GET /CheckRole
+
+Example request:
+
+GET /CheckRole HTTP/1.1
+Authorization: Bearer <JWT_TOKEN>
+
+Observations:
+
+Endpoints rely on JWT for authentication
+Access control depends on backend validation of token claims
+Frontend Network Inspection
+
+Monitored requests using DevTools:
+
+fetch('http://localhost:8081/CheckRole', {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
+
+Confirmed that authentication relies on client-supplied tokens.
+
+#### Impact
+Potential session reuse if tokens are exposed
+Risk of account impersonation in compromised environments
+Weak separation between client-side and server-side security logic
+Increased exposure to XSS-based token theft
+
+Risk Level: Medium
+
+#### Recommendations
+
+- 1. Use HttpOnly Cookies
+
+Store JWTs in:
+
+HttpOnly cookies
+Secure flag enabled (HTTPS only)
+SameSite policy set to Strict or Lax
+
+- 2. Avoid localStorage for Sensitive Data
+
+Do not store:
+
+JWT tokens
+Authorization-critical user data
+
+- 3. Enforce Backend Authorization
+
+Ensure:
+
+Every protected route validates JWT properly
+Role checks are performed server-side
+No reliance on frontend user state for access control
+
+- 4. Implement XSS Protections
+Input sanitization for all user inputs
+Implement Content Security Policy (CSP)
+Avoid unsafe DOM usage such as innerHTML
+
+#### Conclusion
+
+The application’s authentication system is functional but exposed to risks due to insecure token storage in localStorage. While JWT integrity remains valid, the current implementation increases the attack surface for token theft and session reuse.
+
+Improving storage mechanisms and enforcing stricter backend authorization will significantly enhance overall security posture.
 
 
