@@ -260,12 +260,139 @@ dbConn.query(insertGameSql, [title, game_description, year, game_image.buffer], 
 
 --- 
 ## A04 — Insecure Design (Detailed)
-(Content to be filled by Sitt)
 
+### Finding 1: Frontend-Only Admin Access Control
 
---- 
+**Type of flaw:** Insecure Design — Security controls exist only in the browser (UI hiding and JavaScript checks) while the API was never designed to enforce the same admin rules on the server.
+
+**Location:**
+- `Assignment/FrontEndServer/Public/addNewCategory.html` lines 68–82
+- `Assignment/FrontEndServer/Public/admin.html` lines 87–96
+- `Assignment/BackEndServer/controller/app.js` lines 57–64, 337, 387, 435, 529
+
+**Vulnerable code snippet:**
+
+```javascript
+// addNewCategory.html — admin check runs only in the browser
+async function checkAdmin(){
+    const token = localStorage.getItem('Token');
+    if(!token){ showAlert('Admin access required. Please login.', 'warning'); return false; }
+    const res = await fetch(apiBase + '/CheckRole', { headers: { 'Authorization': 'Bearer ' + token } });
+    const d = await res.json();
+    return (d.role === 'Admin' || d.role === 'admin');
+}
+// Form submit is blocked if checkAdmin() fails — but the API has no matching rule
+```
+
+```javascript
+// app.js — /CheckRole validates JWT and returns role, but nothing else uses it
+app.get('/CheckRole', verifyToken, function (req, res) {
+    const userRole = req.type;
+    res.send({ role: userRole });
+});
+
+// Admin routes — NO verifyToken, NO requireAdmin middleware
+app.post('/category',  function (req, res) { ... });
+app.post('/platform', function (req, res) { ... });
+app.post('/game', upload.single('game_image'), function (req, res) { ... });
+app.delete('/game/:id', function (req, res) { ... });
+```
+
+**Why this is an insecure design (not just a missing line of code):**
+The application was architected as if hiding admin tabs and calling `checkAdmin()` before form submit were sufficient protection. The backend was never given a matching authorization layer. Even if every frontend check worked perfectly, any HTTP client could still perform admin actions because the API design treats those routes as public write endpoints.
+
+**How it can be exploited:**
+An attacker does not need to open the admin UI at all. They can bypass all frontend controls with direct API calls:
+
+```bash
+# Create a category without logging in
+curl -X POST http://localhost:8081/category \
+  -H "Content-Type: application/json" \
+  -d '{"catname":"BypassCategory","description":"Created without auth"}'
+
+# Delete a game without a token
+curl -X DELETE http://localhost:8081/game/1
+```
+
+A normal user who is blocked by `checkAdmin()` in the browser can still run the same requests from Postman or curl. The UI gives a false sense of security while the server accepts the operation.
+
+**Tools used:** Manual code review, curl, Postman, browser developer tools
+
+**Recommendation:**
+Design security on the server first. Define a role model (`Customer`, `Admin`) and a middleware chain that every privileged route must pass through: `verifyToken` → `requireAdmin` → `validateInput` → controller. Frontend checks may remain for user experience, but must be treated as non-security (defense in depth only).
+
+**Fixed code:**
+
+```javascript
+// auth/requireAdmin.js — server-side role enforcement (new middleware)
+function requireAdmin(req, res, next) {
+    if (req.type !== 'Admin' && req.type !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+    }
+    next();
+}
+
+// app.js — admin routes protected by design, not by UI
+app.post('/category', verifyToken, requireAdmin, function (req, res) { ... });
+app.post('/platform', verifyToken, requireAdmin, function (req, res) { ... });
+app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), function (req, res) { ... });
+app.delete('/game/:id', verifyToken, requireAdmin, function (req, res) { ... });
+```
+
+**Best Secure Coding Practice:**
+Apply threat modelling during design — ask “what if the user never uses our frontend?” Never trust the client for authorization decisions. Use a default-deny API design where every state-changing route declares its required authentication and role at the routing layer, not inside HTML or JavaScript.
+
+---
+
 ## A04 — Insecure Design (Brief)
-(Content to be filled by Sitt)
+
+### Finding 2: Client-Controlled User Role on Registration
+
+**Type of flaw:** Insecure Design — Role assignment is delegated to the client instead of being decided server-side, allowing privilege escalation by design.
+
+**Location:**
+- `Assignment/BackEndServer/controller/app.js` lines 247–257
+- `Assignment/FrontEndServer/Public/register.html` lines 70–73, 132
+- `Assignment/BackEndServer/model/users.js` lines 52–66
+
+**Vulnerable code snippet:**
+
+```javascript
+// register.html — UI only offers "user", but this is not enforced anywhere else
+<select id="type" name="type" class="form-select" required>
+  <option value="user" selected>User</option>
+</select>
+```
+
+```javascript
+// app.js — server trusts client-supplied role
+app.post('/users', function (req, res) {
+    var type = req.body.type;
+    userDB.insertUser(username, email, password, type, profile_pic_url, function (err, results) { ... });
+});
+```
+
+**Impact:** Anyone can register as an administrator by sending `"type": "Admin"` in the JSON body, even though the registration form only shows a normal user option. There is also no canonical role enum — the UI uses `"user"`, the database seed uses `"Customer"`, and admin checks look for `"Admin"`. This broken role model is a design flaw that makes authorization inconsistent across the entire application.
+
+**Fixed code:**
+
+```javascript
+// app.js — server assigns role; ignore client input
+app.post('/users', function (req, res) {
+    var username = req.body.username;
+    var email = req.body.email;
+    var password = req.body.password;
+    var profile_pic_url = req.body.profile_pic_url;
+    var type = 'Customer';  // always set by server
+
+    userDB.insertUser(username, email, password, type, profile_pic_url, function (err, results) { ... });
+});
+```
+
+Additionally, remove `type` from the registration request body in `register.html` so the client cannot suggest a role at all.
+
+**Best Secure Coding Practice:**
+Treat role and permission assignment as a server-side business rule. Whitelist allowed values in one place (constants or database enum). Never expose privileged fields in public registration APIs. Admin accounts should be created only through seed data, manual promotion, or a separate protected admin workflow.
 
 
 --- 
