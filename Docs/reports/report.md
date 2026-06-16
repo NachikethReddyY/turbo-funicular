@@ -257,6 +257,8 @@ The `userid` value from the URL is inserted directly into the SQL statement with
 **How it can be exploited:**
 This endpoint is public and does not require authentication. An attacker can supply crafted input such as `1 OR 1=1` or other SQL syntax in the `userid` path parameter to try to change the query behavior. If the database accepts the payload, the response may reveal unintended user records.
 
+<img 1=1>
+
 **Impact:**
 - Unauthorized access to user data
 - Exposure of usernames, emails, passwords, and profile information
@@ -289,6 +291,8 @@ Always use prepared statements or parameterized queries for database access. Nev
 ## A03 — Injection (Brief)
 
 ### Finding 2: SQL Injection in `POST /game`
+
+<img>
 
 **Type of flaw:** SQL Injection caused by unsafe string interpolation in the game creation query.
 
