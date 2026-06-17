@@ -1,0 +1,15 @@
+info:
+  name: 04 - Get Game by ID - GET /game/12
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:8081/game/12
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

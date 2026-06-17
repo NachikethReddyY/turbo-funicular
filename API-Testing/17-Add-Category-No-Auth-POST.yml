@@ -1,0 +1,22 @@
+info:
+  name: 17 - Add Category (No Auth) - POST /category (VULNERABILITY)
+  type: http
+  seq: 17
+
+http:
+  method: POST
+  url: http://localhost:8081/category
+  body:
+    type: json
+    data: |-
+      {
+        "catname": "TestCat",
+        "description": "test"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

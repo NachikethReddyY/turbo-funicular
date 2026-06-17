@@ -12,6 +12,7 @@ const platformDB = require('../model/platform');
 const reviewDB = require('../model/review');
 const gameDB = require('../model/game');
 var verifyToken = require('../auth/verifyToken.js');
+var requireAdmin = require('../auth/requireAdmin.js');
 
 const app = express();
 
@@ -132,7 +133,7 @@ app.post('/users/login', function (req, res) {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             delete result[0]['password'];//clear the password in json data, do not send back to client
-            console.log(result);
+            //console.log(result);
 
             // If rememberMe is true, set a cookie with the token for persistent login
             if (rememberMe) {
@@ -147,7 +148,7 @@ app.post('/users/login', function (req, res) {
         else {
 
             res.status(500);
-            res.send(err.statusCode);
+            res.json({ success: false, message: 'Login failed' });
         }
     });
 });
@@ -216,7 +217,7 @@ app.get('/platform', function (req, res) {
 //ENDPOINT 1
 //GET /user/
 //Get all users
-app.get('/users', function (req, res) {
+app.get('/users', verifyToken, requireAdmin, function (req, res) {
 
 
     userDB.getUser(function (err, results) {
@@ -244,13 +245,13 @@ app.get('/users', function (req, res) {
 //ENDPOINT 2
 //POST /user
 //Add a new user
-app.post('/users', function (req, res) {
+app.post('/users', verifyToken, requireAdmin, function (req, res) {
 
     //retrieve user input
     var username = req.body.username;
     var email = req.body.email;
     var password = req.body.password;
-    var type = req.body.type;
+    var type = 'user';
     var profile_pic_url = req.body.profile_pic_url;
 
 
@@ -305,7 +306,7 @@ app.post('/users', function (req, res) {
 //ENDPOINT 3
 //GET /user/:userid
 //Get user by user id
-app.get('/users/:userid', function (req, res) {
+app.get('/users/:userid', verifyToken, requireAdmin, function (req, res) {
 
     //retrieve user input
     var userid = req.params.userid;
@@ -334,7 +335,7 @@ app.get('/users/:userid', function (req, res) {
 //ENDPOINT 4
 //POST /category
 //Add a new category
-app.post('/category',  function (req, res) {
+app.post('/category', verifyToken, requireAdmin, function (req, res) {
 
     //retrieve category input
     var catname = req.body.catname;
@@ -384,7 +385,7 @@ app.post('/category',  function (req, res) {
 //ENDPOINT 5
 //POST /platform
 //Add a new platform
-app.post('/platform',  function (req, res) {
+app.post('/platform', verifyToken, requireAdmin, function (req, res) {
 
     //retrieve platform input
     var platform_name = req.body.platform_name;
@@ -432,7 +433,7 @@ app.post('/platform',  function (req, res) {
 //ENDPOINT 6
 //POST /game
 //Add a new game
-app.post('/game', upload.single('game_image'), function (req, res) {
+app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), function (req, res) {
 
     var title = req.body.title;
     var game_description = req.body.description;
@@ -526,7 +527,7 @@ app.get('/game_platform/:platform', function (req, res) {
 //ENDPOINT 8
 //DELETE /game/:id
 //Delete a game
-app.delete('/game/:id', function (req, res) {
+app.delete('/game/:id', verifyToken, requireAdmin, function (req, res) {
 
     var gameID = req.params.id;
 
@@ -554,7 +555,7 @@ app.delete('/game/:id', function (req, res) {
 //ENDPOINT 10
 //POST /user/:uid/game/:gid/review
 //User add review to game
-app.post('/users/:uid/game/:gid/review', function (req, res) {
+app.post('/users/:uid/game/:gid/review', verifyToken, function (req, res) {
 
     var userid = req.params.uid;
     var gameID = req.params.gid;

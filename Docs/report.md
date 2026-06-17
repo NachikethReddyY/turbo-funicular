@@ -1,3 +1,9 @@
+---
+title: ST2515 Secure Vulnerability Analysis Report
+author: Team (Nachiketh, Mike, Keefe, Sitt)
+date: 2026-06
+---
+
 # ST2515 — Secure Coding Project
 
 ## Secure Vulnerability Analysis Report

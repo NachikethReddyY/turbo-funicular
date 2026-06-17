@@ -1,0 +1,17 @@
+info:
+  name: 10 - Check Role - GET /CheckRole
+  type: http
+  seq: 10
+
+http:
+  method: GET
+  url: http://localhost:8081/CheckRole
+  auth: inherit
+  headers:
+    Authorization: Bearer YOUR_TOKEN_HERE
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

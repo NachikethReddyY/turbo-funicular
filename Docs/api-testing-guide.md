@@ -1,10 +1,10 @@
-# API Testing Guide — Turbo Funicular
+---
+title: API Testing Guide for Bruno
+author: Nachiketh Reddy
+date: 2026-06-08
+---
 
----
-**Title:** API Testing Guide for Bruno
-**Written by:** Nachiketh Reddy
-**Date:** 2026-06-08
----
+# API Testing Guide — Turbo Funicular
 
 > Prerequisites: Backend running at `http://localhost:8081` via `pnpm run dev` from repo root.
 

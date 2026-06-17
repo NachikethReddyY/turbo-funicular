@@ -1,0 +1,22 @@
+info:
+  name: 18 - Add Platform (No Auth) - POST /platform (VULNERABILITY)
+  type: http
+  seq: 18
+
+http:
+  method: POST
+  url: http://localhost:8081/platform
+  body:
+    type: json
+    data: |-
+      {
+        "platform_name": "TestPlatform",
+        "description": "test"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

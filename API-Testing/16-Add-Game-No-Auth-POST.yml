@@ -1,0 +1,25 @@
+info:
+  name: 16 - Add Game (No Auth) - POST /game (VULNERABILITY)
+  type: http
+  seq: 16
+
+http:
+  method: POST
+  url: http://localhost:8081/game
+  auth: inherit
+  body: multipart-form
+
+body:
+  multipart-form:
+    title: Test Game
+    description: This is a game added without authentication
+    year: "2026"
+    price: "10"
+    platformid: "1"
+    categoryid: "1"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

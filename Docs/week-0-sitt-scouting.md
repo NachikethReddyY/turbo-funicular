@@ -1,12 +1,12 @@
-# Week 0 — Sitt Scouting Report
+---
+title: Week 0 — A04 Insecure Design Scouting
+author: Sitt
+collaborators: Nachiketh Reddy Y, Mike Franco Abat, Keefe
+reviewed_by:
+date: 2026-06-08
+---
 
----
-**Title:** Week 0 — A04 Insecure Design Scouting
-**Written by:** Sitt
-**Collaborators:** Nachiketh Reddy Y, Mike Franco Abat, Keefe
-**Reviewed by:**
-**Date:** 2026-06-08
----
+# Week 0 — Sitt Scouting Report
 
 ## 1. Owner
 

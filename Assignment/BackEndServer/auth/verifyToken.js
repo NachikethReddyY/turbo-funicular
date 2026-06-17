@@ -3,10 +3,8 @@ var jwt = require('jsonwebtoken');
 var config = require('../config');
 
 function verifyToken(req, res, next) {
-    console.log(req.headers);
 
     var token = req.headers['authorization']; //retrieve authorization header's content
-    console.log(token);
 
     if (!token || !token.includes('Bearer')) { //process the token
 

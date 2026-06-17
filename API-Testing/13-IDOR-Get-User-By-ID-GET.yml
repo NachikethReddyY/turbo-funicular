@@ -1,0 +1,15 @@
+info:
+  name: 13 - IDOR - Get User by ID - GET /users/1 (VULNERABILITY)
+  type: http
+  seq: 13
+
+http:
+  method: GET
+  url: http://localhost:8081/users/1
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

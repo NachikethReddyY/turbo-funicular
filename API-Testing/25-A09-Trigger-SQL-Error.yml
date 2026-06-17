@@ -1,0 +1,22 @@
+info:
+  name: 25 - A09 Trigger SQL Error (screenshot backend terminal)
+  type: http
+  seq: 25
+
+http:
+  method: POST
+  url: http://localhost:8081/game
+  body:
+    type: json
+    data: |-
+      {
+        "title": "",
+        "game_description": "test"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,13 +1,14 @@
+---
+title:
+author:
+collaborators:
+reviewed_by:
+date:
+---
+
 # Week 0 Scouting Findings Template
 
 > Copy this file as `Docs/week-0-<your-name>-scouting.md` and fill it in before Week 1 starts.
-
----
-**Title:**
-**Written by:**
-**Collaborators:**
-**Reviewed by:**
-**Date:**
 ---
 
 ## 1. Owner

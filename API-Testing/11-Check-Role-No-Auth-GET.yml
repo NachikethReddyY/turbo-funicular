@@ -1,0 +1,15 @@
+info:
+  name: 11 - Check Role (No Token) - GET /CheckRole
+  type: http
+  seq: 11
+
+http:
+  method: GET
+  url: http://localhost:8081/CheckRole
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
