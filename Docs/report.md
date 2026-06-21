@@ -179,10 +179,9 @@ The `userid` value from the URL is inserted directly into the SQL statement with
 
 **How it can be exploited:**
 This endpoint is public and does not require authentication. An attacker can supply crafted input such as `1 OR 1=1` or other SQL syntax in the `userid` path parameter to try to change the query behavior. If the database accepts the payload, the response may reveal unintended user records.
+<img src="../Assets/Mike/get-users-poc.png" alt="GET /users/:userid proof of concept request">
 
-<img 1=1 request>
-
-<img code request code>
+<img src="../Assets/Mike/get-users-code.png" alt="GET /users/:userid vulnerable code">
 
 **Impact:**
 - Unauthorized access to user data
@@ -216,9 +215,8 @@ Always use prepared statements or parameterized queries for database access. Nev
 ## A03 — Injection (Brief)
 
 ### Finding 2: SQL Injection in `POST /game`
-
-<img insertGame request>
-<img insertGame error>
+<img src="../Assets/Mike/insertgame-request.png" alt="POST /game proof of concept request">
+<img src="../Assets/Mike/insertgame-error.png" alt="POST /game server error response">
 
 **Type of flaw:** SQL Injection caused by unsafe string interpolation in the game creation query.
 
@@ -247,7 +245,7 @@ app.post('/game', upload.single('game_image'), function (req, res) {
 var insertGameSql = `INSERT INTO game (title, game_description, year, game_image) VALUES ('${title}', '${game_description}', '${year}', ?);`;
 ```
 
-<img insertGame code>
+<img src="../Assets/Mike/insertgame-code.png" alt="POST /game vulnerable code">
 
 **Impact:** The `title`, `game_description`, and `year` fields are copied directly into the SQL statement. If an attacker submits crafted values, the database query can be altered or broken, which can corrupt game data or cause unexpected behavior.
 
