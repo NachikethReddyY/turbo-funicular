@@ -38,6 +38,7 @@ The application was analyzed through manual testing and security assessment tech
 ## Methodology ##
 
 
+
 ## Category Selection Rationale
 
 ### Why A01 — Broken Access Control over A02 — Cryptographic Failures
