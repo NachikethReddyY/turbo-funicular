@@ -36,7 +36,58 @@ The application was analyzed through manual testing and security assessment tech
 ---
 
 ## Methodology ##
+The security assessment was conducted using a combination of manual testing, source code review, and API security testing techniques. The assessment was performed based on the OWASP Top 10 security risks to identify weaknesses within authentication, authorization, input validation, application design, and security monitoring.
 
+The following approaches and tools were used during the assessment:
+
+### 1. Source Code Review
+
+A manual review of the application source code was performed to identify insecure coding practices and potential security weaknesses. The review focused on:
+
+- Authentication and authorization logic
+- User access control implementation
+- Database queries and input handling
+- Password hashing and storage mechanisms
+- Session management
+- Error handling and security logging
+
+The code was analyzed to determine whether security controls were properly implemented and whether user data was adequately protected.
+
+### 2. API Request and Response Testing
+
+API endpoints were tested using API testing tools such as Bruno and Postman to inspect and analyze client-server communication.
+
+The tools were used to:
+
+- Send HTTP requests (GET, POST, PUT, DELETE)
+- Examine request headers, parameters, and body data
+- Verify authentication requirements
+- Test authorization controls
+- Analyze server responses and status codes
+- Check whether sensitive information was exposed
+
+Example:
+<img width="781" height="424" alt="image" src="https://github.com/user-attachments/assets/3cdf3982-3940-42f7-a326-17a6abaa5221" />
+
+Different test scenarios were performed by modifying request values, removing authentication tokens, and attempting unauthorized access to verify whether the application properly enforced security controls.
+
+### 3. Vulnerability Verification and Documentation
+
+Before conducting vulnerability testing, our team performed initial security scouting to understand the application structure, identify potential attack surfaces, and determine areas that required further assessment. Based on this reconnaissance phase, identified vulnerabilities were reproduced and verified to confirm their existence, exploitability, and potential impact.
+
+Each vulnerability finding was systematically documented with:
+
+- Vulnerability description — explanation of the security weakness identified
+- Testing procedure — steps taken to reproduce and validate the issue
+- Evidence of exploitation — screenshots, logs, or test results demonstrating the vulnerability
+- Security impact — potential risks to confidentiality, integrity, and availability
+- Recommended mitigation steps — secure coding improvements and preventive measures
+
+Example:
+<img width="959" height="504" alt="image" src="https://github.com/user-attachments/assets/816806d7-9061-4c8f-bc7a-2c684d76c498" />
+
+
+The assessment follows secure coding practices and aligns with the OWASP Top 10 framework, ensuring vulnerabilities are accurately identified, validated, and addressed through appropriate security controls.
 
 ## Category Selection Rationale
 
