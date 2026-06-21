@@ -12,6 +12,26 @@
 
 ---
 
+## Introduction ##
+This Secure Vulnerability Analysis Report presents the security assessment performed on the developed application as part of the ST2515 Secure Coding Project. The purpose of this assessment is to identify, analyze, and demonstrate potential security vulnerabilities based on the OWASP Top 10 security risks.
+
+The assessment focuses on four selected OWASP vulnerability categories: 
+
+- A01: Broken Access Control — vulnerabilities related to improper authorization controls that may allow users to access resources or perform actions beyond their intended permissions.
+- A03: Injection — vulnerabilities caused by untrusted input being processed by the application, potentially allowing attackers to manipulate application behavior.
+- A04: Insecure Design — weaknesses caused by missing or ineffective security controls during the design phase of the application.
+- A07: Identification and Authentication Failures — weaknesses in login mechanisms, session management, and authentication processes that may allow unauthorized access.
+- A09: Security Logging and Monitoring Failures — insufficient logging and monitoring mechanisms that reduce the ability to detect and respond to security incidents.
+
+The objective of this report is to document each identified vulnerability, explain the exploitation process, evaluate the potential impact, and provide recommended mitigation strategies following secure coding principles.
+
+The application was analyzed through manual testing and security assessment techniques to identify weaknesses in authentication, authorization, input handling, system design, and monitoring practices. The findings demonstrate the importance of implementing security controls throughout the software development lifecycle to reduce risks and protect user data.
+
+---
+
+## Methodology ##
+
+
 ## Category Selection Rationale
 
 ### Why A01 — Broken Access Control over A02 — Cryptographic Failures
