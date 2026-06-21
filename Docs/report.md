@@ -332,6 +332,42 @@ The attacker parses the exposed dataset to select valid, active credential pairs
 
 Frontend session management state showing that the user's raw password (1) is explicitly written to persistent browser localStorage under the key logPassword
 
+### Database Storage
+
+This vulnerability directly affects how authentication credentials are stored within the application's database.
+
+#### Affected Database Table
+
+**Table Name:** `users`
+
+The table stores user account information, including authentication credentials used during login.
+
+| Column Name | Description |
+|------------|-------------|
+| id | Unique user identifier |
+| username | User account username |
+| email | User email address |
+| password | User authentication password |
+| type | User account role |
+| profile_pic_url | User profile image path |
+
+![Uploading image.png…]()
+
+
+#### Sensitive Data Storage
+
+The `password` column was originally configured to store passwords in **plain text**. As a result, user credentials could be viewed directly from the database without requiring any decryption or password cracking.
+
+Example database record:
+
+```text
+id: 12
+username: testuser
+email: test@email.com
+password: password123
+type: User
+```
+
 ## Identify code snippet exposing the vulnerability
 
 The authentication weakness spans both the frontend client-side session management and backend API responses. The following code snippets demonstrate the insecure handling of credentials and authentication data.
@@ -353,13 +389,13 @@ localStorage.setItem('logPassword', pwd);
 - Can be stolen via XSS attacks
 - Not secure for persistent authentication storage
 
-### 2. Registration sends raw password to backend
+### 2. Registration Request Handling
 
-The frontend sends the password directly to the backend /users endpoint without encryption.
+The frontend registration form submits user credentials to the backend `/users` endpoint during account creation.
 
 <img width="551" height="301" alt="image" src="https://github.com/user-attachments/assets/0922ec36-a6c4-41d6-8807-787a23c84c7e" />
 
-``` javascript
+```javascript
 async function registerUser() {
 
     const username = document.getElementById('username').value.trim();
@@ -457,9 +493,6 @@ Used to test and verify backend authentication and user-related API endpoints in
 - Checked API responses for exposed sensitive data such as JWT tokens and user details
 - Validated server-side handling of authentication requests without frontend interference
 - Confirmed whether authentication controls rely on backend validation or client-side input
-
-
----
 
 ---
 
@@ -828,10 +861,40 @@ Input sanitization for all user inputs
 Implement Content Security Policy (CSP)
 Avoid unsafe DOM usage such as innerHTML
 
-#### Conclusion
+## Conclusion Findings
+This security assessment identified multiple authentication and credential management weaknesses within the application. The findings primarily fall under OWASP A07:2021 – Identification and Authentication Failures, where sensitive authentication data was either stored insecurely, exposed to the client-side environment, or protected using weak secret management practices.
 
-The application’s authentication system is functional but exposed to risks due to insecure token storage in localStorage. While JWT integrity remains valid, the current implementation increases the attack surface for token theft and session reuse.
+| Finding | Category | Severity |
+|----------|----------|----------|
+| 1 — Plain-text Password Storage and Insecure Credential Handling | A07 – Identification & Authentication Failures | High |
+| 2 — Hardcoded JWT Secret Key | A07 – Identification & Authentication Failures | Medium |
+| 3 — Session Hijacking via Client-Side Token Storage | A07 – Identification & Authentication Failures | Medium |
 
-Improving storage mechanisms and enforcing stricter backend authorization will significantly enhance overall security posture.
+### Root Cause
+
+The primary root cause across all findings is the insecure handling of authentication credentials and session data. Sensitive information such as passwords, JWT secrets, and authentication tokens were either stored insecurely, exposed to the client-side environment, or protected using weak secret management practices. These weaknesses increase the risk of unauthorized access, credential theft, and account compromise.
+
+### Fixes Implemented
+
+- Implemented bcrypt password hashing before storing passwords in the database.
+- Removed plaintext password storage from browser localStorage.
+- Moved JWT secret keys from source code into environment variables.
+- Improved authentication and session management practices.
+- Recommended secure token storage using HttpOnly Secure Cookies.
+
+### Impact of Fixes
+
+The implemented fixes significantly improve the security posture of the application by:
+
+- Protecting user credentials from database compromise.
+- Reducing the risk of account takeover attacks.
+- Preventing exposure of sensitive authentication data through browser storage.
+- Strengthening authentication and session security.
+- Aligning the application with OWASP A07:2021 security best practices.
+
+### Final Remarks
+
+The vulnerabilities identified during testing demonstrate how insecure credential storage and weak authentication controls can expose user accounts and sensitive data to attackers. By implementing secure password hashing, proper secret management, and stronger session handling controls, the application now provides significantly better protection against credential theft and unauthorized access.
+
 
 
