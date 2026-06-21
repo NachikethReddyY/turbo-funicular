@@ -35,10 +35,13 @@ turbo-funicular/
 │   │   └── Public/*.html      ← Login, register, game search
 │   └── Assets/                ← Screenshots and media
 ├── Docs/
-│   ├── scouting-findings-template.md   ← Report template
-│   ├── week-0-<name>-scouting.md       ← Individual scouting reports
-│   ├── api-testing-guide.md            ← Bruno API test cases
-│   └── log.md                          ← Weekly progress log
+│   ├── README.md              ← documentation index
+│   ├── guides/                ← API testing, post-fix screenshots
+│   ├── reports/               ← vulnerability reports
+│   ├── templates/             ← course templates
+│   ├── scouting/              ← week 0 scouting (team)
+│   └── tracking/              ← fix tracker, progress log
+├── API-Testing/               ← Bruno collection
 ├── spgames_SC.sql              ← Database schema + sample data
 └── package.json                ← Root scripts
 ```
@@ -142,9 +145,11 @@ See [`Docs/api-testing-guide.md`](Docs/api-testing-guide.md) for full test cases
 
 ## Documentation
 
-- [Scouting Report — Nachiketh](Docs/week-0-nachiketh-scouting.md)
-- [API Testing Guide](Docs/api-testing-guide.md)
-- [Weekly Progress Log](Docs/log.md)
+- [Docs index](Docs/README.md)
+- [Nachiketh report (A01 + A09)](Docs/reports/nachiketh-report.md)
+- [Post-fix screenshots guide](Docs/guides/postfix-screenshots.md)
+- [API testing (Bruno)](API-Testing/README.md)
+- [Scouting — Nachiketh](Docs/scouting/week-0-nachiketh-scouting.md)
 
 ## License
 

@@ -13,6 +13,9 @@ const reviewDB = require('../model/review');
 const gameDB = require('../model/game');
 var verifyToken = require('../auth/verifyToken.js');
 var requireAdmin = require('../auth/requireAdmin.js');
+var { audit, safeError } = require('../securityLog.js');
+
+var DUPLICATE_MSG = '{"Message":"The requested resource already exists."}';
 
 const app = express();
 
@@ -75,7 +78,7 @@ app.get('/searchgamedetails/:gameID', function (req, res) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -103,7 +106,7 @@ app.post('/searchgame', function (req, res) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -130,10 +133,11 @@ app.post('/users/login', function (req, res) {
 
         if (!err) {
 
+            audit('login_success', { userid: result[0].userid, email: email, type: result[0].type });
+
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             delete result[0]['password'];//clear the password in json data, do not send back to client
-            //console.log(result);
 
             // If rememberMe is true, set a cookie with the token for persistent login
             if (rememberMe) {
@@ -147,6 +151,7 @@ app.post('/users/login', function (req, res) {
 
         else {
 
+            audit('login_failed', { email: email });
             res.status(500);
             res.json({ success: false, message: 'Login failed' });
         }
@@ -156,7 +161,7 @@ app.post('/users/login', function (req, res) {
 
 //User Logout
 app.post('/users/logout', function (req, res) {
-    console.log("..logging out.");
+    audit('logout', {});
     res.clearCookie('rememberMeToken'); //clears the cookie in the response
     res.setHeader('Content-Type', 'application/json');
     res.json({ success: true, status: 'Log out successful!' });
@@ -172,7 +177,7 @@ app.get('/category', function (req, res) {
         // If Any error occur
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -198,7 +203,7 @@ app.get('/platform', function (req, res) {
         // If Any error occur
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -225,7 +230,7 @@ app.get('/users', verifyToken, requireAdmin, function (req, res) {
         // If Any error occur
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -262,30 +267,16 @@ app.post('/users', verifyToken, requireAdmin, function (req, res) {
             // Check for Duplication Entry
             if (err.code === "ER_DUP_ENTRY") {
 
-                // Duplicate entry error for the username
-                if (err.sqlMessage.includes("username")) {
+                safeError(err);
 
-                    console.log(err);
-
-                    res.status(422);
-                    res.type("json");
-                    res.send(`{"Message":"The username provided already exists."}`);
-                }
-
-                // Duplicate entry error for the email 
-                else if (err.sqlMessage.includes("email")) {
-
-                    console.log(err);
-
-                    res.status(422);
-                    res.type("json");
-                    res.send(`{"Message":"The email provided already exists."}`);
-                }
+                res.status(422);
+                res.type("json");
+                res.send(DUPLICATE_MSG);
             }
 
             else {
 
-                console.log(err);
+                safeError(err);
 
                 res.status(500);
                 res.type("json");
@@ -294,6 +285,8 @@ app.post('/users', verifyToken, requireAdmin, function (req, res) {
         }
 
         else {
+
+            audit('user_registered', { userid: results.insertId, username: username, by: req.userid });
 
             res.status(201);
             res.type("json");
@@ -315,7 +308,7 @@ app.get('/users/:userid', verifyToken, requireAdmin, function (req, res) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -349,21 +342,17 @@ app.post('/category', verifyToken, requireAdmin, function (req, res) {
             // Check for Duplication Entry
             if (err.code === "ER_DUP_ENTRY") {
 
-                // Duplicate entry error for the category name 
-                if (err.sqlMessage.includes("catname")) {
+                safeError(err);
 
-                    console.log(err);
-
-                    res.status(422);
-                    res.type("json");
-                    res.send(`{"Message":"The category name provided already exists."}`);
-                }
+                res.status(422);
+                res.type("json");
+                res.send(DUPLICATE_MSG);
             }
 
             // Any other error
             else {
 
-                console.log(err);
+                safeError(err);
 
                 res.status(500);
                 res.type("json");
@@ -372,6 +361,8 @@ app.post('/category', verifyToken, requireAdmin, function (req, res) {
         }
 
         else {
+
+            audit('category_created', { catname: catname, by: req.userid });
 
             res.status(201);
             res.type("json");
@@ -399,20 +390,16 @@ app.post('/platform', verifyToken, requireAdmin, function (req, res) {
             // Check for Duplication Entry
             if (err.code === "ER_DUP_ENTRY") {
 
-                // Duplicate entry error for the platform name 
-                if (err.sqlMessage.includes("platform_name")) {
+                safeError(err);
 
-                    console.log(err);
-
-                    res.status(422);
-                    res.type("json");
-                    res.send(`{"Message":"The platform name provided already exists."}`);
-                }
+                res.status(422);
+                res.type("json");
+                res.send(DUPLICATE_MSG);
             }
 
             else {
 
-                console.log(err);
+                safeError(err);
 
                 res.status(500);
                 res.type("json");
@@ -421,6 +408,8 @@ app.post('/platform', verifyToken, requireAdmin, function (req, res) {
         }
 
         else {
+
+            audit('platform_created', { platform_name: platform_name, by: req.userid });
 
             res.status(201);
             res.type("json");
@@ -442,13 +431,12 @@ app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), functi
     var categoryid = req.body.categoryid;
     var year = req.body.year;
     var game_image = req.file;
-    console.log(price);
 
     gameDB.insertGame(title, game_description, year, game_image, function (err, results) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
             res.status(500);
             res.type("json");
             res.send(`{"Message":"Internal Server Error"}`);
@@ -459,12 +447,11 @@ app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), functi
             // Get the gameid
             var gameID = results.insertId;
 
-            console.log(price);
             gameDB.insertGame_Platform(gameID, price, platformid, function (err) {
 
                 if (err) {
 
-                    console.log(err);
+                    safeError(err);
                     res.status(500);
                     res.type("json");
                     res.send(`{"Message":"Internal Server Error with game_platform"}`);
@@ -476,13 +463,15 @@ app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), functi
 
                         if (err) {
 
-                            console.log(err);
+                            safeError(err);
                             res.status(500);
                             res.type("json");
                             res.send(`{"Message":"Internal Server Error with game_category"}`);
                         }
 
                         else {
+
+                            audit('game_created', { gameID: gameID, title: title, by: req.userid });
 
                             res.status(201);
                             res.type("json");
@@ -507,7 +496,7 @@ app.get('/game_platform/:platform', function (req, res) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -535,7 +524,7 @@ app.delete('/game/:id', verifyToken, requireAdmin, function (req, res) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -543,6 +532,8 @@ app.delete('/game/:id', verifyToken, requireAdmin, function (req, res) {
         }
 
         else {
+
+            audit('game_deleted', { gameID: gameID, by: req.userid });
 
             res.status(204);
             res.type("json");
@@ -562,18 +553,26 @@ app.post('/users/:uid/game/:gid/review', verifyToken, function (req, res) {
     var content = req.body.content;
     var rating = req.body.rating;
 
+    if (String(req.userid) !== String(userid)) {
+        audit('review_denied', { actor: req.userid, target: userid, gameID: gameID });
+        res.status(403);
+        return res.json({ auth: false, message: 'Not authorized!' });
+    }
+
     reviewDB.insertReview(userid, gameID, content, rating, function (err, results) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
-            res.status(200);
+            res.status(500);
             res.type("json");
             res.send(`{"Message":"Internal Server Error"}`);
         }
 
         else {
+
+            audit('review_created', { userid: userid, gameID: gameID, reviewid: results.insertId });
 
             res.status(201);
             res.type("json");
@@ -595,7 +594,7 @@ app.get('/game/:id/review', function (req, res) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -658,7 +657,7 @@ app.get('/game', function (req, res) {
 
         if (err) {
 
-            console.log(err);
+            safeError(err);
 
             res.status(500);
             res.type("json");
@@ -676,5 +675,4 @@ app.get('/game', function (req, res) {
 
 
 //---------------------
-
 module.exports = app;

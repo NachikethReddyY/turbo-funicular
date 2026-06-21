@@ -10,8 +10,8 @@ http:
     type: json
     data: |-
       {
-        "username": "newuser123",
-        "email": "newuser@example.com",
+        "username": "newuser123d4",
+        "email": "newuserd1@example.com",
         "password": "testpass123",
         "type": "Customer",
         "profile_pic_url": ""

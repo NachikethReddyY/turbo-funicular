@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:8081/users/1/game/12/review
+  url: http://localhost:8081/users/3/game/12/review
   body:
     type: json
     data: |-

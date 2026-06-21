@@ -7,6 +7,7 @@ Summary: The users.js is used create functions and what it does to the Users dat
 const db = require('./databaseConfig');
 var config = require('../config.js');
 var jwt = require('jsonwebtoken');
+var { safeError } = require('../securityLog');
 
 
 var userDB = {
@@ -128,7 +129,7 @@ var userDB = {
 
 			if (err) {
 
-				console.log(err);
+				safeError(err);
 				return callback(err, null);
 			}
 
@@ -140,18 +141,16 @@ var userDB = {
 
 					if (err) {
 
-						console.log("Err: " + err);
+						safeError(err);
 						return callback(err, null, null);
 					} 
                     
                     else {
 						var token = "";
-						var i;
 
 						if (result.length == 1) {
 
 							token = jwt.sign({ userid: result[0].userid, type: result[0].type }, config.key, {expiresIn: 86400}); //expires in 24 hrs
-							//console.log("@@token " + token);
 							return callback(null, token, result);
 						} 
                         
