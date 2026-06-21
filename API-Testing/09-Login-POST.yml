@@ -1,5 +1,5 @@
 info:
-  name: 09 - Login - POST /users/login
+  name: 09 - Login Admin (John) — run first, copy token for A09 tests
   type: http
   seq: 9
 
@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "email": "terry@gmail.com",
+        "email": "John@gmail.com",
         "password": "abc123"
       }
   auth: inherit

@@ -14,7 +14,6 @@ function verifyToken(req, res, next) {
 
     else {
         token = token.split('Bearer ')[1]; //obtain the token's value
-        //console.log(token);
         jwt.verify(token, config.key, function (err, decoded) { //verify token
             if (err) {
                 res.status(403);
