@@ -1,69 +1,6 @@
----
-author: Keefe Chen Lin Li
-module: ST2515 Secure Coding
-date: June 2026
----
-
-# Vulnerability Analysis Report — OWASP A07 Identification & Authentication Failures
-
-## Application Overview
-
-This report presents the security vulnerability analysis performed on the developed web application for the ST2515 Secure Coding Project. The application follows a client-server architecture consisting of a frontend web interface and a Node.js backend API connected to a MySQL database.
-
-The frontend is responsible for user interaction, authentication requests, and displaying application features, while the backend provides REST API endpoints for user management, authentication, and application operations. The system uses JavaScript, Node.js, Express.js, MySQL, and JWT-based authentication.
-
-This report focuses on OWASP Top 10 security risks, specifically:
-
-- A07: Identification and Authentication Failures
-- A01: Broken Access Control
-- A03: Injection
-- A04: Insecure Design
-
-The assessment identifies security weaknesses, demonstrates possible exploitation methods, explains the impact, and provides secure coding recommendations and fixes.
-
----
-
-# Finding 1 — Plain-text Password Storage and Insecure Credential Handling
-
-## 1. Vulnerability & Type of Flaw
-
-**Type:** OWASP A07 — Identification and Authentication Failures
-
-The application originally stored user passwords in plain text instead of applying secure password hashing.
-
-This violates secure coding principles because passwords are highly sensitive authentication credentials and should never be stored in a reversible or readable format.
-
-If an attacker gains access to the database, all user passwords can immediately be viewed without requiring password cracking.
-
----
-
-## 2. Exploitation
-
-An attacker can exploit this vulnerability by obtaining access to the user database through another vulnerability, leaked database backup, or unauthorized database access.
-
-Example:
-
-
-GET /users
-Host: localhost:8081
-
-
-Before the fix, the server returned:
-
-```json
-[
- {
-  "userid":1,
-  "username":"testuser",
-  "email":"test@email.com",
-  "password":"password123"
- }
-]
-```
-The attacker can directly reuse the exposed password to login.
 # ST2515 Secure Coding Project
 
-## Vulnerability Analysis Report — OWASP A07 Identification & Authentication Failures
+## Secure Vulnerability Analysis Report
 
 **Author:** Keefe Chen Lin Li  
 **Module:** ST2515 Secure Coding  
@@ -71,46 +8,68 @@ The attacker can directly reuse the exposed password to login.
 
 ---
 
-# Finding 1 — Plain-text Password Storage and Insecure Credential Handling
+# Vulnerability Analysis Report — OWASP A07 & A02
+
+## Overview
+
+This report presents the security vulnerability analysis conducted on the developed web application for the ST2515 Secure Coding Project.
+
+The application follows a client-server architecture consisting of:
+
+- Frontend: HTML, CSS, JavaScript
+- Backend: Node.js Express API
+- Database: MySQL
+- Authentication: JWT-based authentication
+
+This report focuses on OWASP security categories:
+
+- A07 — Identification and Authentication Failures
+- A02 — Cryptographic Failures
+
+The purpose of this assessment is to identify vulnerabilities, demonstrate exploitation methods, analyse security impact, and provide recommended secure coding improvements.
+
+---
+
+# Finding 1 — Plain-text Password Storage and Lack of Hashing
 
 ## 1. Vulnerability & Type of Flaw
 
-**Type:** OWASP A07 — Identification and Authentication Failures
+**Type: OWASP A07 — Identification and Authentication Failures**
 
-The application stores user passwords in plain text instead of securely hashing them before storing them in the database.
+The application stores user passwords in plaintext instead of applying secure password hashing.
 
-This violates secure coding principles because passwords are sensitive authentication credentials and should never be stored in a readable format.
-
-If an attacker gains access to the database, all user credentials can immediately be exposed.
+This violates secure coding principles because passwords should never be stored in readable form. If attackers gain database access, all user credentials are immediately exposed.
 
 ---
 
 ## 2. Exploitation
 
-An attacker can exploit this vulnerability by obtaining access to the database through another vulnerability or unauthorized access.
+An attacker who gains access to the database can directly view stored passwords.
 
 Example:
 
-```http
-GET /users
-Host: localhost:8081
+```
+username: testuser
+email: test@email.com
+password: password123
 ```
 
-Before fixing:
+The attacker does not need to crack the password because the value is already readable.
 
-```json
-{
- "username":"testuser",
- "email":"test@email.com",
- "password":"password123"
-}
-```
+### Evidence
 
-Impact:
+![Plaintext password stored in database](https://github.com/user-attachments/assets/637df0b0-6a13-4145-997b-93c8f948b0f2)
+
+![Password visible in SQL Workbench](https://github.com/user-attachments/assets/8fee31e8-c8a8-4672-95df-90917641f237)
+
+---
+
+## Impact
 
 - Account takeover
 - Credential reuse attacks
 - Exposure of user information
+- Possible privilege escalation
 
 ---
 
@@ -138,19 +97,19 @@ Before fix:
 password = password123
 ```
 
-Password was stored as readable plaintext.
+Password stored as plaintext.
 
 After fix:
 
 ```
-password = $2a$10$xxxxxxxxxxxxxxxx
+password = $2a$10$N9qo8uLOickgx2ZMRZoMye
 ```
 
-Password is stored using bcrypt hashing.
+Password stored using bcrypt hashing.
 
 ---
 
-## 4. Affected Code
+# 4. Affected Code
 
 File:
 
@@ -171,7 +130,7 @@ The raw password value is directly inserted into the database.
 
 ---
 
-## 5. Recommendations & Fix Code
+# 5. Recommendations & Fix Code
 
 Passwords should be hashed before storage.
 
@@ -194,17 +153,17 @@ bcrypt.hash(password, saltRounds, function(err, hash){
 
 ---
 
-## 6. Testing Process
+# 6. Testing Process
 
 Before fix:
 
 Request:
 
-```http
+```
 POST /users
 ```
 
-Database:
+Database result:
 
 ```
 password123
@@ -212,7 +171,7 @@ password123
 
 After fix:
 
-Database:
+Database result:
 
 ```
 $2a$10$N9qo8uLOickgx2ZMRZoMye
@@ -222,13 +181,13 @@ The original password is no longer readable.
 
 ---
 
-## 7. Tools Used
+# 7. Tools Used
 
 | Tool | Purpose |
 |---|---|
 | MySQL Workbench | Checked password storage format |
-| Browser DevTools | Checked authentication data |
-| Postman | Tested API responses |
+| Browser DevTools | Checked authentication storage |
+| Postman | Tested API requests |
 
 ---
 
@@ -236,27 +195,29 @@ The original password is no longer readable.
 
 ## 1. Vulnerability & Type of Flaw
 
-**Type:** OWASP A07 — Identification and Authentication Failures
+**Type: OWASP A07 — Identification and Authentication Failures**
 
-The JWT secret key is stored directly inside the source code.
+The application stores the JWT secret key directly inside the source code.
 
-If attackers obtain the source code, they can potentially create forged authentication tokens.
+If attackers obtain the source code, they may generate fake authentication tokens.
 
 ---
 
 ## 2. Exploitation
 
-Example:
+Attacker creates a forged token:
 
-```http
-Authorization: Bearer <fake-token>
 ```
+Authorization: Bearer fake-token
+```
+
+If the token is signed using the exposed secret, the attacker may bypass authentication.
 
 Impact:
 
 - Authentication bypass
-- Privilege escalation
 - Account impersonation
+- Privilege escalation
 
 ---
 
@@ -264,11 +225,11 @@ Impact:
 
 Not applicable.
 
-The vulnerability affects application configuration.
+This vulnerability affects application configuration.
 
 ---
 
-## 4. Affected Code
+# 4. Affected Code
 
 File:
 
@@ -276,7 +237,7 @@ File:
 Assignment/BackEndServer/config/config.js
 ```
 
-Vulnerable:
+Vulnerable code:
 
 ```javascript
 module.exports.key="Assignment2key";
@@ -284,7 +245,7 @@ module.exports.key="Assignment2key";
 
 ---
 
-## 5. Recommendations & Fix Code
+# 5. Recommendations & Fix Code
 
 Move secrets into environment variables.
 
@@ -299,13 +260,13 @@ process.env.JWT_SECRET;
 
 Example:
 
-```
+```env
 JWT_SECRET=secure_random_key
 ```
 
 ---
 
-## 6. Testing Process
+# 6. Testing Process
 
 Before:
 
@@ -313,15 +274,15 @@ JWT secret visible in source code.
 
 After:
 
-Secret removed from source and loaded securely.
+Secret removed from application files.
 
 ---
 
-## 7. Tools Used
+# 7. Tools Used
 
 | Tool | Purpose |
 |---|---|
-| VS Code | Reviewed configuration |
+| VS Code | Reviewed configuration files |
 | Postman | Tested JWT authentication |
 
 ---
@@ -330,25 +291,31 @@ Secret removed from source and loaded securely.
 
 ## 1. Vulnerability & Type of Flaw
 
-**Type:** OWASP A07 — Identification and Authentication Failures
+**Type: OWASP A07 — Identification and Authentication Failures**
 
 The application stores JWT tokens inside browser localStorage.
 
-Since localStorage can be accessed using JavaScript, stolen tokens may be reused by attackers.
+localStorage can be accessed by JavaScript, making tokens vulnerable to theft through XSS attacks.
 
 ---
 
 ## 2. Exploitation
 
-Token retrieval:
+Token storage:
+
+```javascript
+localStorage.setItem("Token", token);
+```
+
+Attacker retrieves token:
 
 ```javascript
 localStorage.getItem("Token")
 ```
 
-Reuse:
+Token replay:
 
-```http
+```
 GET /CheckRole
 
 Authorization: Bearer stolen_token
@@ -365,11 +332,11 @@ Impact:
 
 Not applicable.
 
-The vulnerability exists in browser-side session management.
+The vulnerability exists in browser-side session storage.
 
 ---
 
-## 4. Affected Code
+# 4. Affected Code
 
 Frontend:
 
@@ -382,9 +349,11 @@ token
 
 ---
 
-## 5. Recommendations & Fix Code
+# 5. Recommendations & Fix Code
 
-Use secure cookies:
+Use secure cookies.
+
+Example:
 
 ```javascript
 res.cookie(
@@ -399,7 +368,7 @@ token,
 
 ---
 
-## 6. Testing Process
+# 6. Testing Process
 
 Before:
 
@@ -407,11 +376,11 @@ Token visible in browser storage.
 
 After:
 
-Token cannot be accessed by JavaScript.
+Token cannot be accessed through JavaScript.
 
 ---
 
-## 7. Tools Used
+# 7. Tools Used
 
 | Tool | Purpose |
 |---|---|
@@ -420,15 +389,15 @@ Token cannot be accessed by JavaScript.
 
 ---
 
-# Finding 4 — Insecure Transmission of Authentication Data
+# Finding 4 — Missing HTTPS Protection
 
 ## 1. Vulnerability & Type of Flaw
 
-**Type:** OWASP A07 — Identification and Authentication Failures
+**Type: OWASP A02 — Cryptographic Failures**
 
-The application communicates authentication requests using HTTP instead of HTTPS.
+The application uses HTTP communication instead of HTTPS.
 
-This allows credentials and authentication tokens to travel without encryption.
+Sensitive information such as passwords and tokens may be intercepted.
 
 ---
 
@@ -436,7 +405,7 @@ This allows credentials and authentication tokens to travel without encryption.
 
 Attacker intercepts:
 
-```http
+```
 POST http://localhost:8081/users/login
 ```
 
@@ -461,11 +430,11 @@ Impact:
 
 Not applicable.
 
-The vulnerability affects communication security.
+This vulnerability affects network communication.
 
 ---
 
-## 4. Affected Code
+# 4. Affected Code
 
 Frontend:
 
@@ -477,7 +446,7 @@ fetch(
 
 ---
 
-## 5. Recommendations & Fix Code
+# 5. Recommendations & Fix Code
 
 Use HTTPS:
 
@@ -487,15 +456,19 @@ fetch(
 )
 ```
 
-Enable TLS certificates.
+Enable:
+
+- TLS certificates
+- Secure cookies
+- HTTPS-only communication
 
 ---
 
-## 6. Testing Process
+# 6. Testing Process
 
 Before:
 
-HTTP traffic readable.
+HTTP traffic visible.
 
 After:
 
@@ -503,12 +476,12 @@ Traffic encrypted using TLS.
 
 ---
 
-## 7. Tools Used
+# 7. Tools Used
 
 | Tool | Purpose |
 |---|---|
 | Browser DevTools | Inspected network traffic |
-| Postman | Tested API requests |
+| Postman | Tested HTTPS endpoints |
 
 ---
 
@@ -521,15 +494,15 @@ Traffic encrypted using TLS.
 | Plain-text Password Storage | A07 | High |
 | Hardcoded JWT Secret | A07 | Medium |
 | Client-Side Token Storage | A07 | Medium |
-| Insecure Authentication Transmission | A07 | High |
+| Missing HTTPS Protection | A02 | High |
 
 ---
 
 ## Root Cause
 
-The main root cause was insufficient protection of authentication-related information.
+The main root cause was insufficient security controls around authentication and sensitive data handling.
 
-Sensitive data such as passwords, tokens, and authentication requests were handled insecurely.
+Sensitive information was stored or transmitted insecurely.
 
 ---
 
@@ -537,8 +510,81 @@ Sensitive data such as passwords, tokens, and authentication requests were handl
 
 - Implemented bcrypt password hashing
 - Removed plaintext password storage
-- Secured JWT secret management
+- Moved JWT secrets into environment variables
 - Improved token handling
 - Recommended HTTPS communication
 
-These improvements strengthen authentication security and reduce the risk of unauthorized access.
+These improvements strengthen confidentiality, authentication integrity, and overall application security.
+
+## Evidence Screenshots
+
+### 1. Plaintext Password Stored in Database
+
+The password was stored in readable plaintext inside the database.
+
+![Plaintext password database evidence](https://github.com/user-attachments/assets/637df0b0-6a13-4145-997b-93c8f948b0f2)
+
+![SQL Workbench password storage](https://github.com/user-attachments/assets/8fee31e8-c8a8-4672-95df-90917641f237)
+
+
+---
+
+### 2. Registration Sending Unhashed Password
+
+The frontend sends the password directly to the backend without hashing before storage.
+
+![Registration request evidence](https://github.com/user-attachments/assets/1a965573-3916-48bc-80db-a430d298f451)
+
+
+---
+
+### 3. Browser Local Storage Password Exposure
+
+The application stores the password inside browser localStorage.
+
+![Local storage password evidence](https://github.com/user-attachments/assets/1c32503e-d787-42c4-ab4d-17f1e1193c35)
+
+
+---
+
+### 4. MySQL Workbench Testing
+
+Used to verify whether passwords were stored securely.
+
+![MySQL Workbench testing](https://github.com/user-attachments/assets/59c0f3cd-9e79-4ad1-a339-38a39dad8a75)
+
+
+---
+
+### 5. Browser Developer Tools Testing
+
+Used to inspect authentication data stored in the browser.
+
+![Browser DevTools testing](https://github.com/user-attachments/assets/60543c09-f509-4fc1-a745-a87bf77ffc0f)
+
+
+---
+
+### 6. Postman API Testing
+
+Used to test authentication endpoints and observe responses.
+
+![Postman testing](https://github.com/user-attachments/assets/3478ab6d-6a8d-41a1-8106-acbc744f35da)
+
+
+---
+
+### 7. JWT Secret Exposure
+
+The JWT secret was hardcoded inside the application configuration.
+
+![JWT secret exposure](https://github.com/user-attachments/assets/c9392fb8-ed5d-44b6-a681-11298581a089)
+
+
+---
+
+### 8. Bcrypt Fix Implementation
+
+Password hashing was implemented before storing passwords.
+
+![Bcrypt fix](https://github.com/user-attachments/assets/36f19f7b-4005-4d8f-9902-a006658c111e)
