@@ -119,7 +119,7 @@ The app runs at **http://localhost:3001**.
 | `POST` | `/searchgame` | ❌ | Search games |
 | `GET` | `/searchgamedetails/:gameID` | ❌ | Search game details |
 
-See [`Docs/api-testing-guide.md`](Docs/api-testing-guide.md) for full test cases.
+See [`Docs/guides/api-testing.md`](Docs/guides/api-testing.md) for full test cases.
 
 ## OWASP Findings
 
@@ -150,6 +150,7 @@ See [`Docs/api-testing-guide.md`](Docs/api-testing-guide.md) for full test cases
 - [Post-fix screenshots guide](Docs/guides/postfix-screenshots.md)
 - [API testing (Bruno)](API-Testing/README.md)
 - [Scouting — Nachiketh](Docs/scouting/week-0-nachiketh-scouting.md)
+- [Weekly progress log](Docs/tracking/log.md)
 
 ## License
 

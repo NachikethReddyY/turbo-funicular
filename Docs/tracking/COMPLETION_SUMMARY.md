@@ -3,7 +3,7 @@
 ## ✅ Report Status: COMPLETE
 
 ### Main Report
-- **File:** `Docs/nachikethreport.md`
+- **File:** `Docs/reports/nachiketh-report.md`
 - **Word Count:** ~4,342 words
 - **Findings:** 5 (4 A01 + 1 A09)
 - **Status:** Fully documented with 7-point structure per finding
@@ -88,7 +88,7 @@ All findings include CVSS 3.1 scores with vectors:
 ## 📚 Support Documents Created
 
 ### 1. Screenshot Checklist
-- **File:** `Docs/nachiketh-screenshots-checklist.md`
+- **File:** `Docs/archive/a09/nachiketh-screenshots-checklist.md`
 - **Purpose:** Lists all 30+ screenshots needed from the report
 - **Content:**
   - Organized by finding
@@ -97,7 +97,7 @@ All findings include CVSS 3.1 scores with vectors:
   - Directory structure guidance
 
 ### 2. Fixes Implementation Tracker
-- **File:** `Docs/nachiketh-fixes-tracker.md`
+- **File:** `Docs/tracking/nachiketh-fixes-tracker.md`
 - **Purpose:** Track which recommended fixes have been implemented
 - **Content:**
   - All 5 findings with required fixes

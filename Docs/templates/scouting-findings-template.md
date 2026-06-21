@@ -8,7 +8,7 @@ date:
 
 # Week 0 Scouting Findings Template
 
-> Copy this file as `Docs/week-0-<your-name>-scouting.md` and fill it in before Week 1 starts.
+> Copy this file as `Docs/scouting/week-0-<your-name>-scouting.md` and fill it in before Week 1 starts.
 ---
 
 ## 1. Owner
