@@ -555,7 +555,65 @@ insertUser: function (username, email, password, type, profile_pic_url, callback
 }
 
 ```
+---
+### Additional Fix: Remove Plaintext Password Storage in Client-Side Storage
+Besides securing passwords in the database, the application should also avoid storing user passwords in the browser. Storing passwords inside localStorage exposes credentials because localStorage can be accessed by JavaScript running in the browser. If an attacker exploits a Cross-Site Scripting (XSS) vulnerability, they may retrieve stored credentials and compromise user accounts.
 
+#### Vulnerable code:
+```javascript
+if(rememberMe){ 
+    localStorage.setItem('rememberMe','true'); 
+    localStorage.setItem('logEmail', email); 
+    localStorage.setItem('logPassword', pwd); 
+}
+```
+The above implementation stores:
+```javascript
+{
+    "logEmail": "user@email.com",
+    "logPassword": "password123"
+}
+```
+
+<img width="557" height="98" alt="image" src="https://github.com/user-attachments/assets/46266b4d-61a7-4a53-a39d-16cfc7d43029" />
+
+#### Fixed Code:
+The password should not be stored. Only non-sensitive information such as the email address or a secure authentication token should be saved.
+
+```javascript
+if(rememberMe){ 
+
+    localStorage.setItem('rememberMe','true'); 
+    localStorage.setItem('logEmail', email); 
+
+}
+else { 
+
+    localStorage.removeItem('rememberMe'); 
+    localStorage.removeItem('logEmail');
+
+}
+```
+For persistent login, the system should use a secure session mechanism or token-based authentication instead of storing passwords.
+
+Example:
+``` javascript
+localStorage.setItem(
+    "rememberToken",
+    token
+);
+```
+
+#### Impact of Fix
+
+Removing plaintext password storage improves security by:
+
+- Preventing credential exposure through browser storage
+- Reducing the impact of XSS attacks
+- Preventing attackers from directly retrieving user passwords
+- Following OWASP authentication security recommendations
+
+---
 ## A07 — Identification & Authentication Failures (Brief)
 ### Finding 2: Hardcoded / Weak JWT Secret Key ###
 
