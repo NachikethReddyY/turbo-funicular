@@ -6,7 +6,11 @@ date: June 2026
 
 # Vulnerability Analysis Report - OWASP A03 Injection
 
-This report covers SQL Injection issues in the turbo-funicular assignment app. The backend exposes Express routes that pass request data into MySQL queries through the model layer. The findings below focus on unsafe string interpolation in `getUserByUserid` and `insertGame`, plus the unused but still vulnerable `updateGame` helper.
+## Executive Summary
+
+This report covers SQL Injection weaknesses in the `turbo-funicular` game catalogue application. The backend uses Node.js, Express, and MySQL, and the vulnerable code appears in the model layer where request data is copied directly into SQL strings. The two main injection sinks are `getUserByUserid` and `insertGame`, with `updateGame()` included as a third code-level sink because it uses the same unsafe pattern.
+
+The core issue is the same across all three locations: the application trusts raw user input and embeds it into SQL text instead of separating code from data. That design makes it possible for an attacker to alter a query, leak more data than intended, or trigger server errors.
 
 ---
 
@@ -16,17 +20,24 @@ This report covers SQL Injection issues in the turbo-funicular assignment app. T
 
 **Type:** OWASP A03 - Injection / SQL Injection
 
-The route reads `userid` from the URL and passes it into `model/users.js` without parameterization. The model then inserts that value directly into a SQL string, which allows attacker-controlled SQL syntax to become part of the query.
+The `GET /users/:userid` route reads `userid` from the URL and passes it into `userDB.getUserByUserid()` without validation or parameterization. In the model layer, that value is concatenated directly into the `WHERE` clause of the SQL statement.
+
+This is a classic SQL Injection sink because the database engine cannot distinguish between the intended numeric identifier and attacker-supplied SQL syntax. The query also selects the `password` column, which means a successful injection can expose sensitive account data in the response.
 
 ### 2. Exploitation
 
-An attacker can send a request such as:
+The easiest proof-of-concept is to replace the expected numeric ID with a payload that changes the query logic:
 
 ```http
 GET /users/1 OR 1 = 1
 ```
 
-The backend responds with user data instead of only the intended record, because the injected condition changes the `WHERE` clause.
+If the backend accepts the payload as part of the SQL expression, the `WHERE` clause becomes broader than intended. Instead of returning only one user row, the query can return multiple user records.
+
+That is dangerous for two reasons:
+
+- the attacker can enumerate user data they were never meant to see
+- the response can include `password`, `email`, and other profile fields
 
 Relevant screenshots:
 
@@ -36,7 +47,19 @@ Relevant screenshots:
 
 ### 3. Database Storage
 
-The affected data is stored in the `users` table. Relevant columns include `userid`, `username`, `email`, `password`, `type`, `profile_pic_url`, and `created_at`. The `password` field is returned directly by the query, so the endpoint exposes sensitive data in plaintext form to any caller who can reach it.
+The affected data is stored in the `users` table.
+
+Relevant columns:
+
+- `userid`
+- `username`
+- `email`
+- `password`
+- `type`
+- `profile_pic_url`
+- `created_at`
+
+The report is especially concerned with `password`, because the vulnerable query selects it directly. Even if the database itself is not compromised, exposing the field through the API creates a major confidentiality issue.
 
 ### 4. Affected Code (with Location)
 
@@ -58,11 +81,16 @@ var getUserByUserIDSql = `select userid, username, email, password, type, profil
                             DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM users where userid = ${userid};`;
 ```
 
+Line range to cite in the report:
+
+- controller route: `Assignment/BackEndServer/controller/app.js:308-314`
+- model sink: `Assignment/BackEndServer/model/users.js:87-103`
+
 ### 5. Recommendations & Fix Code
 
-Replace the string interpolation with a parameterized query and avoid returning the password unless it is absolutely required.
+The fix is to use a parameterized query and remove the password field from the response unless the endpoint explicitly needs it.
 
-**File:** `Assignment/BackEndServer/model/users.js`
+Recommended pattern:
 
 ```javascript
 var getUserByUserIDSql = `
@@ -77,17 +105,28 @@ dbConn.query(getUserByUserIDSql, [userid], function (err, results) {
 });
 ```
 
+This matters because `?` tells MySQL to treat the incoming value as data, not as part of the SQL grammar.
+
 ### 6. Testing Process
 
-- Before fix: send `GET /users/1 OR 1 = 1`
-- After fix: the same input should be treated as a literal value or rejected by validation
+Before the fix:
+
+- Send `GET /users/1 OR 1 = 1`
+- Observe whether the API returns more rows than a single user
+- Check whether the response includes sensitive fields like `password`
+
+After the fix:
+
+- The same input should no longer change the query structure
+- The backend should either return no match, validate the ID, or reject the request as invalid
 
 ### 7. Tools Used
 
 | Tool | Purpose |
 |------|---------|
-| Manual code review | Found the vulnerable query construction |
-| Bruno / API request tool | Sent the proof-of-concept request |
+| Manual code review | Identified the unsafe query construction |
+| Bruno / API request tool | Captured the proof-of-concept request and response |
+| VS Code | Located the route and model sink |
 
 ---
 
@@ -97,11 +136,21 @@ dbConn.query(getUserByUserIDSql, [userid], function (err, results) {
 
 **Type:** OWASP A03 - Injection / SQL Injection
 
-The `POST /game` route accepts form data and forwards it to `insertGame`. The model creates an `INSERT` statement using string interpolation for `title`, `game_description`, and `year`, which allows the SQL structure to be altered by crafted input.
+The `POST /game` route receives form data for the game title, description, year, price, platform, category, and image. The controller forwards the title, description, and year into `insertGame()`, and the model builds the SQL statement with string interpolation.
+
+The vulnerable part is the use of `${title}`, `${game_description}`, and `${year}` inside the `INSERT` query. Once a quote character or SQL fragment enters one of those fields, the query can break or be altered.
 
 ### 2. Exploitation
 
-An attacker can submit a request to `POST /game` with a crafted `title` or `description` value that contains a quote or SQL syntax. The query breaks or changes meaning, leading to a server error or data corruption.
+An attacker can submit a crafted game creation request using a quote in `title` or `description`. Even if the request is not meant to execute a second statement, it can still break the `INSERT` syntax and trigger a server error.
+
+Example idea:
+
+- set `title` to `Test Game2'`
+- keep the rest of the fields valid
+- send the normal `POST /game` request
+
+If the SQL is unsafe, the backend may respond with a `500 Internal Server Error` because the query string is no longer valid SQL.
 
 Relevant screenshots:
 
@@ -113,7 +162,14 @@ Relevant screenshots:
 
 ### 3. Database Storage
 
-The affected data is stored in the `game` table, with related rows also inserted into `game_platform` and `game_category`. The vulnerable write path affects the main `game` insert, which stores title, description, year, and image data.
+The main row is stored in the `game` table.
+
+The write flow also inserts into:
+
+- `game_platform`
+- `game_category`
+
+This means one unsafe game create request can affect multiple tables. Even though the first query is the injection sink, the rest of the write flow depends on the first insert succeeding, so a broken query can leave the application in an incomplete or inconsistent state.
 
 ### 4. Affected Code (with Location)
 
@@ -138,11 +194,16 @@ app.post('/game', upload.single('game_image'), function (req, res) {
 var insertGameSql = `INSERT INTO game (title, game_description, year, game_image) VALUES ('${title}', '${game_description}', '${year}', ?);`;
 ```
 
+Line range to cite in the report:
+
+- controller route: `Assignment/BackEndServer/controller/app.js:435-471`
+- model sink: `Assignment/BackEndServer/model/game.js:153-160`
+
 ### 5. Recommendations & Fix Code
 
-Use placeholders for all values and keep the image buffer bound as a parameter.
+The fix is to parameterize the entire insert and keep the image as a bound value rather than building it into the SQL string.
 
-**File:** `Assignment/BackEndServer/model/game.js`
+Recommended pattern:
 
 ```javascript
 var insertGameSql = `
@@ -155,17 +216,32 @@ dbConn.query(insertGameSql, [title, game_description, year, game_image.buffer], 
 });
 ```
 
+Additional hardening:
+
+- validate `year` as a number
+- reject empty or unusually long titles and descriptions
+- ensure `game_image` exists before reading `.buffer`
+
 ### 6. Testing Process
 
-- Before fix: send a `POST /game` request with a quoted or SQL-like `title`
-- After fix: the same input should not alter the query structure
+Before the fix:
+
+- send a `POST /game` request with a quoted title such as `Test Game2'`
+- observe whether the backend returns `500`
+- check whether the console or response reveals an SQL error
+
+After the fix:
+
+- the same request should no longer change the SQL structure
+- the backend should either insert safely or reject invalid input before the query runs
 
 ### 7. Tools Used
 
 | Tool | Purpose |
 |------|---------|
-| Manual code review | Found the interpolated SQL query |
-| Bruno / API request tool | Captured the failing insert request |
+| Manual code review | Located the interpolated `INSERT` query |
+| Bruno / API request tool | Triggered the failing game creation request |
+| VS Code | Cross-checked the controller and model paths |
 
 ---
 
@@ -175,15 +251,36 @@ dbConn.query(insertGameSql, [title, game_description, year, game_image.buffer], 
 
 **Type:** OWASP A03 - Injection / SQL Injection
 
-The `updateGame()` helper in `model/game.js` builds an `UPDATE` statement by concatenating user-controlled values directly into SQL. I did not find a direct route calling it in the controller, but the helper is still unsafe and would become exploitable if a route starts using it.
+The `updateGame()` helper in `model/game.js` uses the same unsafe pattern as `insertGame()`. It places `title`, `game_description`, `year`, `game_image.buffer`, and `gameID` directly into the SQL text.
+
+I did not find a direct public route calling this helper in `controller/app.js`, so this is best described as a code-level vulnerability rather than a confirmed live-route exploit. Even so, it should still be reported because it is ready to become exploitable if a route is added later or if an existing route is refactored to use it.
 
 ### 2. Exploitation
 
-This helper is not currently reached by a public route in `app.js`, so there is no live HTTP proof-of-concept for it in the app flow. The risk comes from the query construction itself: if any route forwards raw input into this helper, the SQL can be altered the same way as the other findings.
+There is no direct HTTP path to this helper in the current controller, so the exploit here is a code-path risk rather than a live request.
+
+If a future route passes raw request data into this helper, an attacker could inject SQL through:
+
+- `title`
+- `game_description`
+- `year`
+- `gameID`
+
+Because the `WHERE` clause also interpolates `gameID`, the update could affect the wrong row or become broader than intended.
 
 ### 3. Database Storage
 
-The affected data is stored in the `game` table, including the title, description, year, image, and the `gameID` primary key used in the `WHERE` clause.
+The affected data is stored in the `game` table.
+
+Relevant columns:
+
+- `title`
+- `game_description`
+- `year`
+- `game_image`
+- `gameID`
+
+This helper directly modifies existing game records, so a successful injection could damage content integrity as well as availability.
 
 ### 4. Affected Code (with Location)
 
@@ -193,11 +290,15 @@ The affected data is stored in the `game` table, including the title, descriptio
 var updateGameSql = `update game set title='${title}', game_description='${game_description}', year='${year}', game_image='${game_image.buffer}' where gameID='${gameID}`;
 ```
 
+Line range to cite in the report:
+
+- model sink: `Assignment/BackEndServer/model/game.js:293-306`
+
 ### 5. Recommendations & Fix Code
 
-Use placeholders for every value, including the `gameID` in the `WHERE` clause.
+The fix is to parameterize every field, including the record identifier in the `WHERE` clause.
 
-**File:** `Assignment/BackEndServer/model/game.js`
+Recommended pattern:
 
 ```javascript
 var updateGameSql = `
@@ -211,17 +312,26 @@ dbConn.query(updateGameSql, [title, game_description, year, game_image.buffer, g
 });
 ```
 
+This closes the injection sink and also makes the update logic easier to read and maintain.
+
 ### 6. Testing Process
 
-- Before fix: inspect the helper and confirm the SQL string is interpolated
-- After fix: the helper should use parameter placeholders only
+Before the fix:
+
+- inspect the helper code and confirm it uses string interpolation
+- verify that `gameID` is inserted directly into the SQL string
+
+After the fix:
+
+- confirm the query uses `?` placeholders only
+- ensure the helper still updates the intended row when called with valid data
 
 ### 7. Tools Used
 
 | Tool | Purpose |
 |------|---------|
-| Manual code review | Found the unsafe helper |
-| Source search | Checked whether any controller route calls the helper directly |
+| Manual code review | Found the unsafe update helper |
+| Source search | Checked whether any controller route calls it directly |
 
 ---
 
@@ -231,6 +341,8 @@ dbConn.query(updateGameSql, [title, game_description, year, game_image.buffer, g
 |---------|----------|----------|
 | 1 - SQL Injection in `GET /users/:userid` | A03 | High |
 | 2 - SQL Injection in `POST /game` | A03 | High |
-| 3 - SQL Injection in `updateGame()` | A03 | High |
+| 3 - SQL Injection in `updateGame()` | A03 | Medium |
 
-The root cause across all findings is unsafe SQL construction with direct string interpolation. The fix is to use parameterized queries, reduce sensitive data exposure, and validate inputs before they reach the model layer.
+The shared root cause is unsafe SQL construction with direct string interpolation. The correct fix is to use parameterized queries, validate inputs before they reach the model layer, and avoid returning unnecessary sensitive fields such as `password`.
+
+The first two findings are confirmed by live request flow and screenshots. The third is a code-level sink that should still be fixed because it can become exploitable if reused in a route later.
