@@ -542,7 +542,7 @@ The table stores user account information, including authentication credentials 
 | type | User account role |
 | profile_pic_url | User profile image path |
 
-![Uploading image.png…]()
+<img width="934" height="224" alt="image" src="https://github.com/user-attachments/assets/a82153b8-d8c3-48e9-b8ff-6771d2b30df7" />
 
 
 #### Sensitive Data Storage
@@ -836,6 +836,9 @@ Removing plaintext password storage improves security by:
 - Reducing the impact of XSS attacks
 - Preventing attackers from directly retrieving user passwords
 - Following OWASP authentication security recommendations
+
+ #### Proof:
+<img width="934" height="224" alt="image" src="https://github.com/user-attachments/assets/723bbbf3-4105-4b8a-8820-075e2aebc330" />
 
 ---
 ## A07 — Identification & Authentication Failures (Brief)
