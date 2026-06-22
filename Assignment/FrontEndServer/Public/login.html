@@ -98,7 +98,15 @@
           const token = data.token; const userArr = JSON.parse(data.UserData); const user = userArr[0];
           localStorage.setItem('Token', token); localStorage.setItem('user', JSON.stringify(user));
 
-          if(rememberMe){ localStorage.setItem('rememberMe','true'); localStorage.setItem('logEmail', email); localStorage.setItem('logPassword', pwd); } else { localStorage.removeItem('rememberMe'); localStorage.removeItem('logEmail'); localStorage.removeItem('logPassword'); }
+          if(rememberMe){ 
+          localStorage.setItem('rememberMe','true'); 
+          localStorage.setItem('logEmail', email); 
+          //localStorage.setItem('logPassword', pwd); 
+          }  // Exposed Password
+          else { localStorage.removeItem('rememberMe'); 
+          localStorage.removeItem('logEmail'); 
+          // localStorage.removeItem('logPassword');
+         }
 
           alert('Welcome '+user.username);
 		  if (user.type === 'Admin' || user.type === 'admin') {

@@ -17,8 +17,17 @@ const app = express();
 
 var cors = require('cors');
 
-app.options('*', cors());
-app.use(cors());
+// Define your secure CORS options
+const corsOptions = {
+    origin: 'http://localhost:3001', // Explicitly allow your frontend
+    credentials: true,               // Allows session cookies/tokens to pass through
+    optionsSuccessStatus: 200        // Solves legacy browser preflight issues
+};
+
+// Apply CORS to preflight OPTIONS requests and all endpoints
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+
 
 // For handling requirement of image upload
 const multer = require('multer');
@@ -145,9 +154,15 @@ app.post('/users/login', function (req, res) {
         }
 
         else {
-
+// 1. This prints the beautiful raw error tracking log to your terminal console
+    console.error("RAW DATABASE ERROR:", err);
             res.status(500);
             res.send(err.statusCode);
+            return res.send({ 
+        success: false, 
+        raw_message: err.message,  // This contains "Unknown column..." or syntax details
+        sql_code: err.code 
+    });
         }
     });
 });

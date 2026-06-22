@@ -7,6 +7,8 @@ Summary: The users.js is used create functions and what it does to the Users dat
 const db = require('./databaseConfig');
 var config = require('../config.js');
 var jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 
 var userDB = {
@@ -49,37 +51,45 @@ var userDB = {
 
     //ENDPOINT 2
     //Add a new user
-    insertUser: function (username, email, password, type, profile_pic_url, callback) {
+   insertUser: function (username, email, password, type, profile_pic_url, callback) {
 
-        var dbConn = db.getConnection();
+    var dbConn = db.getConnection();
 
-        dbConn.connect(function (err) {
+    dbConn.connect(function (err) {
+
+        if (err) {
+            return callback(err, null);
+        }
+
+        bcrypt.hash(password, saltRounds, function(err, hashedPassword) {
 
             if (err) {
-
+                dbConn.end();
                 return callback(err, null);
             }
 
-            else {
+            var insertUserSql = `
+                INSERT INTO users(username, email, password, type, profile_pic_url)
+                VALUES(?,?,?,?,?)
+            `;
 
-                var insertUserSql = "insert into users(username,email,password,type,profile_pic_url) values(?,?,?,?,?)";
-                dbConn.query(insertUserSql, [username, email, password, type, profile_pic_url], function (err, results) {
+            dbConn.query(
+                insertUserSql,
+                [username, email, hashedPassword, type, profile_pic_url],
+                function (err, results) {
+
+                    dbConn.end();
 
                     if (err) {
-
-                        dbConn.end();
                         return callback(err, null);
                     }
 
-                    else {
-
-                        dbConn.end();
-                        return callback(err, results);
-                    }
-                })
-            }
+                    return callback(null, results);
+                }
+            );
         });
-    },
+    });
+},
 
 
     //ENDPOINT 3
@@ -120,52 +130,60 @@ var userDB = {
 
 
     //Login user by email and password
-    loginUser: function (email, password, callback) {
+loginUser: function (email, password, callback) {
 
-		var dbConn = db.getConnection();
+    var dbConn = db.getConnection();
 
-		dbConn.connect(function (err) {
+    dbConn.connect(function (err) {
 
-			if (err) {
+        if (err) {
+            return callback(err, null, null);
+        }
 
-				console.log(err);
-				return callback(err, null);
-			}
+        var sql = 'SELECT * FROM users WHERE email=?';
 
-			else {
-				var sql = 'select * from users where email=? and password=?';
+        dbConn.query(sql, [email], function (err, result) {
 
-				dbConn.query(sql, [email, password], function (err, result) {
-					dbConn.end();
+            dbConn.end();
 
-					if (err) {
+            if (err) {
+                return callback(err, null, null);
+            }
 
-						console.log("Err: " + err);
-						return callback(err, null, null);
-					} 
-                    
-                    else {
-						var token = "";
-						var i;
+            if (result.length === 1) {
 
-						if (result.length == 1) {
+                bcrypt.compare(password, result[0].password, function(err, isMatch) {
 
-							token = jwt.sign({ userid: result[0].userid, type: result[0].type }, config.key, {expiresIn: 86400}); //expires in 24 hrs
-							console.log("@@token " + token);
-							return callback(null, token, result);
-						} 
-                        
-                        else {
+                    if (err) {
+                        return callback(err, null, null);
+                    }
 
-							var err2 = new Error("UserID/Password does not match.");
-							err2.statusCode = 500;
-							return callback(err2, null, null);
-						}
-					}  
-				});
-			}
-		});
-	},
+                    if (!isMatch) {
+                        var err2 = new Error("UserID/Password does not match.");
+                        err2.statusCode = 500;
+                        return callback(err2, null, null);
+                    }
+
+                    var token = jwt.sign(
+                        {
+                            userid: result[0].userid,
+                            type: result[0].type
+                        },
+                        config.key,
+                        { expiresIn: 86400 }
+                    );
+
+                    return callback(null, token, result);
+                });
+
+            } else {
+                var err2 = new Error("UserID/Password does not match.");
+                err2.statusCode = 500;
+                return callback(err2, null, null);
+            }
+        });
+    });
+},
 
 }
 module.exports = userDB;

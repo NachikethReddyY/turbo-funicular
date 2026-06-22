@@ -3,33 +3,40 @@ var jwt = require('jsonwebtoken');
 var config = require('../config');
 
 function verifyToken(req, res, next) {
+
     console.log(req.headers);
 
-    var token = req.headers['authorization']; //retrieve authorization header's content
+    var token = req.headers['authorization'];
     console.log(token);
 
-    if (!token || !token.includes('Bearer')) { //process the token
+    if (!token || !token.includes('Bearer')) {
 
         res.status(403);
-        return res.send({ auth: 'false', message: 'Not authorized!' });
-    }
-
-    else {
-        token = token.split('Bearer ')[1]; //obtain the token's value
-        //console.log(token);
-        jwt.verify(token, config.key, function (err, decoded) { //verify token
-            if (err) {
-                res.status(403);
-                return res.end({ auth: false, message: 'Not authorized!' });
-            }
-
-            else {
-                req.userid = decoded.userid; //decode the userid and store in req for use
-                req.type = decoded.type; //decode the role and store in req for use
-                next();
-            }
+        return res.send({
+            auth: false,
+            message: 'Not authorized!'
         });
     }
+
+    token = token.split('Bearer ')[1];
+
+    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+
+        if (err) {
+
+            res.status(403);
+
+            return res.send({
+                auth: false,
+                message: 'Not authorized!'
+            });
+        }
+
+        req.userid = decoded.userid;
+        req.type = decoded.type;
+
+        next();
+    });
 }
 
 module.exports = verifyToken;

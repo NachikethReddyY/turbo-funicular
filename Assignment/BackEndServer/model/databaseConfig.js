@@ -14,7 +14,7 @@ var dbconnect = {
 
             host: "localhost",
             user: "root",
-            password: "root",
+            password: "Bruhmyass160808@!",
             database: "sp_games"
         })
         return conn;
