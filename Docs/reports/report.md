@@ -830,9 +830,8 @@ Removing plaintext password storage improves security by:
 - Preventing attackers from directly retrieving user passwords
 - Following OWASP authentication security recommendations
 
-** Proof: **
-![Uploading image.png…]()
-
+ #### Proof:
+<img width="934" height="224" alt="image" src="https://github.com/user-attachments/assets/723bbbf3-4105-4b8a-8820-075e2aebc330" />
 
 ---
 ## A07 — Identification & Authentication Failures (Brief)
