@@ -110,7 +110,7 @@ Track which recommended fixes have been implemented in the codebase.
   - **Location:** `Assignment/BackEndServer/config.js`
 
 - [ ] **Add `JWT_SECRET` to `.env` file**
-  - [ ] Add: `JWT_SECRET=<strong-random-secret>` 
+  - [ ] Add: `JWT_SECRET=<strong-random-secret>`
   - [ ] Example: `JWT_SECRET=super_secret_key_change_in_production_12345`
   - **Location:** `Assignment/BackEndServer/.env`
 

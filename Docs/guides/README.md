@@ -4,7 +4,5 @@
 |-------|---------|
 | [api-testing-bruno.md](api-testing-bruno.md) | Full Bruno walkthrough with expected results |
 | [api-testing.md](api-testing.md) | Earlier API testing notes |
-
-**Bruno collection:** `../../API-Testing/opencollection.yml`  
-**Auth setup:** `../../API-Testing/README.md`  
-**Post-fix screenshot list:** [postfix-screenshots.md](postfix-screenshots.md)
+| [nachiketh-screenshot-guide.md](nachiketh-screenshot-guide.md) | **A01 + A09 screenshot checklist (before & after)** |
+| [postfix-screenshots.md](postfix-screenshots.md) | After-fix capture order (A01 & A09) |

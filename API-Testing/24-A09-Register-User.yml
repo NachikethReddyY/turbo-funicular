@@ -16,7 +16,8 @@ http:
         "type": "Customer",
         "profile_pic_url": ""
       }
-  auth: inherit
+  auth:
+    type: bearer
 
 settings:
   encodeUrl: true

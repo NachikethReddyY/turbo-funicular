@@ -5,7 +5,8 @@ Start here for Nachiketh's A01 + A09 work.
 | What | Where |
 |------|-------|
 | **Final report** | [reports/nachiketh-report.md](reports/nachiketh-report.md) ← **read this** |
-| **Post-fix screenshots (do later)** | [guides/postfix-screenshots.md](guides/postfix-screenshots.md) |
+| **Screenshot guide (A01 + A09)** | [guides/nachiketh-screenshot-guide.md](guides/nachiketh-screenshot-guide.md) |
+| **Post-fix screenshots only** | [guides/postfix-screenshots.md](guides/postfix-screenshots.md) |
 | Report template (7 sections) | [templates/vulnerability-report-template.md](templates/vulnerability-report-template.md) |
 | Fix implementation tracker | [tracking/nachiketh-fixes-tracker.md](tracking/nachiketh-fixes-tracker.md) |
 | Bruno API tests | [../API-Testing/README.md](../API-Testing/README.md) |
@@ -36,5 +37,5 @@ Assets/Nachiketh/
 
 1. Before-fix evidence → `Assets/Nachiketh/a01/` and `a09/`
 2. Code fixes applied (A01 then A09)
-3. Post-fix evidence → [guides/postfix-screenshots.md](guides/postfix-screenshots.md)
+3. Post-fix evidence → [guides/nachiketh-screenshot-guide.md](guides/nachiketh-screenshot-guide.md) (Part 2 & 4)
 4. Submit [reports/nachiketh-report.md](reports/nachiketh-report.md)
