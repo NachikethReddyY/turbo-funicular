@@ -1,4 +1,3 @@
-// ponytail: stdout JSON lines only; upgrade path = Winston + log files
 function audit(action, detail) {
     console.log(JSON.stringify({
         ts: new Date().toISOString(),

@@ -144,13 +144,14 @@ Skip if short on time — Bruno 403 shots are enough.
 
 ---
 
-## A09 — Code only (3 screenshots, optional)
+## A09 — Code only (4 screenshots, optional)
 
 | Save as | File | Highlight lines |
 |---------|------|-----------------|
 | `code-securityLog.png` | `Assignment/BackEndServer/securityLog.js` | **1–18** (full file) |
-| `code-duplicate-msg.png` | `Assignment/BackEndServer/controller/app.js` | **18** (`DUPLICATE_MSG`) + **266–272** (generic send) |
-| `code-review-ownership.png` | `Assignment/BackEndServer/controller/app.js` | **549–556** (userid check before insert) |
+| `code-login-audit.png` | `Assignment/BackEndServer/controller/app.js` | **132–156** (`login_success` / `login_failed`) |
+| `code-duplicate-msg.png` | `Assignment/BackEndServer/controller/app.js` | **18** (`DUPLICATE_MSG`) + **267–274** (generic 422 send) |
+| `code-review-ownership.png` | `Assignment/BackEndServer/controller/app.js` | **549–559** (userid check before insert) |
 
 **No frontend screenshot required for A09 post-fix.**
 
@@ -193,6 +194,7 @@ Skip if short on time — Bruno 403 shots are enough.
 **Code (optional):**
 
 - [ ] `code-securityLog.png`
+- [ ] `code-login-audit.png`
 - [ ] `code-duplicate-msg.png`
 - [ ] `code-review-ownership.png`
 
