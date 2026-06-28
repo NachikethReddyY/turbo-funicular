@@ -267,6 +267,11 @@ Game data is also placed directly into HTML markup without output encoding.
 
 These are part of the same root cause if they are stored and later reflected or rendered with `innerHTML`.
 
+**Additional frontend sinks hardened in the same fix**
+
+- `Assignment/FrontEndServer/Public/addNewGame.html` - category and platform checkbox lists are now built with DOM nodes instead of injected HTML.
+- `Assignment/FrontEndServer/Public/gamesSearch.html` - category/platform dropdown options and the game metadata line now use DOM-safe text rendering.
+
 ### 5. Recommendations and Fix Code
 
 Replace `innerHTML` with DOM creation and `textContent` for all dynamic values.
@@ -305,10 +310,14 @@ function renderReviews(reviews) {
 }
 ```
 
+Apply the same pattern anywhere database values are rendered into the page. In this project, that includes the game details view, the review list, and the search/add-game filter builders.
+
 ### 6. Testing Process
 
 - Before fix: submit a malicious review payload and confirm that the browser executes it.
 - After fix: the same payload should be shown as plain text.
+- Before fix: category/platform values could be injected into the add/search pages through `innerHTML`.
+- After fix: those lists render as plain text labels and option values only.
 
 ### 7. Tools Used
 
