@@ -13,6 +13,9 @@ aliases: ["AWS Assignment References"]
 - [Amazon S3 static website hosting - AWS Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
   Use this for the official S3 website-hosting workflow and bucket website endpoint behavior.
 
+- [AWS Amplify Hosting - AWS Docs](https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html)
+  Use this to explain the production-friendly frontend hosting option AWS recommends for static sites and SPAs.
+
 - [AWS Secrets Manager User Guide - AWS Docs](https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html)
   Use this to understand what Secrets Manager stores and why application secrets should not live in source code.
 

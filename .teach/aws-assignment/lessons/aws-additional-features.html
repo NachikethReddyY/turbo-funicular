@@ -394,6 +394,7 @@
     <div class="brand"><span class="mark">AWS</span><span>Assignment Lesson</span></div>
     <div class="nav">
       <a href="#map">Map</a>
+      <a href="#academy">Academy</a>
       <a href="#s3">S3</a>
       <a href="#backend">Backend</a>
       <a href="#secrets">Secrets</a>
@@ -439,6 +440,35 @@
       </div>
     </section>
 
+    <section id="academy">
+      <h2>Start From AWS Academy Learner Lab</h2>
+      <p class="section-intro">Use your course module as the doorway into AWS. Do not create a separate personal AWS account for this assignment unless your lecturer explicitly says to.</p>
+      <div class="grid">
+        <article class="card wide">
+          <h3>Click path from your course page</h3>
+          <ol>
+            <li>Open <strong>Modules</strong> in AWS Academy.</li>
+            <li>Go to <strong>AWS Academy Learner Lab</strong>.</li>
+            <li>Open <strong>Launch AWS Academy Learner Lab</strong>.</li>
+            <li>When the lab page loads, click <strong>Start Lab</strong>. Wait until the lab status turns green or says ready.</li>
+            <li>Click <strong>AWS</strong> or <strong>AWS Console</strong>. This opens the real AWS Console inside the temporary learner account.</li>
+            <li>Use the console search bar to open <strong>S3</strong>, <strong>Cognito</strong>, or <strong>Secrets Manager</strong>.</li>
+          </ol>
+        </article>
+        <aside class="card">
+          <h3>First screenshots</h3>
+          <div class="checklist">
+            <label class="check"><input type="checkbox"> Course module showing “Launch AWS Academy Learner Lab”</label>
+            <label class="check"><input type="checkbox"> Learner Lab status after clicking Start Lab</label>
+            <label class="check"><input type="checkbox"> AWS Console home page after launch</label>
+          </div>
+        </aside>
+      </div>
+      <div class="danger" style="margin-top: 1rem;">
+        <strong>Important:</strong> Learner Lab accounts are temporary and restricted. Save screenshots as you go, stop/delete resources when done, and never paste AWS access keys into your report or code.
+      </div>
+    </section>
+
     <section id="route">
       <h2>The Assignment Route</h2>
       <p class="section-intro">If you want the most realistic student path, do these in order. Stop after any completed part and still write it clearly in the report.</p>
@@ -479,6 +509,9 @@
     <section id="s3">
       <h2>Part 1: S3 Frontend Hosting</h2>
       <p class="section-intro">This is the cleanest AWS feature to complete because your frontend is mostly static files.</p>
+      <div class="callout" style="margin-bottom: 1rem;">
+        <strong>Validation:</strong> For this assignment, S3 is the best frontend hosting answer because the brief explicitly says “Hosting frontend in AWS S3.” For a production static site, AWS also recommends Amplify Hosting because it gives a managed CDN and HTTPS URL on top of the static hosting workflow.
+      </div>
       <div class="grid">
         <article class="card wide">
           <h3>Console steps</h3>
@@ -503,6 +536,9 @@
       </div>
       <div class="callout" style="margin-top: 1rem;">
         <strong>Report sentence:</strong> “The frontend was deployed as static files to Amazon S3. S3 is suitable for this layer because it serves HTML, CSS, JavaScript, and assets, while backend API execution remains on a Node-capable host.”
+      </div>
+      <div class="callout" style="margin-top: 1rem;">
+        <strong>From Learner Lab:</strong> After AWS Console opens, search <strong>S3</strong> in the top search bar. If S3 is blocked by lab permissions, capture that error and ask your lecturer whether Learner Lab restrictions count as a valid limitation. Most AWS Academy labs allow common services, but each course can restrict services differently.
       </div>
     </section>
 
@@ -564,6 +600,9 @@ const jwtSecret = await loadSecret("sp-games/jwt-secret");
     <section id="cognito">
       <h2>Part 4: Cognito</h2>
       <p class="section-intro">Cognito is cloud authentication. In a production redesign, it would handle signup, login, password reset, and token issuing instead of storing plaintext or weakly handled passwords in your own users table.</p>
+      <div class="callout" style="margin-bottom: 1rem;">
+        <strong>Hosting vs auth:</strong> Cognito is not a hosting service. Your teammate is right that Cognito is important, but it answers the authentication requirement, while S3 or Amplify answers frontend hosting and EC2/Elastic Beanstalk/another Node host answers backend hosting.
+      </div>
       <table>
         <thead>
           <tr>
@@ -592,6 +631,23 @@ const jwtSecret = await loadSecret("sp-games/jwt-secret");
       </table>
       <div class="callout" style="margin-top: 1rem;">
         <strong>Realistic scope:</strong> For this assignment, you can show a Cognito user pool and hosted login page, then explain how the backend would verify Cognito JWTs. A full migration is useful but may be bigger than the optional marks require.
+      </div>
+      <div class="callout" style="margin-top: 1rem;">
+        <strong>From Learner Lab:</strong> Search <strong>Cognito</strong> in the AWS Console, create a <strong>User pool</strong>, choose email sign-in, create an app client, and open the hosted UI or managed login page if the lab allows it. Screenshot the user pool overview and login page, not any sensitive client secrets.
+      </div>
+      <div class="steps" style="margin-top: 1rem;">
+        <div class="step">
+          <div>
+            <h3>Full app migration path</h3>
+            <p>Frontend Cognito code belongs in <code>Assignment/FrontEndServer/Public</code>. Backend token verification belongs in <code>Assignment/BackEndServer/auth/verifyToken.js</code>. Do not put Cognito secrets or database secrets in S3.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>HTTPS path for S3</h3>
+            <p>S3 website endpoints are HTTP only. Put <strong>CloudFront</strong> in front of S3, use the CloudFront HTTPS domain as the Cognito callback URL, and upload the updated frontend files to S3.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -647,6 +703,7 @@ const jwtSecret = await loadSecret("sp-games/jwt-secret");
       <ul>
         <li><a href="../../../assignment.html">Local assignment brief</a></li>
         <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html">Amazon S3 static website hosting</a></li>
+        <li><a href="https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html">AWS Amplify Hosting</a></li>
         <li><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">AWS Secrets Manager User Guide</a></li>
         <li><a href="https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html">Amazon Cognito User Pools</a></li>
       </ul>

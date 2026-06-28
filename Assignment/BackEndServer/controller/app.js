@@ -125,36 +125,11 @@ app.post('/searchgame', function (req, res) {
 
 //User Login
 app.post('/users/login', function (req, res) {
-    var email = req.body.email;
-    var password = req.body.password;
-    var rememberMe = req.body.rememberMe || false;
-
-    userDB.loginUser(email, password, function (err, token, result) {
-
-        if (!err) {
-
-            audit('login_success', { userid: result[0].userid, email: email, type: result[0].type });
-
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            delete result[0]['password'];//clear the password in json data, do not send back to client
-
-            // If rememberMe is true, set a cookie with the token for persistent login
-            if (rememberMe) {
-                const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-                res.cookie('rememberMeToken', token, { httpOnly: true, maxAge });
-            }
-
-            res.json({ success: true, UserData: JSON.stringify(result), token: token, status: 'You are successfully logged in!' });
-            res.send();
-        }
-
-        else {
-
-            audit('login_failed', { email: email });
-            res.status(500);
-            res.json({ success: false, message: 'Login failed' });
-        }
+    audit('legacy_login_blocked', {});
+    res.status(410);
+    res.json({
+        success: false,
+        message: 'Local password login has been replaced by AWS Cognito hosted login.'
     });
 });
 
@@ -162,9 +137,8 @@ app.post('/users/login', function (req, res) {
 //User Logout
 app.post('/users/logout', function (req, res) {
     audit('logout', {});
-    res.clearCookie('rememberMeToken'); //clears the cookie in the response
     res.setHeader('Content-Type', 'application/json');
-    res.json({ success: true, status: 'Log out successful!' });
+    res.json({ success: true, status: 'Use the Cognito hosted logout endpoint from the frontend.' });
 });
 
 
