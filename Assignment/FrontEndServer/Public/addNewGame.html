@@ -75,11 +75,25 @@
       const apiBase = 'http://localhost:8081';
       let catData = [], platData = [];
 
+      function addCheckboxList(container, items, name, valueKey, labelKey) {
+        container.replaceChildren();
+        items.forEach(item => {
+          const label = document.createElement('label');
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.name = name;
+          input.value = item[valueKey];
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(' ' + (item[labelKey] || '')));
+          container.appendChild(label);
+        });
+      }
+
       async function loadFilters(){
         try{
           const [catsRes, platsRes] = await Promise.all([fetch(apiBase + '/category/'), fetch(apiBase + '/platform/')]);
-          if(catsRes.ok){ catData = await catsRes.json(); document.getElementById('category').innerHTML = catData.map(c=>`<label><input type="checkbox" name="category" value="${c.catID}"> ${c.catname}</label>`).join(''); }
-          if(platsRes.ok){ platData = await platsRes.json(); document.getElementById('platform').innerHTML = platData.map(p=>`<label><input type="checkbox" name="platform" value="${p.platID}"> ${p.platform_name}</label>`).join(''); }
+          if(catsRes.ok){ catData = await catsRes.json(); addCheckboxList(document.getElementById('category'), catData, 'category', 'catID', 'catname'); }
+          if(platsRes.ok){ platData = await platsRes.json(); addCheckboxList(document.getElementById('platform'), platData, 'platform', 'platID', 'platform_name'); }
         }catch(e){console.error('Could not load filters',e)}
       }
 

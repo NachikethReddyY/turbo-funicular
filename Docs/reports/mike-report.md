@@ -72,11 +72,8 @@ Because `1=1` is always true, the query can return every row in the `users` tabl
 
 If passwords are exposed, an attacker can submit them directly to the login endpoint and receive a valid JWT token.
 
-Relevant screenshots:
-
 ![GET /users/:userid proof of concept request](../Assets/Mike/get-users-poc.png)
-
-![GET /users/:userid vulnerable code](../Assets/Mike/get-users-code.png)
+This shows the injected `userid` payload submitted to the endpoint.
 
 ### 3. Database Storage
 
@@ -93,6 +90,11 @@ Relevant columns:
 - `created_at`
 
 The inclusion of `password` in the query makes this issue more severe because a successful injection can expose credentials directly in the API response.
+
+The SQL sink is the string interpolation in the model layer:
+
+![GET /users/:userid vulnerable code](../Assets/Mike/get-users-code.png)
+This shows the string interpolation that makes the injection possible.
 
 ### 4. Affected Code (with Location)
 
@@ -203,9 +205,11 @@ or a harmless browser test payload such as:
 }
 ```
 
-Relevant screenshots:
+The stored payload should be shown where it is submitted:
 
 ![Stored XSS payload submitted via Postman](../Assets/Mike/xss-postman-payload.png)
+
+When the review page renders that stored content, the browser can execute it or make an outbound request:
 
 ![Webhook request received during browser execution](../Assets/Mike/xss-webhook-token.png)
 
@@ -328,20 +332,16 @@ The `title`, `game_description`, and `year` fields are wrapped in quotes and int
 
 Submitting a quoted value in `title` can break the query syntax and cause a server error. More aggressive payloads can attempt to terminate the query early and append extra SQL.
 
-Relevant screenshots:
-
-Backend:
 ![POST /game proof of concept request](../Assets/Mike/insertgame-request.png)
+This shows the quoted title submitted as the payload.
 
 ![POST /game server error response](../Assets/Mike/insertgame-error.png)
+This shows the server error caused by the injected input.
 
-Frontend:
-![POST /game vulnerable code](../Assets/Mike/insertgame-request-frontend.png)
+The sink is in the model query:
 
-![POST /game vulnerable code](../Assets/Mike/insertgame-error-frontend.png)
-
-Code:
 ![POST /game vulnerable code](../Assets/Mike/insertgame-code.png)
+This shows the interpolated `INSERT` statement that creates the sink.
 
 
 
@@ -425,10 +425,15 @@ The affected table is `game`.
 var updateGameSql = `update game set title='${title}', game_description='${game_description}', year='${year}', game_image='${game_image.buffer}' where gameID='${gameID}`;
 ```
 
-Relevant screenshots:
+The exact sink is shown below:
 
 ![updateGame() vulnerable code](../Assets/Mike/updategame-code.png)
+This shows the unsafe update query built with string interpolation.
+
+The source search confirms the helper is not currently called from a controller route:
+
 ![updateGame() missing route](../Assets/Mike/updategame-search.png)
+This shows that the helper is currently a code-level sink, not a confirmed live route.
 
 
 ### 5. Recommendations and Fix Code
