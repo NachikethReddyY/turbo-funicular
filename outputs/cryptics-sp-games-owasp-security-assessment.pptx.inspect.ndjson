@@ -1,0 +1,566 @@
+{"kind":"deck","id":"pr/okdfqp","name":"Deck"}
+{"kind":"layout","layoutId":"a5198f4a-78fc-4655-afb7-854be82d97d5","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"00cd3122-c815-4359-bef8-ba7a1c6026ac","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/les0js","slide":1,"title":"CRYPTICS","textShapes":7}
+{"kind":"shape","id":"sh/7u54zido","slide":1,"bbox":[58,50,1164,90]}
+{"kind":"textbox","id":"sh/wfyxobm5","slide":1,"text":"CRYPTICS","textPreview":"CRYPTICS","textChars":8,"textLines":1,"bbox":[82,78,260,36]}
+{"kind":"textbox","id":"sh/l0rqd4vm","slide":1,"text":"ST2515 Security Assessment","textPreview":"ST2515 Security Assessment","textChars":26,"textLines":1,"bbox":[862,82,340,30]}
+{"kind":"textbox","id":"sh/eloj2t83","slide":1,"text":"SP Games OWASP Security Assessment","textPreview":"SP Games OWASP Security Assessment","textChars":34,"textLines":1,"bbox":[58,215,820,150]}
+{"kind":"textbox","id":"sh/36hcrmhk","slide":1,"text":"A focused review of access control, design, injection, authentication, logging, and AWS deployment hardening.","textPreview":"A focused review of access control, design, injection, authentication, logging, and AWS deployment hardening.","textChars":109,"textLines":1,"bbox":[58,392,780,74]}
+{"kind":"shape","id":"sh/wra5gbq1","slide":1,"bbox":[915,220,250,250]}
+{"kind":"textbox","id":"sh/lc7u54zi","slide":1,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[955,248,170,80]}
+{"kind":"textbox","id":"sh/epkzupwb","slide":1,"text":"OWASP categories covered","textPreview":"OWASP categories covered","textChars":24,"textLines":1,"bbox":[945,344,190,74]}
+{"kind":"textbox","id":"sh/7adsji5s","slide":1,"text":"A01 · A04 · A03 · A07 · A09","textPreview":"A01 · A04 · A03 · A07 · A09","textChars":27,"textLines":1,"bbox":[58,620,560,30]}
+{"kind":"notes","id":"nt/les0js","slide":1,"text":""}
+{"kind":"slide","id":"sl/cqtm2a","slide":2,"title":"Opening","textShapes":21}
+{"kind":"textbox","id":"sh/kre1w7mp","slide":2,"text":"Opening","textPreview":"Opening","textChars":7,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/val87ed8","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/6psfil0r","slide":2,"text":"Today’s route","textPreview":"Today’s route","textChars":13,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/donyd0z6","slide":2,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":2,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[58,210,48,30]}
+{"kind":"textbox","id":"sh/vixczed8","slide":2,"text":"Executive Summary","textPreview":"Executive Summary","textChars":17,"textLines":1,"bbox":[123,210,500,34]}
+{"kind":"textbox","id":"sh/2x4nap4r","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[58,284,48,30]}
+{"kind":"textbox","id":"sh/d0z61032","slide":2,"text":"Assessment Methodology","textPreview":"Assessment Methodology","textChars":22,"textLines":1,"bbox":[123,284,500,34]}
+{"kind":"textbox","id":"sh/kf6dcbul","slide":2,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[58,358,48,30]}
+{"kind":"textbox","id":"sh/ylc7u54z","slide":2,"text":"A01 — Broken Access Control","textPreview":"A01 — Broken Access Control","textChars":27,"textLines":1,"bbox":[123,358,500,34]}
+{"kind":"textbox","id":"sh/r65wjudg","slide":2,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[58,432,48,30]}
+{"kind":"textbox","id":"sh/gr2p8nqx","slide":2,"text":"A04 — Insecure Design","textPreview":"A04 — Insecure Design","textChars":21,"textLines":1,"bbox":[123,432,500,34]}
+{"kind":"textbox","id":"sh/9cvixcze","slide":2,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[58,506,48,30]}
+{"kind":"textbox","id":"sh/yxobm58z","slide":2,"text":"A03 — Injection","textPreview":"A03 — Injection","textChars":15,"textLines":1,"bbox":[123,506,500,34]}
+{"kind":"textbox","id":"sh/nih4byhg","slide":2,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[658,210,48,30]}
+{"kind":"textbox","id":"sh/g3ex0nux","slide":2,"text":"A07 — Authentication Failures","textPreview":"A07 — Authentication Failures","textChars":29,"textLines":1,"bbox":[723,210,500,34]}
+{"kind":"textbox","id":"sh/5o7qpg3e","slide":2,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[658,284,48,30]}
+{"kind":"textbox","id":"sh/y1kre1w7","slide":2,"text":"A09 — Logging & Monitoring Failures","textPreview":"A09 — Logging & Monitoring Failures","textChars":35,"textLines":1,"bbox":[723,284,500,34]}
+{"kind":"textbox","id":"sh/rmhk3q5o","slide":2,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[658,358,48,30]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":2,"text":"AWS Deployment","textPreview":"AWS Deployment","textChars":14,"textLines":1,"bbox":[723,358,500,34]}
+{"kind":"textbox","id":"sh/adsji5sn","slide":2,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[658,432,48,30]}
+{"kind":"textbox","id":"sh/h4byhgn2","slide":2,"text":"Conclusion & Live Demo","textPreview":"Conclusion & Live Demo","textChars":22,"textLines":1,"bbox":[723,432,500,34]}
+{"kind":"notes","id":"nt/cqtm2a","slide":2,"text":""}
+{"kind":"slide","id":"sl/in7ml5","slide":3,"title":"Opening","textShapes":15}
+{"kind":"textbox","id":"sh/u9knih4b","slide":3,"text":"Opening","textPreview":"Opening","textChars":7,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/1032lszq","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/cfa9w3m9","slide":3,"text":"Executive summary","textPreview":"Executive summary","textChars":17,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/jm1cfa9w","slide":3,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/u18jqh0f","slide":3,"bbox":[58,210,330,145]}
+{"kind":"textbox","id":"sh/1orytsvu","slide":3,"text":"14+","textPreview":"14+","textChars":3,"textLines":1,"bbox":[82,235,280,62]}
+{"kind":"textbox","id":"sh/c7u54zid","slide":3,"text":"findings","textPreview":"findings","textChars":8,"textLines":1,"bbox":[84,300,260,32]}
+{"kind":"shape","id":"sh/nap4r65w","slide":3,"bbox":[448,210,330,145]}
+{"kind":"textbox","id":"sh/upwb2hwf","slide":3,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[472,235,280,62]}
+{"kind":"textbox","id":"sh/orytsvu9","slide":3,"text":"OWASP categories","textPreview":"OWASP categories","textChars":16,"textLines":1,"bbox":[474,300,260,32]}
+{"kind":"shape","id":"sh/hcrmhk3q","slide":3,"bbox":[838,210,330,145]}
+{"kind":"textbox","id":"sh/al87ed8b","slide":3,"text":"Critical","textPreview":"Critical","textChars":8,"textLines":1,"bbox":[862,235,280,62]}
+{"kind":"textbox","id":"sh/z61032ls","slide":3,"text":"combined pre-fix risk","textPreview":"combined pre-fix risk","textChars":21,"textLines":1,"bbox":[864,300,260,32]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":3,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,420,28,28]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":3,"text":"Before fixes, weak trust boundaries allowed privilege escalation, data exposure, and database manipulation.","textPreview":"Before fixes, weak trust boundaries allowed privilege escalation, data exposure, and database manipulation.","textChars":107,"textLines":1,"bbox":[90,420,1058,58]}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":3,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,482,28,28]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":3,"text":"After fixes, the app moves critical checks server-side and reduces exploitability with parameterised SQL, Cognito, secrets management, and audit logging.","textPreview":"After fixes, the app moves critical checks server-side and reduces exploitability with parameterised SQL, Cognito, secrets management, an...","textChars":153,"textLines":1,"bbox":[90,482,1058,58]}
+{"kind":"textbox","id":"sh/obm58z25","slide":3,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,544,28,28]}
+{"kind":"textbox","id":"sh/hwfyxobm","slide":3,"text":"Demo focuses on blocked privilege escalation, protected admin routes, safer payload handling, and production deployment evidence.","textPreview":"Demo focuses on blocked privilege escalation, protected admin routes, safer payload handling, and production deployment evidence.","textChars":129,"textLines":1,"bbox":[90,544,1058,58]}
+{"kind":"notes","id":"nt/in7ml5","slide":3,"text":""}
+{"kind":"slide","id":"sl/j8n1x6","slide":4,"title":"Methodology","textShapes":9}
+{"kind":"textbox","id":"sh/5sneloj2","slide":4,"text":"Methodology","textPreview":"Methodology","textChars":11,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/u54zidon","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/nqxs72x4","slide":4,"text":"How we tested","textPreview":"How we tested","textChars":13,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/czed8v6p","slide":4,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/5kb6xkf6","slide":4,"bbox":[58,220,340,300]}
+{"kind":"textbox","id":"sh/ytsvu9kn","slide":4,"text":"Tools","textPreview":"Tools","textChars":5,"textLines":1,"bbox":[84,248,280,34]}
+{"kind":"textbox","id":"sh/neloj2t8","slide":4,"text":"Bruno/Postman requests\nBrowser + DevTools\nTerminal/database evidence","textPreview":"Bruno/Postman requests | Browser + DevTools | Terminal/database evidence","textChars":68,"textLines":3,"bbox":[84,310,275,150]}
+{"kind":"shape","id":"sh/gn29gr2p","slide":4,"bbox":[448,220,340,300]}
+{"kind":"textbox","id":"sh/58z25kb6","slide":4,"text":"Evidence","textPreview":"Evidence","textChars":8,"textLines":1,"bbox":[474,248,280,34]}
+{"kind":"textbox","id":"sh/d8bat47y","slide":4,"text":"Team folders\nAssets/Nachiketh\nMike\nSitt","textPreview":"Team folders | Assets/Nachiketh | Mike | Sitt","textChars":39,"textLines":4,"bbox":[474,310,275,150]}
+{"kind":"shape","id":"sh/knih4byh","slide":4,"bbox":[838,220,340,300]}
+{"kind":"textbox","id":"sh/v6psfil0","slide":4,"text":"Finding format","textPreview":"Finding format","textChars":14,"textLines":1,"bbox":[864,248,280,34]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":4,"text":"Description\nExploit path\nImpact\nFix + re-test","textPreview":"Description | Exploit path | Impact | Fix + re-test","textChars":45,"textLines":4,"bbox":[864,310,275,150]}
+{"kind":"notes","id":"nt/j8n1x6","slide":4,"text":""}
+{"kind":"slide","id":"sl/u406of","slide":5,"title":"A01","textShapes":12}
+{"kind":"textbox","id":"sh/orytsvu9","slide":5,"text":"A01","textPreview":"A01","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/z61032ls","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/al87ed8b","slide":5,"text":"Broken Access Control","textPreview":"Broken Access Control","textChars":21,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/h0fepkzu","slide":5,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":5,"text":"Users can act outside their intended permissions.","textPreview":"Users can act outside their intended permissions.","textChars":49,"textLines":1,"bbox":[58,210,530,170]}
+{"kind":"shape","id":"sh/zupwb2hw","slide":5,"bbox":[660,210,500,250]}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":5,"text":"Attack model","textPreview":"Attack model","textChars":12,"textLines":1,"bbox":[690,238,260,30]}
+{"kind":"textbox","id":"sh/hwfyxobm","slide":5,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,296,28,28]}
+{"kind":"textbox","id":"sh/obm58z25","slide":5,"text":"Missing server-side verifyToken / requireAdmin","textPreview":"Missing server-side verifyToken / requireAdmin","textChars":46,"textLines":1,"bbox":[722,296,388,54]}
+{"kind":"textbox","id":"sh/e1w7mp0b","slide":5,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,354,28,28]}
+{"kind":"textbox","id":"sh/7mp0bi9s","slide":5,"text":"Client CSS hides admin UI only","textPreview":"Client CSS hides admin UI only","textChars":30,"textLines":1,"bbox":[722,354,388,54]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":5,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,412,28,28]}
+{"kind":"textbox","id":"sh/psfil0rq","slide":5,"text":"JWT secret and API exposure widen blast radius","textPreview":"JWT secret and API exposure widen blast radius","textChars":46,"textLines":1,"bbox":[722,412,388,54]}
+{"kind":"textbox","id":"sh/epkzupwb","slide":5,"text":"For SP Games, this means a regular or unauthenticated user could perform admin-level actions.","textPreview":"For SP Games, this means a regular or unauthenticated user could perform admin-level actions.","textChars":93,"textLines":1,"bbox":[58,505,1050,72]}
+{"kind":"notes","id":"nt/u406of","slide":5,"text":""}
+{"kind":"slide","id":"sl/ul4huw","slide":6,"title":"A01","textShapes":11}
+{"kind":"textbox","id":"sh/54zidony","slide":6,"text":"A01","textPreview":"A01","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":6,"text":"Broken Access Control findings","textPreview":"Broken Access Control findings","textChars":30,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/cvixczed","slide":6,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/5gbq1ory","slide":6,"bbox":[58,215,1164,58]}
+{"kind":"textbox","id":"sh/upwb2hwf","slide":6,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,230,125,28]}
+{"kind":"textbox","id":"sh/nap4r65w","slide":6,"text":"Unprotected API endpoints","textPreview":"Unprotected API endpoints","textChars":25,"textLines":1,"bbox":[223,228,860,32]}
+{"kind":"shape","id":"sh/c7u54zid","slide":6,"bbox":[58,293,1164,58]}
+{"kind":"textbox","id":"sh/1orytsvu","slide":6,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,308,125,28]}
+{"kind":"textbox","id":"sh/l0rqd4vm","slide":6,"text":"GET /users returns plaintext passwords","textPreview":"GET /users returns plaintext passwords","textChars":38,"textLines":1,"bbox":[223,306,860,32]}
+{"kind":"shape","id":"sh/wfyxobm5","slide":6,"bbox":[58,371,1164,58]}
+{"kind":"textbox","id":"sh/7u54zido","slide":6,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,386,125,28]}
+{"kind":"textbox","id":"sh/ed8bat47","slide":6,"text":"Hardcoded JWT secret: Assignment2key","textPreview":"Hardcoded JWT secret: Assignment2key","textChars":36,"textLines":1,"bbox":[223,384,860,32]}
+{"kind":"shape","id":"sh/lc7u54zi","slide":6,"bbox":[58,449,1164,58]}
+{"kind":"textbox","id":"sh/wra5gbq1","slide":6,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,464,125,28]}
+{"kind":"textbox","id":"sh/36hcrmhk","slide":6,"text":"SQL injection supports access-control bypass evidence","textPreview":"SQL injection supports access-control bypass evidence","textChars":53,"textLines":1,"bbox":[223,462,860,32]}
+{"kind":"notes","id":"nt/ul4huw","slide":6,"text":""}
+{"kind":"slide","id":"sl/bi3b05","slide":7,"title":"A01","textShapes":21}
+{"kind":"textbox","id":"sh/72x4nap4","slide":7,"text":"A01","textPreview":"A01","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/0nuxc3yl","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/p8nqxs72","slide":7,"text":"Impact and fix","textPreview":"Impact and fix","textChars":14,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/itgfmlkj","slide":7,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/7ed8bat4","slide":7,"text":"Impact","textPreview":"Impact","textChars":6,"textLines":1,"bbox":[58,215,250,32]}
+{"kind":"textbox","id":"sh/0z61032l","slide":7,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,275,28,28]}
+{"kind":"textbox","id":"sh/pkzupwb2","slide":7,"text":"Create admin without login","textPreview":"Create admin without login","textChars":26,"textLines":1,"bbox":[90,275,468,60]}
+{"kind":"textbox","id":"sh/i5sneloj","slide":7,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,339,28,28]}
+{"kind":"textbox","id":"sh/7qpg3ex0","slide":7,"text":"Delete games or alter data","textPreview":"Delete games or alter data","textChars":26,"textLines":1,"bbox":[90,339,468,60]}
+{"kind":"textbox","id":"sh/fu18jqh0","slide":7,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,403,28,28]}
+{"kind":"textbox","id":"sh/m94fu18j","slide":7,"text":"Read all passwords","textPreview":"Read all passwords","textChars":18,"textLines":1,"bbox":[90,403,468,60]}
+{"kind":"textbox","id":"sh/x0nuxc3y","slide":7,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,467,28,28]}
+{"kind":"textbox","id":"sh/4fu18jqh","slide":7,"text":"Forge admin JWTs","textPreview":"Forge admin JWTs","textChars":16,"textLines":1,"bbox":[90,467,468,60]}
+{"kind":"textbox","id":"sh/fil0rqd4","slide":7,"text":"Fix","textPreview":"Fix","textChars":3,"textLines":1,"bbox":[690,215,250,32]}
+{"kind":"textbox","id":"sh/qxs72x4n","slide":7,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,275,28,28]}
+{"kind":"textbox","id":"sh/xobm58z2","slide":7,"text":"Auth middleware + RBAC","textPreview":"Auth middleware + RBAC","textChars":22,"textLines":1,"bbox":[722,275,468,60]}
+{"kind":"textbox","id":"sh/83itgfml","slide":7,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,339,28,28]}
+{"kind":"textbox","id":"sh/fepkzupw","slide":7,"text":"Remove passwords from API responses","textPreview":"Remove passwords from API responses","textChars":35,"textLines":1,"bbox":[722,339,468,60]}
+{"kind":"textbox","id":"sh/mtwra5gb","slide":7,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,403,28,28]}
+{"kind":"textbox","id":"sh/u18jqh0f","slide":7,"text":"JWT_SECRET from environment","textPreview":"JWT_SECRET from environment","textChars":27,"textLines":1,"bbox":[722,403,468,60]}
+{"kind":"textbox","id":"sh/jm1cfa9w","slide":7,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,467,28,28]}
+{"kind":"textbox","id":"sh/c7u54zid","slide":7,"text":"Parameterized SQL","textPreview":"Parameterized SQL","textChars":17,"textLines":1,"bbox":[722,467,468,60]}
+{"kind":"notes","id":"nt/bi3b05","slide":7,"text":""}
+{"kind":"slide","id":"sl/h3u3vk","slide":8,"title":"A01","textShapes":7}
+{"kind":"textbox","id":"sh/s72x4nap","slide":8,"text":"A01","textPreview":"A01","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/3m94fu18","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/a5gbq1or","slide":8,"text":"Evidence and re-test","textPreview":"Evidence and re-test","textChars":20,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/h4byhgn2","slide":8,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/sji5snel","slide":8,"bbox":[58,220,520,280]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":8,"text":"Evidence to show","textPreview":"Evidence to show","textChars":16,"textLines":1,"bbox":[86,248,320,30]}
+{"kind":"textbox","id":"sh/adsji5sn","slide":8,"text":"Bruno: create admin, delete game, fetch users with passwords.","textPreview":"Bruno: create admin, delete game, fetch users with passwords.","textChars":61,"textLines":1,"bbox":[86,310,445,120]}
+{"kind":"shape","id":"sh/hgn29gr2","slide":8,"bbox":[690,220,520,280]}
+{"kind":"textbox","id":"sh/svu9knih","slide":8,"text":"After fix","textPreview":"After fix","textChars":9,"textLines":1,"bbox":[720,248,280,30]}
+{"kind":"textbox","id":"sh/ed8bat47","slide":8,"text":"Protected routes return 401/403 and the server refuses to start without a secret.","textPreview":"Protected routes return 401/403 and the server refuses to start without a secret.","textChars":81,"textLines":1,"bbox":[720,310,420,120]}
+{"kind":"notes","id":"nt/h3u3vk","slide":8,"text":""}
+{"kind":"slide","id":"sl/d9pap6","slide":9,"title":"A04","textShapes":12}
+{"kind":"textbox","id":"sh/onyd0z61","slide":9,"text":"A04","textPreview":"A04","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":9,"text":"Insecure Design","textPreview":"Insecure Design","textChars":15,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/dg7adsji","slide":9,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/ovahoza1","slide":9,"text":"The product design places trust in the wrong boundary.","textPreview":"The product design places trust in the wrong boundary.","textChars":54,"textLines":1,"bbox":[58,210,530,170]}
+{"kind":"shape","id":"sh/vahoza1g","slide":9,"bbox":[660,210,500,250]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":9,"text":"Attack model","textPreview":"Attack model","textChars":12,"textLines":1,"bbox":[690,238,260,30]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,296,28,28]}
+{"kind":"textbox","id":"sh/o7qpg3ex","slide":9,"text":"Frontend decides admin visibility","textPreview":"Frontend decides admin visibility","textChars":33,"textLines":1,"bbox":[722,296,388,54]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,354,28,28]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":9,"text":"Registration accepts client-supplied type","textPreview":"Registration accepts client-supplied type","textChars":41,"textLines":1,"bbox":[722,354,388,54]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":9,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,412,28,28]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":9,"text":"Direct API calls bypass UI controls","textPreview":"Direct API calls bypass UI controls","textChars":35,"textLines":1,"bbox":[722,412,388,54]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":9,"text":"The issue is not only a bug; the design allowed the browser to make authority decisions.","textPreview":"The issue is not only a bug; the design allowed the browser to make authority decisions.","textChars":88,"textLines":1,"bbox":[58,505,1050,72]}
+{"kind":"notes","id":"nt/d9pap6","slide":9,"text":""}
+{"kind":"slide","id":"sl/21rvb8","slide":10,"title":"A04","textShapes":7}
+{"kind":"textbox","id":"sh/bulwval8","slide":10,"text":"A04","textPreview":"A04","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/0fepkzup","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/p0bi9s36","slide":10,"text":"Insecure Design findings","textPreview":"Insecure Design findings","textChars":24,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/ixczed8v","slide":10,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/bi9s36hc","slide":10,"bbox":[58,215,1164,58]}
+{"kind":"textbox","id":"sh/032lszqt","slide":10,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,230,125,28]}
+{"kind":"textbox","id":"sh/tovahoza","slide":10,"text":"Frontend-only admin lock","textPreview":"Frontend-only admin lock","textChars":24,"textLines":1,"bbox":[223,228,860,32]}
+{"kind":"shape","id":"sh/il0rqd4v","slide":10,"bbox":[58,293,1164,58]}
+{"kind":"textbox","id":"sh/b6xkf6dc","slide":10,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,308,125,28]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":10,"text":"Client-controlled role on POST /users","textPreview":"Client-controlled role on POST /users","textChars":37,"textLines":1,"bbox":[223,306,860,32]}
+{"kind":"notes","id":"nt/21rvb8","slide":10,"text":""}
+{"kind":"slide","id":"sl/jukqs5","slide":11,"title":"A04","textShapes":19}
+{"kind":"textbox","id":"sh/dsji5sne","slide":11,"text":"A04","textPreview":"A04","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/61032lsz","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/vmtwra5g","slide":11,"text":"Impact and fix","textPreview":"Impact and fix","textChars":14,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/oj2t83it","slide":11,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/d4vmtwra","slide":11,"text":"Impact","textPreview":"Impact","textChars":6,"textLines":1,"bbox":[58,215,250,32]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":11,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,275,28,28]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":11,"text":"Self-promotion to Admin","textPreview":"Self-promotion to Admin","textChars":23,"textLines":1,"bbox":[90,275,468,60]}
+{"kind":"textbox","id":"sh/onyd0z61","slide":11,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,339,28,28]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":11,"text":"Admin UI bypassed via DevTools","textPreview":"Admin UI bypassed via DevTools","textChars":30,"textLines":1,"bbox":[90,339,468,60]}
+{"kind":"textbox","id":"sh/twra5gbq","slide":11,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,403,28,28]}
+{"kind":"textbox","id":"sh/4byhgn29","slide":11,"text":"Direct API calls skip hidden controls","textPreview":"Direct API calls skip hidden controls","textChars":37,"textLines":1,"bbox":[90,403,468,60]}
+{"kind":"textbox","id":"sh/bq1oryts","slide":11,"text":"Fix","textPreview":"Fix","textChars":3,"textLines":1,"bbox":[690,215,250,32]}
+{"kind":"textbox","id":"sh/m58z25kb","slide":11,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,275,28,28]}
+{"kind":"textbox","id":"sh/t83itgfm","slide":11,"text":"Server assigns role","textPreview":"Server assigns role","textChars":19,"textLines":1,"bbox":[722,275,468,60]}
+{"kind":"textbox","id":"sh/4nap4r65","slide":11,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,339,28,28]}
+{"kind":"textbox","id":"sh/b2hwfyxo","slide":11,"text":"requireAdmin on backend","textPreview":"requireAdmin on backend","textChars":23,"textLines":1,"bbox":[722,339,468,60]}
+{"kind":"textbox","id":"sh/mhk3q5o7","slide":11,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,403,28,28]}
+{"kind":"textbox","id":"sh/tgfmlkjm","slide":11,"text":"Remove type from registration","textPreview":"Remove type from registration","textChars":29,"textLines":1,"bbox":[722,403,468,60]}
+{"kind":"textbox","id":"sh/4vmtwra5","slide":11,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,467,28,28]}
+{"kind":"textbox","id":"sh/gr2p8nqx","slide":11,"text":"Reject role changes from clients","textPreview":"Reject role changes from clients","textChars":32,"textLines":1,"bbox":[722,467,468,60]}
+{"kind":"notes","id":"nt/jukqs5","slide":11,"text":""}
+{"kind":"slide","id":"sl/ch78r8","slide":12,"title":"A03","textShapes":12}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":12,"text":"A03","textPreview":"A03","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":12,"text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/ulwval87","slide":12,"text":"Injection","textPreview":"Injection","textChars":9,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/1kre1w7m","slide":12,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/c3ylc7u5","slide":12,"text":"Untrusted input becomes executable SQL or browser code.","textPreview":"Untrusted input becomes executable SQL or browser code.","textChars":55,"textLines":1,"bbox":[58,210,530,170]}
+{"kind":"shape","id":"sh/ji5snelo","slide":12,"bbox":[660,210,500,250]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":12,"text":"Attack model","textPreview":"Attack model","textChars":12,"textLines":1,"bbox":[690,238,260,30]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":12,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,296,28,28]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":12,"text":"String concatenation in SQL","textPreview":"String concatenation in SQL","textChars":27,"textLines":1,"bbox":[722,296,388,54]}
+{"kind":"textbox","id":"sh/ytsvu9kn","slide":12,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,354,28,28]}
+{"kind":"textbox","id":"sh/neloj2t8","slide":12,"text":"innerHTML with unsanitised review/game text","textPreview":"innerHTML with unsanitised review/game text","textChars":43,"textLines":1,"bbox":[722,354,388,54]}
+{"kind":"textbox","id":"sh/czed8v6p","slide":12,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,412,28,28]}
+{"kind":"textbox","id":"sh/5kb6xkf6","slide":12,"text":"Payloads reach DB and victim browsers","textPreview":"Payloads reach DB and victim browsers","textChars":37,"textLines":1,"bbox":[722,412,388,54]}
+{"kind":"textbox","id":"sh/u54zidon","slide":12,"text":"Injection turns normal form fields into a path for data theft, tampering, and browser-side compromise.","textPreview":"Injection turns normal form fields into a path for data theft, tampering, and browser-side compromise.","textChars":102,"textLines":1,"bbox":[58,505,1050,72]}
+{"kind":"notes","id":"nt/ch78r8","slide":12,"text":""}
+{"kind":"slide","id":"sl/da9xs2","slide":13,"title":"A03","textShapes":9}
+{"kind":"textbox","id":"sh/je9cvixc","slide":13,"text":"A03","textPreview":"A03","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/8z25kb6x","slide":13,"text":"13","textPreview":"13","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/1gvy90je","slide":13,"text":"Injection findings","textPreview":"Injection findings","textChars":18,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/q1orytsv","slide":13,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/fmlkjm1c","slide":13,"bbox":[58,215,1164,58]}
+{"kind":"textbox","id":"sh/87ed8bat","slide":13,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,230,125,28]}
+{"kind":"textbox","id":"sh/xs72x4na","slide":13,"text":"SQLi in GET /users/:userid","textPreview":"SQLi in GET /users/:userid","textChars":26,"textLines":1,"bbox":[223,228,860,32]}
+{"kind":"shape","id":"sh/qd4vmtwr","slide":13,"bbox":[58,293,1164,58]}
+{"kind":"textbox","id":"sh/fyxobm58","slide":13,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,308,125,28]}
+{"kind":"textbox","id":"sh/7mp0bi9s","slide":13,"text":"Stored XSS in reviews/games","textPreview":"Stored XSS in reviews/games","textChars":27,"textLines":1,"bbox":[223,306,860,32]}
+{"kind":"shape","id":"sh/e1w7mp0b","slide":13,"bbox":[58,371,1164,58]}
+{"kind":"textbox","id":"sh/psfil0rq","slide":13,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,386,125,28]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":13,"text":"SQLi in game create/update","textPreview":"SQLi in game create/update","textChars":26,"textLines":1,"bbox":[223,384,860,32]}
+{"kind":"notes","id":"nt/da9xs2","slide":13,"text":""}
+{"kind":"slide","id":"sl/d5lpvl","slide":14,"title":"A03","textShapes":21}
+{"kind":"textbox","id":"sh/l0rqd4vm","slide":14,"text":"A03","textPreview":"A03","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/ed8bat47","slide":14,"text":"14","textPreview":"14","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/7u54zido","slide":14,"text":"Impact and fix","textPreview":"Impact and fix","textChars":14,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/wra5gbq1","slide":14,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/lc7u54zi","slide":14,"text":"Impact","textPreview":"Impact","textChars":6,"textLines":1,"bbox":[58,215,250,32]}
+{"kind":"textbox","id":"sh/eloj2t83","slide":14,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,275,28,28]}
+{"kind":"textbox","id":"sh/36hcrmhk","slide":14,"text":"Dump or alter database rows","textPreview":"Dump or alter database rows","textChars":27,"textLines":1,"bbox":[90,275,468,60]}
+{"kind":"textbox","id":"sh/wval87ed","slide":14,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,339,28,28]}
+{"kind":"textbox","id":"sh/pg3ex0nu","slide":14,"text":"Run script in victim browser","textPreview":"Run script in victim browser","textChars":28,"textLines":1,"bbox":[90,339,468,60]}
+{"kind":"textbox","id":"sh/loj2t83i","slide":14,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,403,28,28]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":14,"text":"Bypass auth logic","textPreview":"Bypass auth logic","textChars":17,"textLines":1,"bbox":[90,403,468,60]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":14,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,467,28,28]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":14,"text":"Steal visible tokens","textPreview":"Steal visible tokens","textChars":20,"textLines":1,"bbox":[90,467,468,60]}
+{"kind":"textbox","id":"sh/lwval87e","slide":14,"text":"Fix","textPreview":"Fix","textChars":3,"textLines":1,"bbox":[690,215,250,32]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":14,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,275,28,28]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":14,"text":"Use ? placeholders","textPreview":"Use ? placeholders","textChars":18,"textLines":1,"bbox":[722,275,468,60]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":14,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,339,28,28]}
+{"kind":"textbox","id":"sh/l87ed8ba","slide":14,"text":"Validate inputs","textPreview":"Validate inputs","textChars":15,"textLines":1,"bbox":[722,339,468,60]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":14,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,403,28,28]}
+{"kind":"textbox","id":"sh/8jqh0fep","slide":14,"text":"Escape/sanitise output","textPreview":"Escape/sanitise output","textChars":22,"textLines":1,"bbox":[722,403,468,60]}
+{"kind":"textbox","id":"sh/x4nap4r6","slide":14,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,467,28,28]}
+{"kind":"textbox","id":"sh/qd4vmtwr","slide":14,"text":"Avoid raw innerHTML","textPreview":"Avoid raw innerHTML","textChars":19,"textLines":1,"bbox":[722,467,468,60]}
+{"kind":"notes","id":"nt/d5lpvl","slide":14,"text":""}
+{"kind":"slide","id":"sl/l2j9k2","slide":15,"title":"A03","textShapes":7}
+{"kind":"textbox","id":"sh/4r65wjud","slide":15,"text":"A03","textPreview":"A03","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/f6dcbulw","slide":15,"text":"15","textPreview":"15","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/mlkjm1cf","slide":15,"text":"Evidence and re-test","textPreview":"Evidence and re-test","textChars":20,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/xkf6dcbu","slide":15,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/4zidonyd","slide":15,"bbox":[58,220,520,280]}
+{"kind":"textbox","id":"sh/fepkzupw","slide":15,"text":"Evidence to show","textPreview":"Evidence to show","textChars":16,"textLines":1,"bbox":[86,248,320,30]}
+{"kind":"textbox","id":"sh/mtwra5gb","slide":15,"text":"Bruno payloads: ' OR 1=1 -- and <script>alert(1)</script>.","textPreview":"Bruno payloads: ' OR 1=1 -- and <script>alert(1)</script>.","textChars":58,"textLines":1,"bbox":[86,310,445,120]}
+{"kind":"shape","id":"sh/xobm58z2","slide":15,"bbox":[690,220,520,280]}
+{"kind":"textbox","id":"sh/83itgfml","slide":15,"text":"After fix","textPreview":"After fix","textChars":9,"textLines":1,"bbox":[720,248,280,30]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":15,"text":"Same payloads are blocked, parameterized, or rendered harmless.","textPreview":"Same payloads are blocked, parameterized, or rendered harmless.","textChars":63,"textLines":1,"bbox":[720,310,420,120]}
+{"kind":"notes","id":"nt/l2j9k2","slide":15,"text":""}
+{"kind":"slide","id":"sl/otov3b","slide":16,"title":"A07","textShapes":14}
+{"kind":"textbox","id":"sh/3m94fu18","slide":16,"text":"A07","textPreview":"A07","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/s72x4nap","slide":16,"text":"16","textPreview":"16","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/lszqtcj6","slide":16,"text":"Authentication Failures","textPreview":"Authentication Failures","textChars":23,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/adsji5sn","slide":16,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":16,"text":"Login, session, and credential handling are too weak.","textPreview":"Login, session, and credential handling are too weak.","textChars":53,"textLines":1,"bbox":[58,210,530,170]}
+{"kind":"shape","id":"sh/sji5snel","slide":16,"bbox":[660,210,500,250]}
+{"kind":"textbox","id":"sh/h4byhgn2","slide":16,"text":"Attack model","textPreview":"Attack model","textChars":12,"textLines":1,"bbox":[690,238,260,30]}
+{"kind":"textbox","id":"sh/ap4r65wj","slide":16,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,296,28,28]}
+{"kind":"textbox","id":"sh/za1gvy90","slide":16,"text":"Plaintext passwords in database","textPreview":"Plaintext passwords in database","textChars":31,"textLines":1,"bbox":[722,296,388,54]}
+{"kind":"textbox","id":"sh/z61032ls","slide":16,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,354,28,28]}
+{"kind":"textbox","id":"sh/al87ed8b","slide":16,"text":"Tokens stored in localStorage","textPreview":"Tokens stored in localStorage","textChars":29,"textLines":1,"bbox":[722,354,388,54]}
+{"kind":"textbox","id":"sh/hcrmhk3q","slide":16,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,412,28,28]}
+{"kind":"textbox","id":"sh/orytsvu9","slide":16,"text":"Weak/no password policy","textPreview":"Weak/no password policy","textChars":23,"textLines":1,"bbox":[722,412,388,54]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":16,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,470,28,28]}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":16,"text":"Hardcoded signing key overlap with A01","textPreview":"Hardcoded signing key overlap with A01","textChars":38,"textLines":1,"bbox":[722,470,388,54]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":16,"text":"A successful XSS or database leak can become account takeover rather than only a display issue.","textPreview":"A successful XSS or database leak can become account takeover rather than only a display issue.","textChars":95,"textLines":1,"bbox":[58,505,1050,72]}
+{"kind":"notes","id":"nt/otov3b","slide":16,"text":""}
+{"kind":"slide","id":"sl/49g4i7","slide":17,"title":"A07","textShapes":11}
+{"kind":"textbox","id":"sh/6xkf6dcb","slide":17,"text":"A07","textPreview":"A07","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/hk3q5o7q","slide":17,"text":"17","textPreview":"17","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/oza1gvy9","slide":17,"text":"Authentication findings","textPreview":"Authentication findings","textChars":23,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/zqtcj6to","slide":17,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/65wjudg7","slide":17,"bbox":[58,215,1164,58]}
+{"kind":"textbox","id":"sh/hwfyxobm","slide":17,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,230,125,28]}
+{"kind":"textbox","id":"sh/obm58z25","slide":17,"text":"Plaintext password storage","textPreview":"Plaintext password storage","textChars":26,"textLines":1,"bbox":[223,228,860,32]}
+{"kind":"shape","id":"sh/zupwb2hw","slide":17,"bbox":[58,293,1164,58]}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":17,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,308,125,28]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":17,"text":"Session hijacking through client token storage","textPreview":"Session hijacking through client token storage","textChars":46,"textLines":1,"bbox":[223,306,860,32]}
+{"kind":"shape","id":"sh/1w7mp0bi","slide":17,"bbox":[58,371,1164,58]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":17,"text":"Medium","textPreview":"Medium","textChars":6,"textLines":1,"bbox":[80,386,125,28]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":17,"text":"Weak password validation","textPreview":"Weak password validation","textChars":24,"textLines":1,"bbox":[223,384,860,32]}
+{"kind":"shape","id":"sh/8nqxs72x","slide":17,"bbox":[58,449,1164,58]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":17,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,464,125,28]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":17,"text":"Hardcoded signing key also covered under A01","textPreview":"Hardcoded signing key also covered under A01","textChars":44,"textLines":1,"bbox":[223,462,860,32]}
+{"kind":"notes","id":"nt/49g4i7","slide":17,"text":""}
+{"kind":"slide","id":"sl/2ik53z","slide":18,"title":"A07","textShapes":21}
+{"kind":"textbox","id":"sh/ixczed8v","slide":18,"text":"A07","textPreview":"A07","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/tovahoza","slide":18,"text":"18","textPreview":"18","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/032lszqt","slide":18,"text":"Impact and fix","textPreview":"Impact and fix","textChars":14,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/bulwval8","slide":18,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/i9s36hcr","slide":18,"text":"Impact","textPreview":"Impact","textChars":6,"textLines":1,"bbox":[58,215,250,32]}
+{"kind":"textbox","id":"sh/p0bi9s36","slide":18,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,275,28,28]}
+{"kind":"textbox","id":"sh/0fepkzup","slide":18,"text":"Credential theft","textPreview":"Credential theft","textChars":16,"textLines":1,"bbox":[90,275,468,60]}
+{"kind":"textbox","id":"sh/byhgn29g","slide":18,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,339,28,28]}
+{"kind":"textbox","id":"sh/idonyd0z","slide":18,"text":"Token theft via XSS","textPreview":"Token theft via XSS","textChars":19,"textLines":1,"bbox":[90,339,468,60]}
+{"kind":"textbox","id":"sh/c7u54zid","slide":18,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,403,28,28]}
+{"kind":"textbox","id":"sh/1orytsvu","slide":18,"text":"Account takeover","textPreview":"Account takeover","textChars":16,"textLines":1,"bbox":[90,403,468,60]}
+{"kind":"textbox","id":"sh/u18jqh0f","slide":18,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,467,28,28]}
+{"kind":"textbox","id":"sh/jm1cfa9w","slide":18,"text":"Replay of weak sessions","textPreview":"Replay of weak sessions","textChars":23,"textLines":1,"bbox":[90,467,468,60]}
+{"kind":"textbox","id":"sh/cfa9w3m9","slide":18,"text":"Fix","textPreview":"Fix","textChars":3,"textLines":1,"bbox":[690,215,250,32]}
+{"kind":"textbox","id":"sh/1032lszq","slide":18,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,275,28,28]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":18,"text":"bcrypt password hashing","textPreview":"bcrypt password hashing","textChars":23,"textLines":1,"bbox":[722,275,468,60]}
+{"kind":"textbox","id":"sh/judg7ads","slide":18,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,339,28,28]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":18,"text":"AWS Cognito Hosted UI + PKCE","textPreview":"AWS Cognito Hosted UI + PKCE","textChars":28,"textLines":1,"bbox":[722,339,468,60]}
+{"kind":"textbox","id":"sh/54zidony","slide":18,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,403,28,28]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":18,"text":"JWKS backend verification","textPreview":"JWKS backend verification","textChars":25,"textLines":1,"bbox":[722,403,468,60]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":18,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,467,28,28]}
+{"kind":"textbox","id":"sh/rmhk3q5o","slide":18,"text":"httpOnly cookies recommended","textPreview":"httpOnly cookies recommended","textChars":28,"textLines":1,"bbox":[722,467,468,60]}
+{"kind":"notes","id":"nt/2ik53z","slide":18,"text":""}
+{"kind":"slide","id":"sl/389lw5","slide":19,"title":"A09","textShapes":12}
+{"kind":"textbox","id":"sh/87ed8bat","slide":19,"text":"A09","textPreview":"A09","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/fmlkjm1c","slide":19,"text":"19","textPreview":"19","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/q1orytsv","slide":19,"text":"Logging & Monitoring Failures","textPreview":"Logging & Monitoring Failures","textChars":29,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/1gvy90je","slide":19,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/8z25kb6x","slide":19,"text":"Security events are not captured well enough to detect or investigate attacks.","textPreview":"Security events are not captured well enough to detect or investigate attacks.","textChars":78,"textLines":1,"bbox":[58,210,530,170]}
+{"kind":"shape","id":"sh/je9cvixc","slide":19,"bbox":[660,210,500,250]}
+{"kind":"textbox","id":"sh/qtcj6tov","slide":19,"text":"Attack model","textPreview":"Attack model","textChars":12,"textLines":1,"bbox":[690,238,260,30]}
+{"kind":"textbox","id":"sh/xczed8v6","slide":19,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,296,28,28]}
+{"kind":"textbox","id":"sh/8v6psfil","slide":19,"text":"console.log(err) leaks schema","textPreview":"console.log(err) leaks schema","textChars":29,"textLines":1,"bbox":[722,296,388,54]}
+{"kind":"textbox","id":"sh/yhgn29gr","slide":19,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,354,28,28]}
+{"kind":"textbox","id":"sh/n29gr2p8","slide":19,"text":"Different errors reveal accounts","textPreview":"Different errors reveal accounts","textChars":32,"textLines":1,"bbox":[722,354,388,54]}
+{"kind":"textbox","id":"sh/gn29gr2p","slide":19,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,412,28,28]}
+{"kind":"textbox","id":"sh/58z25kb6","slide":19,"text":"No audit trail for sensitive actions","textPreview":"No audit trail for sensitive actions","textChars":36,"textLines":1,"bbox":[722,412,388,54]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":19,"text":"Without durable security logs, attacks can succeed quietly and incident response has little evidence.","textPreview":"Without durable security logs, attacks can succeed quietly and incident response has little evidence.","textChars":101,"textLines":1,"bbox":[58,505,1050,72]}
+{"kind":"notes","id":"nt/389lw5","slide":19,"text":""}
+{"kind":"slide","id":"sl/batz22","slide":20,"title":"A09","textShapes":13}
+{"kind":"textbox","id":"sh/fa9w3m94","slide":20,"text":"A09","textPreview":"A09","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/8v6psfil","slide":20,"text":"20","textPreview":"20","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/xczed8v6","slide":20,"text":"Logging findings","textPreview":"Logging findings","textChars":16,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/qd4vmtwr","slide":20,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/fyxobm58","slide":20,"bbox":[58,215,1164,58]}
+{"kind":"textbox","id":"sh/8jqh0fep","slide":20,"text":"Medium","textPreview":"Medium","textChars":6,"textLines":1,"bbox":[80,230,125,28]}
+{"kind":"textbox","id":"sh/x4nap4r6","slide":20,"text":"No audit trail for registration/reviews","textPreview":"No audit trail for registration/reviews","textChars":39,"textLines":1,"bbox":[223,228,860,32]}
+{"kind":"shape","id":"sh/q1orytsv","slide":20,"bbox":[58,293,1164,58]}
+{"kind":"textbox","id":"sh/fmlkjm1c","slide":20,"text":"Medium","textPreview":"Medium","textChars":6,"textLines":1,"bbox":[80,308,125,28]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":20,"text":"SQL errors leak details","textPreview":"SQL errors leak details","textChars":23,"textLines":1,"bbox":[223,306,860,32]}
+{"kind":"shape","id":"sh/q5o7qpg3","slide":20,"bbox":[58,371,1164,58]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":20,"text":"Medium","textPreview":"Medium","textChars":6,"textLines":1,"bbox":[80,386,125,28]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":20,"text":"Username/email enumeration","textPreview":"Username/email enumeration","textChars":26,"textLines":1,"bbox":[223,384,860,32]}
+{"kind":"shape","id":"sh/j2t83itg","slide":20,"bbox":[58,449,1164,58]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":20,"text":"High","textPreview":"High","textChars":4,"textLines":1,"bbox":[80,464,125,28]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":20,"text":"Review impersonation","textPreview":"Review impersonation","textChars":20,"textLines":1,"bbox":[223,462,860,32]}
+{"kind":"shape","id":"sh/8nqxs72x","slide":20,"bbox":[58,527,1164,58]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":20,"text":"Medium","textPreview":"Medium","textChars":6,"textLines":1,"bbox":[80,542,125,28]}
+{"kind":"textbox","id":"sh/ulwval87","slide":20,"text":"Missing auth logging","textPreview":"Missing auth logging","textChars":20,"textLines":1,"bbox":[223,540,860,32]}
+{"kind":"notes","id":"nt/batz22","slide":20,"text":""}
+{"kind":"slide","id":"sl/acaqcm","slide":21,"title":"A09","textShapes":23}
+{"kind":"textbox","id":"sh/83itgfml","slide":21,"text":"A09","textPreview":"A09","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/fil0rqd4","slide":21,"text":"21","textPreview":"21","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/qxs72x4n","slide":21,"text":"Impact and fix","textPreview":"Impact and fix","textChars":14,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/x0nuxc3y","slide":21,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/4fu18jqh","slide":21,"text":"Impact","textPreview":"Impact","textChars":6,"textLines":1,"bbox":[58,215,250,32]}
+{"kind":"textbox","id":"sh/fu18jqh0","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,275,28,28]}
+{"kind":"textbox","id":"sh/m94fu18j","slide":21,"text":"No forensic trail","textPreview":"No forensic trail","textChars":17,"textLines":1,"bbox":[90,275,468,60]}
+{"kind":"textbox","id":"sh/xc3ylc7u","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,339,28,28]}
+{"kind":"textbox","id":"sh/4r65wjud","slide":21,"text":"Account enumeration","textPreview":"Account enumeration","textChars":19,"textLines":1,"bbox":[90,339,468,60]}
+{"kind":"textbox","id":"sh/ap4r65wj","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,403,28,28]}
+{"kind":"textbox","id":"sh/za1gvy90","slide":21,"text":"Impersonated reviews","textPreview":"Impersonated reviews","textChars":20,"textLines":1,"bbox":[90,403,468,60]}
+{"kind":"textbox","id":"sh/svu9knih","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,467,28,28]}
+{"kind":"textbox","id":"sh/hgn29gr2","slide":21,"text":"Logs lost on EC2 restart","textPreview":"Logs lost on EC2 restart","textChars":24,"textLines":1,"bbox":[90,467,468,60]}
+{"kind":"textbox","id":"sh/a1gvy90j","slide":21,"text":"Fix","textPreview":"Fix","textChars":3,"textLines":1,"bbox":[690,215,250,32]}
+{"kind":"textbox","id":"sh/zidonyd0","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,275,28,28]}
+{"kind":"textbox","id":"sh/s36hcrmh","slide":21,"text":"securityLog.js audit()","textPreview":"securityLog.js audit()","textChars":22,"textLines":1,"bbox":[722,275,468,60]}
+{"kind":"textbox","id":"sh/hoza1gvy","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,339,28,28]}
+{"kind":"textbox","id":"sh/a5gbq1or","slide":21,"text":"safeError()","textPreview":"safeError()","textChars":11,"textLines":1,"bbox":[722,339,468,60]}
+{"kind":"textbox","id":"sh/3m94fu18","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,403,28,28]}
+{"kind":"textbox","id":"sh/vixczed8","slide":21,"text":"Generic 422 messages","textPreview":"Generic 422 messages","textChars":20,"textLines":1,"bbox":[722,403,468,60]}
+{"kind":"textbox","id":"sh/2x4nap4r","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,467,28,28]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":21,"text":"Review ownership check","textPreview":"Review ownership check","textChars":22,"textLines":1,"bbox":[722,467,468,60]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,531,28,28]}
+{"kind":"textbox","id":"sh/val87ed8","slide":21,"text":"CloudWatch retention next","textPreview":"CloudWatch retention next","textChars":25,"textLines":1,"bbox":[722,531,468,60]}
+{"kind":"notes","id":"nt/acaqcm","slide":21,"text":""}
+{"kind":"slide","id":"sl/8sidog","slide":22,"title":"AWS","textShapes":15}
+{"kind":"textbox","id":"sh/ovahoza1","slide":22,"text":"AWS","textPreview":"AWS","textChars":3,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":22,"text":"22","textPreview":"22","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":22,"text":"Production deployment hardening","textPreview":"Production deployment hardening","textChars":31,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/d8v6psfi","slide":22,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/onyd0z61","slide":22,"bbox":[58,220,340,120]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":22,"text":"S3 / Amplify","textPreview":"S3 / Amplify","textChars":12,"textLines":1,"bbox":[78,238,290,30]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":22,"text":"Static frontend\nHTTPS callbacks","textPreview":"Static frontend | HTTPS callbacks","textChars":31,"textLines":2,"bbox":[78,278,280,48]}
+{"kind":"shape","id":"sh/d4vmtwra","slide":22,"bbox":[448,220,340,120]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":22,"text":"Cognito","textPreview":"Cognito","textChars":7,"textLines":1,"bbox":[468,238,290,30]}
+{"kind":"textbox","id":"sh/2x4nap4r","slide":22,"text":"Hosted UI + PKCE\nAdmin group → role","textPreview":"Hosted UI + PKCE | Admin group → role","textChars":35,"textLines":2,"bbox":[468,278,280,48]}
+{"kind":"shape","id":"sh/vixczed8","slide":22,"bbox":[838,220,340,120]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":22,"text":"EC2 API","textPreview":"EC2 API","textChars":7,"textLines":1,"bbox":[858,238,290,30]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":22,"text":"Node/Express\nverifyToken backend","textPreview":"Node/Express | verifyToken backend","textChars":32,"textLines":2,"bbox":[858,278,280,48]}
+{"kind":"shape","id":"sh/6psfil0r","slide":22,"bbox":[58,390,340,120]}
+{"kind":"textbox","id":"sh/val87ed8","slide":22,"text":"MySQL / RDS","textPreview":"MySQL / RDS","textChars":11,"textLines":1,"bbox":[78,408,290,30]}
+{"kind":"textbox","id":"sh/kre1w7mp","slide":22,"text":"Parameterized access\nleast privilege","textPreview":"Parameterized access | least privilege","textChars":36,"textLines":2,"bbox":[78,448,280,48]}
+{"kind":"shape","id":"sh/dcbulwva","slide":22,"bbox":[448,390,340,120]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":22,"text":"Secrets Manager","textPreview":"Secrets Manager","textChars":15,"textLines":1,"bbox":[468,408,290,30]}
+{"kind":"textbox","id":"sh/v6psfil0","slide":22,"text":"JWT secret out of source\nfail-fast config","textPreview":"JWT secret out of source | fail-fast config","textChars":41,"textLines":2,"bbox":[468,448,280,48]}
+{"kind":"shape","id":"sh/nuxc3ylc","slide":22,"bbox":[838,390,340,120]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":22,"text":"CloudWatch next","textPreview":"CloudWatch next","textChars":15,"textLines":1,"bbox":[858,408,290,30]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":22,"text":"Centralized logs\nretention + alerts","textPreview":"Centralized logs | retention + alerts","textChars":35,"textLines":2,"bbox":[858,448,280,48]}
+{"kind":"notes","id":"nt/8sidog","slide":22,"text":""}
+{"kind":"slide","id":"sl/2eiewg","slide":23,"title":"Demo","textShapes":10}
+{"kind":"textbox","id":"sh/x4nap4r6","slide":23,"text":"Demo","textPreview":"Demo","textChars":4,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/qd4vmtwr","slide":23,"text":"23","textPreview":"23","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/fyxobm58","slide":23,"text":"What the demo is","textPreview":"What the demo is","textChars":16,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/8v6psfil","slide":23,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/xczed8v6","slide":23,"bbox":[58,218,342,255]}
+{"kind":"shape","id":"sh/qpg3ex0n","slide":23,"bbox":[469,218,342,255]}
+{"kind":"shape","id":"sh/fa9w3m94","slide":23,"bbox":[880,218,342,255]}
+{"kind":"textbox","id":"sh/8z25kb6x","slide":23,"text":"1. Raw file","textPreview":"1. Raw file","textChars":11,"textLines":1,"bbox":[84,248,270,36]}
+{"kind":"textbox","id":"sh/1gvy90je","slide":23,"text":"Open the vulnerable code or request and explain what trust boundary is broken.","textPreview":"Open the vulnerable code or request and explain what trust boundary is broken.","textChars":78,"textLines":1,"bbox":[84,310,260,110]}
+{"kind":"textbox","id":"sh/pg3ex0nu","slide":23,"text":"2. Exploit","textPreview":"2. Exploit","textChars":10,"textLines":1,"bbox":[495,248,270,36]}
+{"kind":"textbox","id":"sh/wval87ed","slide":23,"text":"Act as a malicious user using Bruno, browser DevTools, terminal output, or database evidence.","textPreview":"Act as a malicious user using Bruno, browser DevTools, terminal output, or database evidence.","textChars":93,"textLines":1,"bbox":[495,310,260,110]}
+{"kind":"textbox","id":"sh/7adsji5s","slide":23,"text":"3. Solved","textPreview":"3. Solved","textChars":9,"textLines":1,"bbox":[906,248,270,36]}
+{"kind":"textbox","id":"sh/epkzupwb","slide":23,"text":"Switch to the fixed version and show the same action is rejected, harmless, or logged safely.","textPreview":"Switch to the fixed version and show the same action is rejected, harmless, or logged safely.","textChars":93,"textLines":1,"bbox":[906,310,260,110]}
+{"kind":"textbox","id":"sh/psfil0rq","slide":23,"text":"Use one fast example per OWASP category. The story is: this was exploitable, this is how, this is how we fixed it.","textPreview":"Use one fast example per OWASP category. The story is: this was exploitable, this is how, this is how we fixed it.","textChars":114,"textLines":1,"bbox":[58,560,1100,48]}
+{"kind":"notes","id":"nt/2eiewg","slide":23,"text":""}
+{"kind":"slide","id":"sl/8n6821","slide":24,"title":"Demo","textShapes":10}
+{"kind":"textbox","id":"sh/psfil0rq","slide":24,"text":"Demo","textPreview":"Demo","textChars":4,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/e1w7mp0b","slide":24,"text":"24","textPreview":"24","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/7mp0bi9s","slide":24,"text":"A01 — Broken Access Control","textPreview":"A01 — Broken Access Control","textChars":27,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/wval87ed","slide":24,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/pg3ex0nu","slide":24,"bbox":[58,220,340,315]}
+{"kind":"textbox","id":"sh/epkzupwb","slide":24,"text":"Raw vulnerable file","textPreview":"Raw vulnerable file","textChars":19,"textLines":1,"bbox":[80,248,285,34]}
+{"kind":"textbox","id":"sh/7adsji5s","slide":24,"text":"Find route files with missing verifyToken / requireAdmin, then show CSS-only admin hiding in the frontend.","textPreview":"Find route files with missing verifyToken / requireAdmin, then show CSS-only admin hiding in the frontend.","textChars":106,"textLines":1,"bbox":[80,310,282,170]}
+{"kind":"shape","id":"sh/wra5gbq1","slide":24,"bbox":[448,220,340,315]}
+{"kind":"textbox","id":"sh/lc7u54zi","slide":24,"text":"Malicious user exploit","textPreview":"Malicious user exploit","textChars":22,"textLines":1,"bbox":[470,248,285,34]}
+{"kind":"textbox","id":"sh/9w3m94fu","slide":24,"text":"In Bruno, call an admin endpoint without login: create an Admin user, delete a game, or fetch /users.","textPreview":"In Bruno, call an admin endpoint without login: create an Admin user, delete a game, or fetch /users.","textChars":101,"textLines":1,"bbox":[470,310,282,170]}
+{"kind":"shape","id":"sh/kb6xkf6d","slide":24,"bbox":[838,220,340,315]}
+{"kind":"textbox","id":"sh/rqd4vmtw","slide":24,"text":"Addressed / solved","textPreview":"Addressed / solved","textChars":18,"textLines":1,"bbox":[860,248,285,34]}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":24,"text":"Add auth middleware and RBAC. Re-run the same request and show 401/403; /users no longer returns passwords.","textPreview":"Add auth middleware and RBAC. Re-run the same request and show 401/403; /users no longer returns passwords.","textChars":107,"textLines":1,"bbox":[860,310,282,170]}
+{"kind":"textbox","id":"sh/9knih4by","slide":24,"text":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textPreview":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textChars":104,"textLines":1,"bbox":[58,592,1100,32]}
+{"kind":"notes","id":"nt/8n6821","slide":24,"text":""}
+{"kind":"slide","id":"sl/av7xwf","slide":25,"title":"Demo","textShapes":10}
+{"kind":"textbox","id":"sh/d8bat47y","slide":25,"text":"Demo","textPreview":"Demo","textChars":4,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":25,"text":"25","textPreview":"25","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/v6psfil0","slide":25,"text":"A04 — Insecure Design","textPreview":"A04 — Insecure Design","textChars":21,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/kf6dcbul","slide":25,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/d0z61032","slide":25,"bbox":[58,220,340,315]}
+{"kind":"textbox","id":"sh/29gr2p8n","slide":25,"text":"Raw vulnerable file","textPreview":"Raw vulnerable file","textChars":19,"textLines":1,"bbox":[80,248,285,34]}
+{"kind":"textbox","id":"sh/vu9knih4","slide":25,"text":"Open registration request/body where client can send type: Admin and frontend decides admin visibility.","textPreview":"Open registration request/body where client can send type: Admin and frontend decides admin visibility.","textChars":103,"textLines":1,"bbox":[80,310,282,170]}
+{"kind":"shape","id":"sh/k3q5o7qp","slide":25,"bbox":[448,220,340,315]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":25,"text":"Malicious user exploit","textPreview":"Malicious user exploit","textChars":22,"textLines":1,"bbox":[470,248,285,34]}
+{"kind":"textbox","id":"sh/p0bi9s36","slide":25,"text":"Send POST /users with type=Admin or reveal hidden admin panel through DevTools/CSS tampering.","textPreview":"Send POST /users with type=Admin or reveal hidden admin panel through DevTools/CSS tampering.","textChars":93,"textLines":1,"bbox":[470,310,282,170]}
+{"kind":"shape","id":"sh/0fepkzup","slide":25,"bbox":[838,220,340,315]}
+{"kind":"textbox","id":"sh/bulwval8","slide":25,"text":"Addressed / solved","textPreview":"Addressed / solved","textChars":18,"textLines":1,"bbox":[860,248,285,34]}
+{"kind":"textbox","id":"sh/i9s36hcr","slide":25,"text":"Server ignores client role and assigns default user role. requireAdmin protects admin actions even if UI is modified.","textPreview":"Server ignores client role and assigns default user role. requireAdmin protects admin actions even if UI is modified.","textChars":117,"textLines":1,"bbox":[860,310,282,170]}
+{"kind":"textbox","id":"sh/tovahoza","slide":25,"text":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textPreview":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textChars":104,"textLines":1,"bbox":[58,592,1100,32]}
+{"kind":"notes","id":"nt/av7xwf","slide":25,"text":""}
+{"kind":"slide","id":"sl/uptlce","slide":26,"title":"Demo","textShapes":10}
+{"kind":"textbox","id":"sh/lszqtcj6","slide":26,"text":"Demo","textPreview":"Demo","textChars":4,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/a5gbq1or","slide":26,"text":"26","textPreview":"26","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/3m94fu18","slide":26,"text":"A03 — Injection","textPreview":"A03 — Injection","textChars":15,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/sji5snel","slide":26,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/h4byhgn2","slide":26,"bbox":[58,220,340,315]}
+{"kind":"textbox","id":"sh/adsji5sn","slide":26,"text":"Raw vulnerable file","textPreview":"Raw vulnerable file","textChars":19,"textLines":1,"bbox":[80,248,285,34]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":26,"text":"Open raw SQL string concatenation or innerHTML rendering for reviews/game text.","textPreview":"Open raw SQL string concatenation or innerHTML rendering for reviews/game text.","textChars":79,"textLines":1,"bbox":[80,310,282,170]}
+{"kind":"shape","id":"sh/svu9knih","slide":26,"bbox":[448,220,340,315]}
+{"kind":"textbox","id":"sh/hgn29gr2","slide":26,"text":"Malicious user exploit","textPreview":"Malicious user exploit","textChars":22,"textLines":1,"bbox":[470,248,285,34]}
+{"kind":"textbox","id":"sh/tgfmlkjm","slide":26,"text":"Use Bruno payload ' OR 1=1 -- for SQLi, then show stored XSS with <script>alert(1)</script> or a safe screenshot.","textPreview":"Use Bruno payload ' OR 1=1 -- for SQLi, then show stored XSS with <script>alert(1)</script> or a safe screenshot.","textChars":113,"textLines":1,"bbox":[470,310,282,170]}
+{"kind":"shape","id":"sh/4vmtwra5","slide":26,"bbox":[838,220,340,315]}
+{"kind":"textbox","id":"sh/bat47y1k","slide":26,"text":"Addressed / solved","textPreview":"Addressed / solved","textChars":18,"textLines":1,"bbox":[860,248,285,34]}
+{"kind":"textbox","id":"sh/mp0bi9s3","slide":26,"text":"Use ? placeholders, validation, and safe rendering. Same payload becomes rejected or displayed as harmless text.","textPreview":"Use ? placeholders, validation, and safe rendering. Same payload becomes rejected or displayed as harmless text.","textChars":112,"textLines":1,"bbox":[860,310,282,170]}
+{"kind":"textbox","id":"sh/tsvu9kni","slide":26,"text":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textPreview":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textChars":104,"textLines":1,"bbox":[58,592,1100,32]}
+{"kind":"notes","id":"nt/uptlce","slide":26,"text":""}
+{"kind":"slide","id":"sl/kydi8x","slide":27,"title":"Demo","textShapes":10}
+{"kind":"textbox","id":"sh/bat47y1k","slide":27,"text":"Demo","textPreview":"Demo","textChars":4,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/4vmtwra5","slide":27,"text":"27","textPreview":"27","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/tgfmlkjm","slide":27,"text":"A07 — Authentication Failures","textPreview":"A07 — Authentication Failures","textChars":29,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/m1cfa9w3","slide":27,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/bm58z25k","slide":27,"bbox":[58,220,340,315]}
+{"kind":"textbox","id":"sh/47y1kre1","slide":27,"text":"Raw vulnerable file","textPreview":"Raw vulnerable file","textChars":19,"textLines":1,"bbox":[80,248,285,34]}
+{"kind":"textbox","id":"sh/tsvu9kni","slide":27,"text":"Show plaintext password record, localStorage token, Remember Me password, or hardcoded JWT secret.","textPreview":"Show plaintext password record, localStorage token, Remember Me password, or hardcoded JWT secret.","textChars":98,"textLines":1,"bbox":[80,310,282,170]}
+{"kind":"shape","id":"sh/m58z25kb","slide":27,"bbox":[448,220,340,315]}
+{"kind":"textbox","id":"sh/bq1oryts","slide":27,"text":"Malicious user exploit","textPreview":"Malicious user exploit","textChars":22,"textLines":1,"bbox":[470,248,285,34]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":27,"text":"Explain attacker path: DB leak exposes passwords; XSS reads localStorage token; forged JWT uses known secret.","textPreview":"Explain attacker path: DB leak exposes passwords; XSS reads localStorage token; forged JWT uses known secret.","textChars":109,"textLines":1,"bbox":[470,310,282,170]}
+{"kind":"shape","id":"sh/at47y1kr","slide":27,"bbox":[838,220,340,315]}
+{"kind":"textbox","id":"sh/lkjm1cfa","slide":27,"text":"Addressed / solved","textPreview":"Addressed / solved","textChars":18,"textLines":1,"bbox":[860,248,285,34]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":27,"text":"Use bcrypt, Cognito Hosted UI + PKCE, JWKS verification, env secrets, and recommend httpOnly secure cookies.","textPreview":"Use bcrypt, Cognito Hosted UI + PKCE, JWKS verification, env secrets, and recommend httpOnly secure cookies.","textChars":108,"textLines":1,"bbox":[860,310,282,170]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":27,"text":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textPreview":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textChars":104,"textLines":1,"bbox":[58,592,1100,32]}
+{"kind":"notes","id":"nt/kydi8x","slide":27,"text":""}
+{"kind":"slide","id":"sl/eam0ch","slide":28,"title":"Demo","textShapes":10}
+{"kind":"textbox","id":"sh/2x4nap4r","slide":28,"text":"Demo","textPreview":"Demo","textChars":4,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":28,"text":"28","textPreview":"28","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":28,"text":"A09 — Logging & Monitoring Failures","textPreview":"A09 — Logging & Monitoring Failures","textChars":35,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/val87ed8","slide":28,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/6psfil0r","slide":28,"bbox":[58,220,340,315]}
+{"kind":"textbox","id":"sh/dcbulwva","slide":28,"text":"Raw vulnerable file","textPreview":"Raw vulnerable file","textChars":19,"textLines":1,"bbox":[80,248,285,34]}
+{"kind":"textbox","id":"sh/kre1w7mp","slide":28,"text":"Show console.log(err), specific username/email errors, and missing audit events in raw version.","textPreview":"Show console.log(err), specific username/email errors, and missing audit events in raw version.","textChars":95,"textLines":1,"bbox":[80,310,282,170]}
+{"kind":"shape","id":"sh/v6psfil0","slide":28,"bbox":[448,220,340,315]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":28,"text":"Malicious user exploit","textPreview":"Malicious user exploit","textChars":22,"textLines":1,"bbox":[470,248,285,34]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":28,"text":"Trigger failed registration/login/review actions and show enumeration or unsafe logs.","textPreview":"Trigger failed registration/login/review actions and show enumeration or unsafe logs.","textChars":85,"textLines":1,"bbox":[470,310,282,170]}
+{"kind":"shape","id":"sh/lkjm1cfa","slide":28,"bbox":[838,220,340,315]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":28,"text":"Addressed / solved","textPreview":"Addressed / solved","textChars":18,"textLines":1,"bbox":[860,248,285,34]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":28,"text":"Use audit(), safeError(), generic 422 messages, review ownership checks, and CloudWatch/centralised retention for production.","textPreview":"Use audit(), safeError(), generic 422 messages, review ownership checks, and CloudWatch/centralised retention for production.","textChars":125,"textLines":1,"bbox":[860,310,282,170]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":28,"text":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textPreview":"Presenter cue: keep each exploit under one minute; show screenshots if the live environment is unstable.","textChars":104,"textLines":1,"bbox":[58,592,1100,32]}
+{"kind":"notes","id":"nt/eam0ch","slide":28,"text":""}
+{"kind":"slide","id":"sl/3jqrfy","slide":29,"title":"Close","textShapes":22}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":29,"text":"Close","textPreview":"Close","textChars":5,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":29,"text":"29","textPreview":"29","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/lwval87e","slide":29,"text":"Conclusion and remaining work","textPreview":"Conclusion and remaining work","textChars":29,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/ex0nuxc3","slide":29,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":29,"text":"Before","textPreview":"Before","textChars":6,"textLines":1,"bbox":[58,225,250,34]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":29,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,290,28,28]}
+{"kind":"textbox","id":"sh/loj2t83i","slide":29,"text":"Client-side trust","textPreview":"Client-side trust","textChars":17,"textLines":1,"bbox":[90,290,438,50]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":29,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,344,28,28]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":29,"text":"Raw SQL paths","textPreview":"Raw SQL paths","textChars":13,"textLines":1,"bbox":[90,344,438,50]}
+{"kind":"textbox","id":"sh/3itgfmlk","slide":29,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,398,28,28]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":29,"text":"Plaintext credentials","textPreview":"Plaintext credentials","textChars":21,"textLines":1,"bbox":[90,398,438,50]}
+{"kind":"textbox","id":"sh/loj2t83i","slide":29,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,452,28,28]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":29,"text":"Console-only security visibility","textPreview":"Console-only security visibility","textChars":32,"textLines":1,"bbox":[90,452,438,50]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":29,"text":"After","textPreview":"After","textChars":5,"textLines":1,"bbox":[690,225,250,34]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":29,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,290,28,28]}
+{"kind":"textbox","id":"sh/lwval87e","slide":29,"text":"Server-side RBAC","textPreview":"Server-side RBAC","textChars":16,"textLines":1,"bbox":[722,290,438,50]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":29,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,344,28,28]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":29,"text":"Parameterized SQL","textPreview":"Parameterized SQL","textChars":17,"textLines":1,"bbox":[722,344,438,50]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":29,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,398,28,28]}
+{"kind":"textbox","id":"sh/il0rqd4v","slide":29,"text":"Cognito + external secrets","textPreview":"Cognito + external secrets","textChars":26,"textLines":1,"bbox":[722,398,438,50]}
+{"kind":"textbox","id":"sh/b6xkf6dc","slide":29,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[690,452,28,28]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":29,"text":"Structured audit logging","textPreview":"Structured audit logging","textChars":24,"textLines":1,"bbox":[722,452,438,50]}
+{"kind":"textbox","id":"sh/tcj6tova","slide":29,"text":"Next hardening: HTTPS/HSTS everywhere, secure httpOnly cookies, complete bcrypt migration, CloudWatch retention and alerts.","textPreview":"Next hardening: HTTPS/HSTS everywhere, secure httpOnly cookies, complete bcrypt migration, CloudWatch retention and alerts.","textChars":123,"textLines":1,"bbox":[58,600,1100,42]}
+{"kind":"notes","id":"nt/3jqrfy","slide":29,"text":""}
+{"kind":"slide","id":"sl/pnn1kd","slide":30,"title":"Close","textShapes":12}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":30,"text":"Close","textPreview":"Close","textChars":5,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":30,"text":"30","textPreview":"30","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":30,"text":"Team reflections: what we learnt","textPreview":"Team reflections: what we learnt","textChars":32,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/z61032ls","slide":30,"bbox":[58,160,1164,1]}
+{"kind":"shape","id":"sh/al87ed8b","slide":30,"bbox":[58,215,520,120]}
+{"kind":"textbox","id":"sh/hcrmhk3q","slide":30,"text":"Trust the server","textPreview":"Trust the server","textChars":16,"textLines":1,"bbox":[80,233,430,30]}
+{"kind":"textbox","id":"sh/orytsvu9","slide":30,"text":"Frontend hiding is not access control; every sensitive action needs backend enforcement.","textPreview":"Frontend hiding is not access control; every sensitive action needs backend enforcement.","textChars":88,"textLines":1,"bbox":[80,273,440,42]}
+{"kind":"shape","id":"sh/zed8v6ps","slide":30,"bbox":[648,215,520,120]}
+{"kind":"textbox","id":"sh/6xkf6dcb","slide":30,"text":"Secure coding is systematic","textPreview":"Secure coding is systematic","textChars":27,"textLines":1,"bbox":[670,233,430,30]}
+{"kind":"textbox","id":"sh/8z25kb6x","slide":30,"text":"Parameterized SQL, output encoding, and input validation must be defaults, not last-minute patches.","textPreview":"Parameterized SQL, output encoding, and input validation must be defaults, not last-minute patches.","textChars":99,"textLines":1,"bbox":[670,273,440,42]}
+{"kind":"shape","id":"sh/1gvy90je","slide":30,"bbox":[58,390,520,120]}
+{"kind":"textbox","id":"sh/qtcj6tov","slide":30,"text":"Auth is a design decision","textPreview":"Auth is a design decision","textChars":25,"textLines":1,"bbox":[80,408,430,30]}
+{"kind":"textbox","id":"sh/je9cvixc","slide":30,"text":"Passwords, tokens, JWT secrets, and roles need a coherent architecture, not isolated fixes.","textPreview":"Passwords, tokens, JWT secrets, and roles need a coherent architecture, not isolated fixes.","textChars":91,"textLines":1,"bbox":[80,448,440,42]}
+{"kind":"shape","id":"sh/87ed8bat","slide":30,"bbox":[648,390,520,120]}
+{"kind":"textbox","id":"sh/xs72x4na","slide":30,"text":"Logs are security evidence","textPreview":"Logs are security evidence","textChars":26,"textLines":1,"bbox":[670,408,430,30]}
+{"kind":"textbox","id":"sh/q1orytsv","slide":30,"text":"If attacks are not logged safely and durably, the team cannot investigate or prove impact.","textPreview":"If attacks are not logged safely and durably, the team cannot investigate or prove impact.","textChars":90,"textLines":1,"bbox":[670,448,440,42]}
+{"kind":"textbox","id":"sh/fmlkjm1c","slide":30,"text":"As a team, the biggest takeaway is that security is not one feature. It is the way data, identity, code, deployment, and monitoring connect.","textPreview":"As a team, the biggest takeaway is that security is not one feature. It is the way data, identity, code, deployment, and monitoring connect.","textChars":140,"textLines":1,"bbox":[58,600,1100,42]}
+{"kind":"notes","id":"nt/pnn1kd","slide":30,"text":""}
+{"kind":"slide","id":"sl/dcyvzo","slide":31,"title":"Demo","textShapes":15}
+{"kind":"textbox","id":"sh/90je9cvi","slide":31,"text":"Demo","textPreview":"Demo","textChars":4,"textLines":1,"bbox":[58,34,360,26]}
+{"kind":"textbox","id":"sh/yd0z6103","slide":31,"text":"31","textPreview":"31","textChars":2,"textLines":1,"bbox":[1177,34,45,24]}
+{"kind":"textbox","id":"sh/rytsvu9k","slide":31,"text":"Live demo path","textPreview":"Live demo path","textChars":14,"textLines":1,"bbox":[58,82,1164,74]}
+{"kind":"shape","id":"sh/g7adsji5","slide":31,"bbox":[58,160,1164,1]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":31,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,220,28,28]}
+{"kind":"textbox","id":"sh/y1kre1w7","slide":31,"text":"Login with Cognito Hosted UI and browse as a normal user.","textPreview":"Login with Cognito Hosted UI and browse as a normal user.","textChars":57,"textLines":1,"bbox":[90,220,1048,59]}
+{"kind":"textbox","id":"sh/rmhk3q5o","slide":31,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,283,28,28]}
+{"kind":"textbox","id":"sh/g3ex0nux","slide":31,"text":"Attempt role escalation with POST /users type=Admin → rejected.","textPreview":"Attempt role escalation with POST /users type=Admin → rejected.","textChars":63,"textLines":1,"bbox":[90,283,1048,59]}
+{"kind":"textbox","id":"sh/5o7qpg3e","slide":31,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,346,28,28]}
+{"kind":"textbox","id":"sh/5gbq1ory","slide":31,"text":"Call protected admin route without a token → 401/403.","textPreview":"Call protected admin route without a token → 401/403.","textChars":53,"textLines":1,"bbox":[90,346,1048,59]}
+{"kind":"textbox","id":"sh/cvixczed","slide":31,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,409,28,28]}
+{"kind":"textbox","id":"sh/nap4r65w","slide":31,"text":"Re-run representative SQLi/XSS payloads → blocked or harmless.","textPreview":"Re-run representative SQLi/XSS payloads → blocked or harmless.","textChars":62,"textLines":1,"bbox":[90,409,1048,59]}
+{"kind":"textbox","id":"sh/upwb2hwf","slide":31,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,472,28,28]}
+{"kind":"textbox","id":"sh/54zidony","slide":31,"text":"Trigger audit events and show structured security logs.","textPreview":"Trigger audit events and show structured security logs.","textChars":55,"textLines":1,"bbox":[90,472,1048,59]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":31,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[58,535,28,28]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":31,"text":"Flash AWS evidence: Secrets Manager, EC2, S3/Amplify, Cognito.","textPreview":"Flash AWS evidence: Secrets Manager, EC2, S3/Amplify, Cognito.","textChars":62,"textLines":1,"bbox":[90,535,1048,59]}
+{"kind":"notes","id":"nt/dcyvzo","slide":31,"text":""}

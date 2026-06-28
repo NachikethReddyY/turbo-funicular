@@ -22,6 +22,21 @@ aliases: ["AWS Assignment References"]
 - [Amazon Cognito User Pools - AWS Docs](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html)
   Use this for the official model of managed user sign-up, sign-in, and user directories.
 
+- [Cognito app clients: public vs confidential - AWS Docs](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-client-apps.html)
+  Use this when explaining why clientId in frontend JS is not a secret, and why PKCE is required for public clients.
+
+- [Amazon CloudFront Developer Guide - AWS Docs](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html)
+  Use this for HTTPS in front of S3 and Cognito callback URL setup.
+
+- [Docs/cognito-migration-steps.md](../../Docs/cognito-migration-steps.md)
+  Repo deploy checklist: Cognito env vars, CloudFront callback URLs, EC2 `.env`, deploy order.
+
+- [Assignment/FrontEndServer/Public/js/cognito-auth.js](../../Assignment/FrontEndServer/Public/js/cognito-auth.js)
+  Frontend PKCE login, token exchange, session storage. Reference when teaching public vs secret.
+
+- [Assignment/BackEndServer/auth/verifyToken.js](../../Assignment/BackEndServer/auth/verifyToken.js)
+  Backend JWKS verification and Admin group mapping. Reference when teaching token trust boundary.
+
 ## Wisdom (Communities)
 
 - Your module/team chat
