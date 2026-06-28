@@ -330,11 +330,20 @@ Submitting a quoted value in `title` can break the query syntax and cause a serv
 
 Relevant screenshots:
 
+Backend:
 ![POST /game proof of concept request](../Assets/Mike/insertgame-request.png)
 
 ![POST /game server error response](../Assets/Mike/insertgame-error.png)
 
+Frontend:
+![POST /game vulnerable code](../Assets/Mike/insertgame-request-frontend.png)
+
+![POST /game vulnerable code](../Assets/Mike/insertgame-error-frontend.png)
+
+Code:
 ![POST /game vulnerable code](../Assets/Mike/insertgame-code.png)
+
+
 
 ### 3. Database Storage
 
@@ -415,6 +424,12 @@ The affected table is `game`.
 ```javascript
 var updateGameSql = `update game set title='${title}', game_description='${game_description}', year='${year}', game_image='${game_image.buffer}' where gameID='${gameID}`;
 ```
+
+Relevant screenshots:
+
+![updateGame() vulnerable code](../Assets/Mike/updategame-code.png)
+![updateGame() missing route](../Assets/Mike/updategame-search.png)
+
 
 ### 5. Recommendations and Fix Code
 
