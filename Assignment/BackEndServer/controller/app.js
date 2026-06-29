@@ -52,6 +52,71 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.use(urlencodedParser);  //attach body-parser middleware
 app.use(bodyParser.json()); //parse json data
 
+function normalizeText(value) {
+    return typeof value === 'string' ? value.trim() : '';
+}
+
+function sanitizeText(value, maxLength) {
+    return normalizeText(value)
+        .replace(/\u0000/g, '')
+        .replace(/<[^>]*>/g, '')
+        .slice(0, maxLength);
+}
+
+function isEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeText(value));
+}
+
+function isPositiveInteger(value) {
+    return /^[1-9]\d*$/.test(normalizeText(String(value)));
+}
+
+function isYear(value) {
+    if (!/^[1-9]\d{3}$/.test(normalizeText(String(value)))) {
+        return false;
+    }
+
+    var year = Number(value);
+    return year >= 1950 && year <= new Date().getFullYear() + 1;
+}
+
+function isRating(value) {
+    return /^[1-5]$/.test(normalizeText(String(value)));
+}
+
+function isMoney(value) {
+    return /^(?:\d+)(?:\.\d{1,2})?$/.test(normalizeText(String(value)));
+}
+
+function normalizeCsv(value, validator) {
+    if (typeof value !== 'string') {
+        return null;
+    }
+
+    var items = value.split(',').map(function (part) {
+        return normalizeText(part);
+    }).filter(Boolean);
+
+    if (items.length === 0 || !items.every(validator)) {
+        return null;
+    }
+
+    return items.join(',');
+}
+
+function rejectBadRequest(res, message) {
+    res.status(400);
+    res.type('json');
+    return res.send({ Message: message });
+}
+
+app.use(function (req, res, next) {
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' http://localhost:8081; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'");
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    next();
+});
+
 
 //WebService endpoints
 //---------------------
@@ -73,6 +138,10 @@ app.get('/CheckRole',verifyToken, function (req, res) {
 app.get('/searchgamedetails/:gameID', function (req, res) {
 
     var gameID = req.params.gameID;
+
+    if (!isPositiveInteger(gameID)) {
+        return rejectBadRequest(res, 'Invalid game ID');
+    }
 
     gameDB.getSearchGameDetail(gameID, function (err, results) {
 
@@ -98,9 +167,9 @@ app.get('/searchgamedetails/:gameID', function (req, res) {
 // Search Game
 app.post('/searchgame', function (req, res) {
 
-    var input = req.body.input;
-    var platform = req.body.platID;
-    var category = req.body.catID;
+    var input = sanitizeText(req.body.input, 100);
+    var platform = sanitizeText(req.body.platID, 100);
+    var category = sanitizeText(req.body.catID, 100);
 
     gameDB.getSearchGame(input, platform, category, function (err, results) {
 
@@ -253,11 +322,15 @@ app.get('/users', verifyToken, requireAdmin, function (req, res) {
 app.post('/users', verifyToken, requireAdmin, function (req, res) {
 
     //retrieve user input
-    var username = req.body.username;
-    var email = req.body.email;
-    var password = req.body.password;
+    var username = sanitizeText(req.body.username, 100);
+    var email = normalizeText(req.body.email).toLowerCase();
+    var password = normalizeText(req.body.password);
     var type = 'user';
-    var profile_pic_url = req.body.profile_pic_url;
+    var profile_pic_url = sanitizeText(req.body.profile_pic_url, 1000);
+
+    if (!username || !email || !password || !isEmail(email)) {
+        return rejectBadRequest(res, 'Invalid user input');
+    }
 
 
     userDB.insertUser(username, email, password, type, profile_pic_url, function (err, results) {
@@ -304,6 +377,10 @@ app.get('/users/:userid', verifyToken, requireAdmin, function (req, res) {
     //retrieve user input
     var userid = req.params.userid;
 
+    if (!isPositiveInteger(userid)) {
+        return rejectBadRequest(res, 'Invalid user ID');
+    }
+
     userDB.getUserByUserid(userid, function (err, results) {
 
         if (err) {
@@ -331,8 +408,12 @@ app.get('/users/:userid', verifyToken, requireAdmin, function (req, res) {
 app.post('/category', verifyToken, requireAdmin, function (req, res) {
 
     //retrieve category input
-    var catname = req.body.catname;
-    var cat_description = req.body.description;
+    var catname = sanitizeText(req.body.catname, 100);
+    var cat_description = sanitizeText(req.body.description, 1000);
+
+    if (!catname || !cat_description) {
+        return rejectBadRequest(res, 'Invalid category input');
+    }
 
 
     categoryDB.insertCategory(catname, cat_description, function (err, results) {
@@ -379,8 +460,12 @@ app.post('/category', verifyToken, requireAdmin, function (req, res) {
 app.post('/platform', verifyToken, requireAdmin, function (req, res) {
 
     //retrieve platform input
-    var platform_name = req.body.platform_name;
-    var platform_description = req.body.description;
+    var platform_name = sanitizeText(req.body.platform_name, 100);
+    var platform_description = sanitizeText(req.body.description, 1000);
+
+    if (!platform_name || !platform_description) {
+        return rejectBadRequest(res, 'Invalid platform input');
+    }
 
 
     platformDB.insertPlatform(platform_name, platform_description, function (err, results) {
@@ -424,13 +509,21 @@ app.post('/platform', verifyToken, requireAdmin, function (req, res) {
 //Add a new game
 app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), function (req, res) {
 
-    var title = req.body.title;
-    var game_description = req.body.description;
-    var price = req.body.price;
-    var platformid = req.body.platformid;
-    var categoryid = req.body.categoryid;
-    var year = req.body.year;
+    var title = sanitizeText(req.body.title, 200);
+    var game_description = sanitizeText(req.body.description, 4000);
+    var price = normalizeCsv(req.body.price, isMoney);
+    var platformid = normalizeCsv(req.body.platformid, isPositiveInteger);
+    var categoryid = normalizeCsv(req.body.categoryid, isPositiveInteger);
+    var year = normalizeText(req.body.year);
     var game_image = req.file;
+
+    if (!title || !game_description || !price || !platformid || !categoryid || !year || !game_image || !isYear(year)) {
+        return rejectBadRequest(res, 'Invalid game input');
+    }
+
+    if (price.split(',').length !== platformid.split(',').length) {
+        return rejectBadRequest(res, 'Price and platform counts must match');
+    }
 
     gameDB.insertGame(title, game_description, year, game_image, function (err, results) {
 
@@ -490,7 +583,11 @@ app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), functi
 //Get games based on platform name
 app.get('/game_platform/:platform', function (req, res) {
 
-    var platform_name = req.params.platform;
+    var platform_name = sanitizeText(req.params.platform, 100);
+
+    if (!platform_name) {
+        return rejectBadRequest(res, 'Invalid platform input');
+    }
 
     platformDB.getGameByPlatformName(platform_name, function (err, results) {
 
@@ -519,6 +616,10 @@ app.get('/game_platform/:platform', function (req, res) {
 app.delete('/game/:id', verifyToken, requireAdmin, function (req, res) {
 
     var gameID = req.params.id;
+
+    if (!isPositiveInteger(gameID)) {
+        return rejectBadRequest(res, 'Invalid game ID');
+    }
 
     gameDB.deleteGame(gameID, function (err, results) {
 
@@ -550,8 +651,12 @@ app.post('/users/:uid/game/:gid/review', verifyToken, function (req, res) {
 
     var userid = req.params.uid;
     var gameID = req.params.gid;
-    var content = req.body.content;
-    var rating = req.body.rating;
+    var content = sanitizeText(req.body.content, 2000);
+    var rating = normalizeText(req.body.rating);
+
+    if (!isPositiveInteger(userid) || !isPositiveInteger(gameID) || !content || !isRating(rating)) {
+        return rejectBadRequest(res, 'Invalid review input');
+    }
 
     if (String(req.userid) !== String(userid)) {
         audit('review_denied', { actor: req.userid, target: userid, gameID: gameID });
@@ -589,6 +694,10 @@ app.get('/game/:id/review', function (req, res) {
 
     var gameID = req.params.id;
 
+    if (!isPositiveInteger(gameID)) {
+        return rejectBadRequest(res, 'Invalid game ID');
+    }
+
 
     reviewDB.getReviewByGameID(gameID, function (err, results) {
 
@@ -617,6 +726,10 @@ app.get('/game/:id/review', function (req, res) {
 app.get('/game/:id', function (req, res) {
 
     var gameID = req.params.id;
+
+    if (!isPositiveInteger(gameID)) {
+        return rejectBadRequest(res, 'Invalid game ID');
+    }
 
     gameDB.getGameByGameID(gameID, function (err, results) {
 
