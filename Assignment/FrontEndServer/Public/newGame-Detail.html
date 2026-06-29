@@ -63,7 +63,7 @@
     import { getAccessToken, getCurrentUser, wireLogoutLinks } from "./js/cognito-auth.js";
 
     (function(){
-      const apiBase = 'http://54.196.133.103:8081';
+      const apiBase = 'http://localhost:8081';
 
       function showAlert(msg){ alert(msg); }
 
@@ -73,6 +73,18 @@
         el.textContent = text ?? '';
         parent.appendChild(el);
         return el;
+      }
+
+      function displayReviewName(review){
+        const username = review.username || '';
+        const email = review.email || '';
+        const looksLikeCognitoId = /^[0-9a-f-]{36}(_[0-9a-f]{8})?$/i.test(username);
+
+        if(looksLikeCognitoId && email.includes('@')){
+          return email.split('@')[0];
+        }
+
+        return username || (email ? email.split('@')[0] : 'User');
       }
 
       async function submitReview(){
@@ -85,6 +97,7 @@
         const user = getCurrentUser();
         const token = getAccessToken();
         if(!user || !token){ showAlert('Please log in to add a review.'); return; }
+        body.email = user.email;
 
         try{
           const res = await fetch(`${apiBase}/users/${user.userid}/game/${gameID}/review`, { method:'POST', headers:{ 'Authorization':'Bearer '+token, 'Content-Type':'application/json' }, body: JSON.stringify(body) });
@@ -118,7 +131,7 @@
           img.style.borderRadius = '50%';
 
           const body = document.createElement('div');
-          appendText(body, 'strong', r.username || 'User');
+          appendText(body, 'strong', displayReviewName(r));
           appendText(body, 'div', `${r.created_at || ''} - Rating: ${r.rating || ''}`, 'muted small');
           appendText(body, 'p', r.content || '', 'mt-2');
 

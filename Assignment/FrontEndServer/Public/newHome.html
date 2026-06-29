@@ -67,7 +67,7 @@
     (function(){
       async function checkRole(token){
         if(!token) return;
-        try{const res=await fetch('http://54.196.133.103:8081/CheckRole',{headers:{'Authorization':'Bearer '+token}});if(res.ok){const d=await res.json(); if(!(d.role==='Admin')) document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none'); else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='block');}}
+        try{const res=await fetch('http://localhost:8081/CheckRole',{headers:{'Authorization':'Bearer '+token}});if(res.ok){const d=await res.json(); if(!(d.role==='Admin')) document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none'); else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='block');}}
         catch(e){console.error(e)}
       }
       const token = getAccessToken(); if(token) checkRole(token); else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none');

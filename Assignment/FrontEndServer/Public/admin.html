@@ -85,7 +85,7 @@
     import { getAccessToken, getCurrentUser, wireLogoutLinks } from "./js/cognito-auth.js";
 
     (function(){
-      const apiBase = 'http://54.196.133.103:8081';
+      const apiBase = 'http://localhost:8081';
       async function checkAdmin(){
         const token = getAccessToken();
         if(!token){ lock(); return; }

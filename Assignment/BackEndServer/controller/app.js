@@ -533,25 +533,69 @@ app.post('/users/:uid/game/:gid/review', verifyToken, function (req, res) {
         return res.json({ auth: false, message: 'Not authorized!' });
     }
 
-    reviewDB.insertReview(userid, gameID, content, rating, function (err, results) {
+    function insertReviewForUser(appUserid) {
+        reviewDB.insertReview(appUserid, gameID, content, rating, function (err, results) {
 
+            if (err) {
+
+                safeError(err);
+
+                res.status(500);
+                res.type("json");
+                res.send(`{"Message":"Internal Server Error"}`);
+            }
+
+            else {
+
+                audit('review_created', { userid: appUserid, gameID: gameID, reviewid: results.insertId });
+
+                res.status(201);
+                res.type("json");
+                res.send(`{"reviewid":"${results.insertId}"}`);
+            }
+        });
+    }
+
+    if (/^\d+$/.test(String(userid))) {
+        return insertReviewForUser(userid);
+    }
+
+    var email = req.cognitoEmail || req.body.email;
+
+    if (!email) {
+        res.status(422);
+        res.type("json");
+        return res.send(`{"Message":"User email is required to link Cognito user to local profile."}`);
+    }
+
+    userDB.getUserByEmail(email, function (err, results) {
         if (err) {
-
             safeError(err);
-
             res.status(500);
             res.type("json");
-            res.send(`{"Message":"Internal Server Error"}`);
+            return res.send(`{"Message":"Internal Server Error"}`);
         }
 
-        else {
+        if (!results || results.length === 0) {
+            var usernameBase = email.split('@')[0] || req.cognitoUsername || 'cognito_user';
+            var usernameSuffix = req.cognitoSub ? String(req.cognitoSub).slice(0, 8) : Date.now();
+            var username = usernameBase + '_' + usernameSuffix;
+            var type = req.type || 'user';
 
-            audit('review_created', { userid: userid, gameID: gameID, reviewid: results.insertId });
+            return userDB.insertCognitoUser(username, email, type, function (insertErr, insertResults) {
+                if (insertErr) {
+                    safeError(insertErr);
+                    res.status(500);
+                    res.type("json");
+                    return res.send(`{"Message":"Internal Server Error"}`);
+                }
 
-            res.status(201);
-            res.type("json");
-            res.send(`{"reviewid":"${results.insertId}"}`);
+                audit('user_registered', { userid: insertResults.insertId, username: username, by: req.userid, source: 'cognito_review' });
+                insertReviewForUser(insertResults.insertId);
+            });
         }
+
+        insertReviewForUser(results[0].userid);
     });
 });
 

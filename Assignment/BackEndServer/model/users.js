@@ -120,6 +120,76 @@ var userDB = {
     },
 
 
+    //Get user by email address
+    getUserByEmail: function (email, callback) {
+
+        var dbConn = db.getConnection();
+
+        dbConn.connect(function (err) {
+
+            if (err) {
+
+                return callback(err, null);
+            }
+
+            else {
+
+                var getUserByEmailSql = `select userid, username, email, type, profile_pic_url,
+                                            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM users where email = ?;`;
+
+                dbConn.query(getUserByEmailSql, [email], function (err, results) {
+
+                    if (err) {
+
+                        dbConn.end();
+                        return callback(err, null);
+                    }
+
+                    else {
+
+                        dbConn.end();
+                        return callback(null, results);
+                    }
+                })
+            }
+        });
+    },
+
+
+    //Create a local profile for a Cognito-authenticated user
+    insertCognitoUser: function (username, email, type, callback) {
+
+        var dbConn = db.getConnection();
+
+        dbConn.connect(function (err) {
+
+            if (err) {
+
+                return callback(err, null);
+            }
+
+            else {
+
+                var insertUserSql = "insert into users(username,email,password,type,profile_pic_url) values(?,?,?,?,?)";
+                dbConn.query(insertUserSql, [username, email, 'COGNITO_LOGIN_DISABLED', type, ''], function (err, results) {
+
+                    if (err) {
+
+                        dbConn.end();
+                        return callback(err, null);
+                    }
+
+                    else {
+
+                        dbConn.end();
+                        return callback(null, results);
+                    }
+                })
+            }
+        });
+    },
+
+
     //Login user by email and password
     loginUser: function (email, password, callback) {
 

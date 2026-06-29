@@ -1,19 +1,17 @@
+const logger = require('./logger');
+
 function audit(action, detail) {
-    console.log(JSON.stringify({
-        ts: new Date().toISOString(),
-        level: 'audit',
+    logger.info({
+        message: 'audit',
         action: action,
         detail: detail || {}
-    }));
+    });
 }
 
 function safeError(err) {
     var message = (err && err.message) ? err.message : String(err);
-    console.error(JSON.stringify({
-        ts: new Date().toISOString(),
-        level: 'error',
-        message: message
-    }));
+
+    logger.error(message);
 }
 
 module.exports = { audit: audit, safeError: safeError };

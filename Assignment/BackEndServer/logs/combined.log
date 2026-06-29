@@ -1,0 +1,13 @@
+undefined
+undefined
+undefined
+undefined
+undefined
+undefined
+undefined
+{"ts":"2026-06-29 15:25:28","level":"info","message":"audit","action":"test_review_created","detail":{"userid":1,"gameID":2}}
+{"ts":"2026-06-29 15:25:28","level":"error","message":"test error","detail":{}}
+undefined
+{"ts":"2026-06-29 15:28:51","level":"info","message":"audit","action":"verify_no_undefined","detail":{"ok":true}}
+{"ts":"2026-06-29 15:29:49","level":"info","message":"audit","action":"review_created","detail":{"userid":16,"gameID":"12","reviewid":19}}
+{"ts":"2026-06-29 15:29:50","level":"info","message":"audit","action":"review_created","detail":{"userid":16,"gameID":"12","reviewid":20}}

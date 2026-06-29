@@ -98,6 +98,8 @@ function verifyCognitoToken(token, req, res, next) {
         var adminGroup = process.env.COGNITO_ADMIN_GROUP || 'Admin';
 
         req.userid = decoded.sub;
+        req.cognitoSub = decoded.sub;
+        req.cognitoEmail = decoded.email;
         req.cognitoUsername = decoded.username;
         req.cognitoGroups = groups;
         req.type = groups.includes(adminGroup) ? 'Admin' : 'user';
