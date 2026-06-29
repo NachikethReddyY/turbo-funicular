@@ -269,8 +269,7 @@ These are part of the same root cause if they are stored and later reflected or 
 
 **Additional frontend sinks hardened in the same fix**
 
-- `Assignment/FrontEndServer/Public/addNewGame.html` - category and platform checkbox lists are now built with DOM nodes instead of injected HTML.
-- `Assignment/FrontEndServer/Public/gamesSearch.html` - category/platform dropdown options and the game metadata line now use DOM-safe text rendering.
+The same XSS pattern also affected two other frontend views. In `addNewGame.html`, category and platform labels were previously injected as HTML, which meant a malicious database value could have executed when the checkbox lists rendered. In `gamesSearch.html`, the category and platform dropdown options and the game metadata line were also built from unescaped data, so a stored payload in those fields could have been interpreted as markup in the browser. Both pages now render dynamic values with DOM nodes and `textContent`, which prevents stored HTML from becoming executable script.
 
 ### 5. Recommendations and Fix Code
 
