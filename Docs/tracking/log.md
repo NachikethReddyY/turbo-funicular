@@ -7,7 +7,7 @@ date: 2026-06-08
 # Project Progress Log
 
 ## Title: Cryptix — Weekly Progress Log
-**Updated:** 2026-06-21
+**Updated:** 2026-06-28
 **Repo:** [https://github.com/NachikethReddyY/turbo-funicular](https://github.com/NachikethReddyY/turbo-funicular)
 
 ## Team
@@ -52,7 +52,7 @@ date: 2026-06-08
 **Parent issue:** #123
 | Person                            | What Was Done | Issues Faced | Plan to Improve / Fix |
 | --------------------------------- | ------------- | ------------ | --------------------- |
-| **Nachiketh** (Nachiketh Reddy Y) |               |              |                       |
+| **Nachiketh** (Nachiketh Reddy Y) | **Final submission week — A01/A09 evidence, AWS deployment, consolidated report, and presentation.** Captured after-fix screenshot evidence for A01 and A09 under `Assets/Nachiketh/a01-after/` and `Assets/Nachiketh/a09-after/` (middleware-protected routes, env-based JWT config, structured `securityLog.js` audit output, generic enumeration messages). Reorganised before-fix evidence into `Assets/Nachiketh/a01/` and `Assets/Nachiketh/a09/`. Merged team findings into the consolidated security report and added the AWS Advanced Features section (Secrets Manager, EC2, S3). **AWS (commits `cd67c2d`, `ee4e21f`):** Cognito Hosted UI + PKCE (`cognito-auth.js`, `cognito-callback.html`), refactored login/register pages, JWKS verification in `verifyToken.js`, blocked legacy `POST /users/login`, wrote `Docs/cognito-migration-steps.md` and `Docs/cognito-code-changes.md`. **Presentation:** rebuilt slides OWASP-grouped (A01 → A04 → A03 → A07 → A09 → AWS → demo) with a standard five-beat structure per category. | **AWS Learner Lab:** expired session creds; CloudFront blocked → Amplify HTTPS for Cognito callbacks; S3 HTTP-only; mixed content (HTTPS frontend → HTTP EC2 API); Cognito cannot import SQL passwords; Cognito `sub` vs MySQL `userid` for reviews; Secrets Manager documented but not runtime-wired. Report merge and multi-file Cognito refactor were time-heavy. Slides first draft too long; A01/A07 overlap needed trimming. | Rehearse team presentation; demo Cognito on Amplify; document known AWS gaps for Q&A; submit report + slides; close #123. |
 | **Keefe** (Keefe in 4Tech)        |               |              |                       |
 | **Mike** (Mike Franco Abat)       |               |              |                       |
 | **Sitt**                          |               |              |                       |

@@ -60,7 +60,9 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
+  <script type="module">
+    import { getAccessToken, updateAuthLinks, wireLogoutLinks } from "./js/cognito-auth.js";
+
     // preserve logout behavior and role check from original home.html
     (function(){
       async function checkRole(token){
@@ -68,19 +70,9 @@
         try{const res=await fetch('http://localhost:8081/CheckRole',{headers:{'Authorization':'Bearer '+token}});if(res.ok){const d=await res.json(); if(!(d.role==='Admin')) document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none'); else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='block');}}
         catch(e){console.error(e)}
       }
-      const token = localStorage.getItem('Token'); if(token) checkRole(token); else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none');
-
-      // show/hide login/logout links based on token
-      const loginLink = document.getElementById('LoginLink');
-      const logoutLink = document.getElementById('Logout');
-      function updateAuthLinks() {
-        const t = localStorage.getItem('Token');
-        if (t) { if (loginLink) loginLink.style.display = 'none'; if (logoutLink) logoutLink.style.display = 'inline'; }
-        else { if (loginLink) loginLink.style.display = 'inline'; if (logoutLink) logoutLink.style.display = 'none'; }
-      }
+      const token = getAccessToken(); if(token) checkRole(token); else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none');
       updateAuthLinks();
-
-      logoutLink.addEventListener('click',function(e){e.preventDefault();localStorage.clear();alert('You have successfully Logged out.');document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none');updateAuthLinks();});
+      wireLogoutLinks();
     })();
   </script>
 </body>

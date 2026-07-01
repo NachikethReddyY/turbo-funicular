@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
     "start": "node server.js"
   },
   "author": "",
@@ -16,5 +17,8 @@
     "jsonwebtoken": "^9.0.1",
     "mysql": "^2.18.1",
     "serve-static": "^2.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
   }
 }

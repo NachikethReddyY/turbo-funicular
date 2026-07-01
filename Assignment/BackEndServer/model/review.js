@@ -59,7 +59,7 @@ var reviewDB = {
 
             else {   
 
-                var getReviewByGameIDSql = `SELECT  r.fk_games AS gameid, r.content, r.rating, u.username, u.profile_pic_url, 
+                var getReviewByGameIDSql = `SELECT  r.fk_games AS gameid, r.content, r.rating, u.username, u.email, u.profile_pic_url, 
                                             DATE_FORMAT( r.created_at, '%Y-%m-%d %H:%i:%s') AS created_at
                                             FROM review r
                                             JOIN users u ON r.fk_users = u.userid
