@@ -101,7 +101,18 @@
 
         try{
           const res = await fetch(`${apiBase}/users/${user.userid}/game/${gameID}/review`, { method:'POST', headers:{ 'Authorization':'Bearer '+token, 'Content-Type':'application/json' }, body: JSON.stringify(body) });
-          if(!res.ok){ const t = await res.text(); showAlert('Failed to submit review: '+t); return; }
+          if(!res.ok){
+            let message = 'Failed to submit review';
+            try{
+              const data = await res.json();
+              message = data.Message ? `Failed to submit review: ${data.Message}` : message;
+            }catch(_){
+              const text = await res.text();
+              message = text ? `Failed to submit review: ${text}` : message;
+            }
+            showAlert(message);
+            return;
+          }
           showAlert('Review added successfully');
           reviewForm.reset();
           loadReviews(gameID);
