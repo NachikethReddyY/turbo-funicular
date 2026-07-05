@@ -1,22 +1,55 @@
 /*
-Summary: The server.js is used to start the backend server with CORS enabled.
+Summary: The server.js is used to start the backend server with HTTPS and CORS enabled.
 */
 
 var express = require('express');
 var serveStatic = require('serve-static');
-var cors = require('cors'); // 1. Import the cors package
+var cors = require('cors');
+var https = require('https');
+var fs = require('fs');
+
 var app = require('./controller/app.js');
 
-var port = 8081;
+var port = 443;
 
-// 2. Configure CORS to strictly allow your frontend port
+
+// Configure CORS
 app.use(cors({
-    origin: 'http://localhost:3001',
+    origin: 'https://localhost:3001',
     credentials: true
 }));
 
-app.use(serveStatic(__dirname + '/public')); 
 
-var server = app.listen(port, function(){
-    console.log('Web App Hosted at http://localhost:%s', port);
+// Serve frontend files
+app.use(serveStatic(__dirname + '/public'));
+
+
+// TLS Certificate Configuration
+var options = {
+
+    key: fs.readFileSync(
+        './certs/localhost-key.pem'
+    ),
+
+    cert: fs.readFileSync(
+        './certs/localhost.pem'
+    )
+
+};
+
+
+// Start HTTPS Server
+var server = https.createServer(
+    options,
+    app
+);
+
+
+server.listen(port, function(){
+
+    console.log(
+        'Secure HTTPS Server Hosted at https://localhost:%s',
+        port
+    );
+
 });

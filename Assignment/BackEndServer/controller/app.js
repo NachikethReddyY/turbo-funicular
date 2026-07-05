@@ -5,6 +5,7 @@ Summary: The app.js is used run the functions and what it displays.
 */
 
 const express = require('express');
+const app = express();
 const bodyParser = require('body-parser');
 const userDB = require('../model/users');
 const categoryDB = require('../model/category');
@@ -12,21 +13,73 @@ const platformDB = require('../model/platform');
 const reviewDB = require('../model/review');
 const gameDB = require('../model/game');
 var verifyToken = require('../auth/verifyToken.js');
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
-const app = express();
+/* ==========================================
+   Helmet Security Headers
+========================================== */
+
+app.use(helmet());
+
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            imgSrc: ["'self'", "data:"],
+            styleSrc: ["'self'", "'unsafe-inline'"]
+        }
+    })
+);
+
+const registerLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5,                   // Maximum 5 registration attempts
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        Message: "Too many registration attempts. Please try again after 15 minutes."
+    }
+});
+
+/* ==========================================
+   Other Middleware
+========================================== */
 
 var cors = require('cors');
 
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+
 // Define your secure CORS options
 const corsOptions = {
-    origin: 'http://localhost:3001', // Explicitly allow your frontend
+    origin: 'https://localhost:3001', // Explicitly allow your frontend
     credentials: true,               // Allows session cookies/tokens to pass through
     optionsSuccessStatus: 200        // Solves legacy browser preflight issues
 };
 
 // Apply CORS to preflight OPTIONS requests and all endpoints
-app.options('*', cors(corsOptions));
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: function(origin, callback){
+
+        const allowed = [
+            "https://localhost:3001"
+        ];
+
+        if(!origin || allowed.includes(origin)){
+            callback(null,true);
+        }
+        else{
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials:true
+}));
+
+app.options('*', cors());
 
 
 // For handling requirement of image upload
@@ -71,7 +124,6 @@ app.get('/CheckRole',verifyToken, function (req, res) {
     res.type("json");
     res.send({ role: userRole });
 });
-
 
 
 // Search Game Details
@@ -128,13 +180,17 @@ app.post('/searchgame', function (req, res) {
 });
 
 
-//User Login
-app.post('/users/login', function (req, res) {
+// User Login
+app.post('/users/login',registerLimiter, function (req, res) {
     var email = req.body.email;
     var password = req.body.password;
     var rememberMe = req.body.rememberMe || false;
 
     userDB.loginUser(email, password, function (err, token, result) {
+
+    console.log("ERROR:",err);
+    console.log("TOKEN:",token);
+    console.log("RESULT:",result);
 
         if (!err) {
 
@@ -153,28 +209,29 @@ app.post('/users/login', function (req, res) {
             res.send();
         }
 
-        else {
-// 1. This prints the beautiful raw error tracking log to your terminal console
-    console.error("RAW DATABASE ERROR:", err);
-            res.status(500);
-            res.send(err.statusCode);
-            return res.send({ 
-        success: false, 
-        raw_message: err.message,  // This contains "Unknown column..." or syntax details
-        sql_code: err.code 
+else {
+    console.log("LOGIN ERROR:", err);
+
+    res.status(401).json({
+        success:false,
+        message:"Login failed",
+        error:err.message || err
     });
-        }
+}
     });
 });
+
 
 
 //User Logout
 app.post('/users/logout', function (req, res) {
-    console.log("..logging out.");
-    res.clearCookie('rememberMeToken'); //clears the cookie in the response
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ success: true, status: 'Log out successful!' });
+    res.clearCookie('rememberMeToken');
+    res.json({
+        success: true,
+        status: 'Log out successful!'
+    });
 });
+
 
 
 //Get all category
@@ -259,61 +316,81 @@ app.get('/users', function (req, res) {
 //ENDPOINT 2
 //POST /user
 //Add a new user
-app.post('/users', function (req, res) {
+app.post('/users',registerLimiter, function (req, res) {
 
-    //retrieve user input
-    var username = req.body.username;
-    var email = req.body.email;
+    // Retrieve and sanitize user input
+    var username = req.body.username ? req.body.username.trim() : "";
+    var email = req.body.email ? req.body.email.trim().toLowerCase() : "";
     var password = req.body.password;
-    var type = req.body.type;
-    var profile_pic_url = req.body.profile_pic_url;
+    var type = "user"; // Server assigns default role
+    var profile_pic_url = req.body.profile_pic_url
+        ? req.body.profile_pic_url.trim()
+        : "";
 
+    // -----------------------------
+    // Input Validation
+    // -----------------------------
 
-    userDB.insertUser(username, email, password, type, profile_pic_url, function (err, results) {
+    // Username validation
+    if (!username || username.length < 3 || username.length > 30) {
+        return res.status(400).json({
+            Message: "Username must be between 3 and 30 characters."
+        });
+    }
 
-        if (err) {
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            // Check for Duplication Entry
-            if (err.code === "ER_DUP_ENTRY") {
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({
+            Message: "Invalid email address."
+        });
+    }
 
-                // Duplicate entry error for the username
-                if (err.sqlMessage.includes("username")) {
+    // Password Strength Validation
+    const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-                    console.log(err);
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({
+            Message: "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character."
+        });
+    }
 
-                    res.status(422);
-                    res.type("json");
-                    res.send(`{"Message":"The username provided already exists."}`);
+    // Insert new user
+    userDB.insertUser(
+        username,
+        email,
+        password,
+        type,
+        profile_pic_url,
+        function (err, results) {
+
+            if (err) {
+
+                // Prevent username/email enumeration
+                if (err.code === "ER_DUP_ENTRY") {
+
+                    console.error(err);
+
+                    return res.status(422).json({
+                        Message: "The requested resource already exists."
+                    });
                 }
 
-                // Duplicate entry error for the email 
-                else if (err.sqlMessage.includes("email")) {
+                console.error(err);
 
-                    console.log(err);
-
-                    res.status(422);
-                    res.type("json");
-                    res.send(`{"Message":"The email provided already exists."}`);
-                }
+                return res.status(500).json({
+                    Message: "Internal Server Error"
+                });
             }
 
-            else {
-
-                console.log(err);
-
-                res.status(500);
-                res.type("json");
-                res.send(`{"Message":"Internal Server Error"}`);
-            }
+            // Output sanitisation
+            return res.status(201).json({
+                userid: results.insertId
+            });
         }
-
-        else {
-
-            res.status(201);
-            res.type("json");
-            res.send(`{"userid":"${results.insertId}"}`);
-        }
-    });
+    );
 });
 
 

@@ -6,8 +6,13 @@ module.exports.key = secret; // Potential A07 Threat
 // Method 1
 require('dotenv').config();
 
-module.exports.key = process.env.JWT_SECRET;
+if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is required.");
+}
 
+module.exports = {
+    key: process.env.JWT_SECRET
+};
 
 
 // Location: Assignment/BackEndServer/config.js (AWS Dynamic Integration)
