@@ -11,3 +11,5 @@ undefined
 {"ts":"2026-06-29 15:28:51","level":"info","message":"audit","action":"verify_no_undefined","detail":{"ok":true}}
 {"ts":"2026-06-29 15:29:49","level":"info","message":"audit","action":"review_created","detail":{"userid":16,"gameID":"12","reviewid":19}}
 {"ts":"2026-06-29 15:29:50","level":"info","message":"audit","action":"review_created","detail":{"userid":16,"gameID":"12","reviewid":20}}
+{"ts":"2026-07-05 18:31:58","level":"info","message":"audit","action":"review_created","detail":{"userid":12,"cognitoSub":"344894c8-9021-7003-f5d8-0f37f91c5b91","gameID":"14","reviewid":42}}
+{"ts":"2026-07-05 18:50:41","level":"info","message":"audit","action":"review_created","detail":{"userid":12,"cognitoSub":"344894c8-9021-7003-f5d8-0f37f91c5b91","gameID":"14","reviewid":43}}

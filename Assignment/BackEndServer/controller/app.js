@@ -71,6 +71,10 @@ function isPositiveInteger(value) {
     return /^[1-9]\d*$/.test(normalizeText(String(value)));
 }
 
+function isUuid(value) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(normalizeText(String(value)));
+}
+
 function isYear(value) {
     if (!/^[1-9]\d{3}$/.test(normalizeText(String(value)))) {
         return false;
@@ -654,7 +658,7 @@ app.post('/users/:uid/game/:gid/review', verifyToken, function (req, res) {
     var content = sanitizeText(req.body.content, 2000);
     var rating = normalizeText(req.body.rating);
 
-    if (!isPositiveInteger(userid) || !isPositiveInteger(gameID) || !content || !isRating(rating)) {
+    if (!isUuid(userid) || !isPositiveInteger(gameID) || !content || !isRating(rating)) {
         return rejectBadRequest(res, 'Invalid review input');
     }
 
@@ -664,25 +668,55 @@ app.post('/users/:uid/game/:gid/review', verifyToken, function (req, res) {
         return res.json({ auth: false, message: 'Not authorized!' });
     }
 
-    reviewDB.insertReview(userid, gameID, content, rating, function (err, results) {
+    userDB.getUserByEmail(req.cognitoEmail || '', function (lookupErr, users) {
 
-        if (err) {
-
-            safeError(err);
-
+        if (lookupErr) {
+            safeError(lookupErr);
             res.status(500);
             res.type("json");
-            res.send(`{"Message":"Internal Server Error"}`);
+            return res.send(`{"Message":"Internal Server Error"}`);
         }
 
-        else {
+        function insertReviewWithLocalUser(localUserId) {
+            reviewDB.insertReview(localUserId, gameID, content, rating, function (err, results) {
 
-            audit('review_created', { userid: userid, gameID: gameID, reviewid: results.insertId });
+                if (err) {
 
-            res.status(201);
-            res.type("json");
-            res.send(`{"reviewid":"${results.insertId}"}`);
+                    safeError(err);
+
+                    res.status(500);
+                    res.type("json");
+                    res.send(`{"Message":"Internal Server Error"}`);
+                }
+
+                else {
+
+                    audit('review_created', { userid: localUserId, cognitoSub: userid, gameID: gameID, reviewid: results.insertId });
+
+                    res.status(201);
+                    res.type("json");
+                    res.send(`{"reviewid":"${results.insertId}"}`);
+                }
+            });
         }
+
+        if (users && users.length > 0) {
+            return insertReviewWithLocalUser(users[0].userid);
+        }
+
+        userDB.insertCognitoUser(req.cognitoUsername || req.cognitoEmail || userid, req.cognitoEmail || '', req.type || 'user', function (createErr, createResults) {
+
+            if (createErr) {
+
+                safeError(createErr);
+
+                res.status(500);
+                res.type("json");
+                return res.send(`{"Message":"Internal Server Error"}`);
+            }
+
+            return insertReviewWithLocalUser(createResults.insertId);
+        });
     });
 });
 
