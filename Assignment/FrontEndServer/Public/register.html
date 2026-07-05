@@ -132,7 +132,7 @@
         const payload = { username, email, password, type, profile_pic_url };
 
         try {
-          const res = await fetch('http://localhost:8081/users', {
+          const res = await fetch('https://localhost:443/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
