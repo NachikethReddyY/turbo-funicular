@@ -5,6 +5,7 @@ Summary: The app.js is used run the functions and what it displays.
 */
 
 const express = require('express');
+const app = express();
 const bodyParser = require('body-parser');
 const userDB = require('../model/users');
 const categoryDB = require('../model/category');
@@ -12,17 +13,74 @@ const platformDB = require('../model/platform');
 const reviewDB = require('../model/review');
 const gameDB = require('../model/game');
 var verifyToken = require('../auth/verifyToken.js');
-var requireAdmin = require('../auth/requireAdmin.js');
-var { audit, safeError } = require('../securityLog.js');
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
-var DUPLICATE_MSG = '{"Message":"The requested resource already exists."}';
+/* ==========================================
+   Helmet Security Headers
+========================================== */
 
-const app = express();
+app.use(helmet());
+
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            imgSrc: ["'self'", "data:"],
+            styleSrc: ["'self'", "'unsafe-inline'"]
+        }
+    })
+);
+
+const registerLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5,                   // Maximum 5 registration attempts
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        Message: "Too many registration attempts. Please try again after 15 minutes."
+    }
+});
+
+/* ==========================================
+   Other Middleware
+========================================== */
 
 var cors = require('cors');
 
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+
+// Define your secure CORS options
+const corsOptions = {
+    origin: 'https://localhost:3001', // Explicitly allow your frontend
+    credentials: true,               // Allows session cookies/tokens to pass through
+    optionsSuccessStatus: 200        // Solves legacy browser preflight issues
+};
+
+// Apply CORS to preflight OPTIONS requests and all endpoints
+app.use(cors({
+    origin: function(origin, callback){
+
+        const allowed = [
+            "https://localhost:3001"
+        ];
+
+        if(!origin || allowed.includes(origin)){
+            callback(null,true);
+        }
+        else{
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials:true
+}));
+
 app.options('*', cors());
-app.use(cors());
+
 
 // For handling requirement of image upload
 const multer = require('multer');
@@ -52,75 +110,6 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.use(urlencodedParser);  //attach body-parser middleware
 app.use(bodyParser.json()); //parse json data
 
-function normalizeText(value) {
-    return typeof value === 'string' ? value.trim() : '';
-}
-
-function sanitizeText(value, maxLength) {
-    return normalizeText(value)
-        .replace(/\u0000/g, '')
-        .replace(/<[^>]*>/g, '')
-        .slice(0, maxLength);
-}
-
-function isEmail(value) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeText(value));
-}
-
-function isPositiveInteger(value) {
-    return /^[1-9]\d*$/.test(normalizeText(String(value)));
-}
-
-function isUuid(value) {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(normalizeText(String(value)));
-}
-
-function isYear(value) {
-    if (!/^[1-9]\d{3}$/.test(normalizeText(String(value)))) {
-        return false;
-    }
-
-    var year = Number(value);
-    return year >= 1950 && year <= new Date().getFullYear() + 1;
-}
-
-function isRating(value) {
-    return /^[1-5]$/.test(normalizeText(String(value)));
-}
-
-function isMoney(value) {
-    return /^(?:\d+)(?:\.\d{1,2})?$/.test(normalizeText(String(value)));
-}
-
-function normalizeCsv(value, validator) {
-    if (typeof value !== 'string') {
-        return null;
-    }
-
-    var items = value.split(',').map(function (part) {
-        return normalizeText(part);
-    }).filter(Boolean);
-
-    if (items.length === 0 || !items.every(validator)) {
-        return null;
-    }
-
-    return items.join(',');
-}
-
-function rejectBadRequest(res, message) {
-    res.status(400);
-    res.type('json');
-    return res.send({ Message: message });
-}
-
-app.use(function (req, res, next) {
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' http://localhost:8081; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'");
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Referrer-Policy', 'no-referrer');
-    next();
-});
-
 
 //WebService endpoints
 //---------------------
@@ -137,21 +126,16 @@ app.get('/CheckRole',verifyToken, function (req, res) {
 });
 
 
-
 // Search Game Details
 app.get('/searchgamedetails/:gameID', function (req, res) {
 
     var gameID = req.params.gameID;
 
-    if (!isPositiveInteger(gameID)) {
-        return rejectBadRequest(res, 'Invalid game ID');
-    }
-
     gameDB.getSearchGameDetail(gameID, function (err, results) {
 
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -171,15 +155,15 @@ app.get('/searchgamedetails/:gameID', function (req, res) {
 // Search Game
 app.post('/searchgame', function (req, res) {
 
-    var input = sanitizeText(req.body.input, 100);
-    var platform = sanitizeText(req.body.platID, 100);
-    var category = sanitizeText(req.body.catID, 100);
+    var input = req.body.input;
+    var platform = req.body.platID;
+    var category = req.body.catID;
 
     gameDB.getSearchGame(input, platform, category, function (err, results) {
 
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -196,21 +180,24 @@ app.post('/searchgame', function (req, res) {
 });
 
 
-//User Login
-app.post('/users/login', function (req, res) {
+// User Login
+app.post('/users/login',registerLimiter, function (req, res) {
     var email = req.body.email;
     var password = req.body.password;
     var rememberMe = req.body.rememberMe || false;
 
     userDB.loginUser(email, password, function (err, token, result) {
 
-        if (!err) {
+    console.log("ERROR:",err);
+    console.log("TOKEN:",token);
+    console.log("RESULT:",result);
 
-            audit('login_success', { userid: result[0].userid, email: email, type: result[0].type });
+        if (!err) {
 
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             delete result[0]['password'];//clear the password in json data, do not send back to client
+            console.log(result);
 
             // If rememberMe is true, set a cookie with the token for persistent login
             if (rememberMe) {
@@ -222,23 +209,29 @@ app.post('/users/login', function (req, res) {
             res.send();
         }
 
-        else {
+else {
+    console.log("LOGIN ERROR:", err);
 
-            audit('login_failed', { email: email });
-            res.status(500);
-            res.json({ success: false, message: 'Login failed' });
-        }
+    res.status(401).json({
+        success:false,
+        message:"Login failed",
+        error:err.message || err
+    });
+}
     });
 });
 
 
+
 //User Logout
 app.post('/users/logout', function (req, res) {
-    audit('logout', {});
-    res.clearCookie('rememberMeToken'); //clears the cookie in the response
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ success: true, status: 'Log out successful!' });
+    res.clearCookie('rememberMeToken');
+    res.json({
+        success: true,
+        status: 'Log out successful!'
+    });
 });
+
 
 
 //Get all category
@@ -250,7 +243,7 @@ app.get('/category', function (req, res) {
         // If Any error occur
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -276,7 +269,7 @@ app.get('/platform', function (req, res) {
         // If Any error occur
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -295,7 +288,7 @@ app.get('/platform', function (req, res) {
 //ENDPOINT 1
 //GET /user/
 //Get all users
-app.get('/users', verifyToken, requireAdmin, function (req, res) {
+app.get('/users', function (req, res) {
 
 
     userDB.getUser(function (err, results) {
@@ -303,7 +296,7 @@ app.get('/users', verifyToken, requireAdmin, function (req, res) {
         // If Any error occur
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -323,73 +316,97 @@ app.get('/users', verifyToken, requireAdmin, function (req, res) {
 //ENDPOINT 2
 //POST /user
 //Add a new user
-app.post('/users', verifyToken, requireAdmin, function (req, res) {
+app.post('/users',registerLimiter, function (req, res) {
 
-    //retrieve user input
-    var username = sanitizeText(req.body.username, 100);
-    var email = normalizeText(req.body.email).toLowerCase();
-    var password = normalizeText(req.body.password);
-    var type = 'user';
-    var profile_pic_url = sanitizeText(req.body.profile_pic_url, 1000);
+    // Retrieve and sanitize user input
+    var username = req.body.username ? req.body.username.trim() : "";
+    var email = req.body.email ? req.body.email.trim().toLowerCase() : "";
+    var password = req.body.password;
+    var type = "user"; // Server assigns default role
+    var profile_pic_url = req.body.profile_pic_url
+        ? req.body.profile_pic_url.trim()
+        : "";
 
-    if (!username || !email || !password || !isEmail(email)) {
-        return rejectBadRequest(res, 'Invalid user input');
+    // -----------------------------
+    // Input Validation
+    // -----------------------------
+
+    // Username validation
+    if (!username || username.length < 3 || username.length > 30) {
+        return res.status(400).json({
+            Message: "Username must be between 3 and 30 characters."
+        });
     }
 
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    userDB.insertUser(username, email, password, type, profile_pic_url, function (err, results) {
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({
+            Message: "Invalid email address."
+        });
+    }
 
-        if (err) {
+    // Password Strength Validation
+    const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-            // Check for Duplication Entry
-            if (err.code === "ER_DUP_ENTRY") {
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({
+            Message: "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character."
+        });
+    }
 
-                safeError(err);
+    // Insert new user
+    userDB.insertUser(
+        username,
+        email,
+        password,
+        type,
+        profile_pic_url,
+        function (err, results) {
 
-                res.status(422);
-                res.type("json");
-                res.send(DUPLICATE_MSG);
+            if (err) {
+
+                // Prevent username/email enumeration
+                if (err.code === "ER_DUP_ENTRY") {
+
+                    console.error(err);
+
+                    return res.status(422).json({
+                        Message: "The requested resource already exists."
+                    });
+                }
+
+                console.error(err);
+
+                return res.status(500).json({
+                    Message: "Internal Server Error"
+                });
             }
 
-            else {
-
-                safeError(err);
-
-                res.status(500);
-                res.type("json");
-                res.send(`{"Message":"Internal Server Error"}`);
-            }
+            // Output sanitisation
+            return res.status(201).json({
+                userid: results.insertId
+            });
         }
-
-        else {
-
-            audit('user_registered', { userid: results.insertId, username: username, by: req.userid });
-
-            res.status(201);
-            res.type("json");
-            res.send(`{"userid":"${results.insertId}"}`);
-        }
-    });
+    );
 });
 
 
 //ENDPOINT 3
 //GET /user/:userid
 //Get user by user id
-app.get('/users/:userid', verifyToken, requireAdmin, function (req, res) {
+app.get('/users/:userid', function (req, res) {
 
     //retrieve user input
     var userid = req.params.userid;
-
-    if (!isPositiveInteger(userid)) {
-        return rejectBadRequest(res, 'Invalid user ID');
-    }
 
     userDB.getUserByUserid(userid, function (err, results) {
 
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -409,15 +426,11 @@ app.get('/users/:userid', verifyToken, requireAdmin, function (req, res) {
 //ENDPOINT 4
 //POST /category
 //Add a new category
-app.post('/category', verifyToken, requireAdmin, function (req, res) {
+app.post('/category',  function (req, res) {
 
     //retrieve category input
-    var catname = sanitizeText(req.body.catname, 100);
-    var cat_description = sanitizeText(req.body.description, 1000);
-
-    if (!catname || !cat_description) {
-        return rejectBadRequest(res, 'Invalid category input');
-    }
+    var catname = req.body.catname;
+    var cat_description = req.body.description;
 
 
     categoryDB.insertCategory(catname, cat_description, function (err, results) {
@@ -427,17 +440,21 @@ app.post('/category', verifyToken, requireAdmin, function (req, res) {
             // Check for Duplication Entry
             if (err.code === "ER_DUP_ENTRY") {
 
-                safeError(err);
+                // Duplicate entry error for the category name 
+                if (err.sqlMessage.includes("catname")) {
 
-                res.status(422);
-                res.type("json");
-                res.send(DUPLICATE_MSG);
+                    console.log(err);
+
+                    res.status(422);
+                    res.type("json");
+                    res.send(`{"Message":"The category name provided already exists."}`);
+                }
             }
 
             // Any other error
             else {
 
-                safeError(err);
+                console.log(err);
 
                 res.status(500);
                 res.type("json");
@@ -446,8 +463,6 @@ app.post('/category', verifyToken, requireAdmin, function (req, res) {
         }
 
         else {
-
-            audit('category_created', { catname: catname, by: req.userid });
 
             res.status(201);
             res.type("json");
@@ -461,15 +476,11 @@ app.post('/category', verifyToken, requireAdmin, function (req, res) {
 //ENDPOINT 5
 //POST /platform
 //Add a new platform
-app.post('/platform', verifyToken, requireAdmin, function (req, res) {
+app.post('/platform',  function (req, res) {
 
     //retrieve platform input
-    var platform_name = sanitizeText(req.body.platform_name, 100);
-    var platform_description = sanitizeText(req.body.description, 1000);
-
-    if (!platform_name || !platform_description) {
-        return rejectBadRequest(res, 'Invalid platform input');
-    }
+    var platform_name = req.body.platform_name;
+    var platform_description = req.body.description;
 
 
     platformDB.insertPlatform(platform_name, platform_description, function (err, results) {
@@ -479,16 +490,20 @@ app.post('/platform', verifyToken, requireAdmin, function (req, res) {
             // Check for Duplication Entry
             if (err.code === "ER_DUP_ENTRY") {
 
-                safeError(err);
+                // Duplicate entry error for the platform name 
+                if (err.sqlMessage.includes("platform_name")) {
 
-                res.status(422);
-                res.type("json");
-                res.send(DUPLICATE_MSG);
+                    console.log(err);
+
+                    res.status(422);
+                    res.type("json");
+                    res.send(`{"Message":"The platform name provided already exists."}`);
+                }
             }
 
             else {
 
-                safeError(err);
+                console.log(err);
 
                 res.status(500);
                 res.type("json");
@@ -497,8 +512,6 @@ app.post('/platform', verifyToken, requireAdmin, function (req, res) {
         }
 
         else {
-
-            audit('platform_created', { platform_name: platform_name, by: req.userid });
 
             res.status(201);
             res.type("json");
@@ -511,29 +524,22 @@ app.post('/platform', verifyToken, requireAdmin, function (req, res) {
 //ENDPOINT 6
 //POST /game
 //Add a new game
-app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), function (req, res) {
+app.post('/game', upload.single('game_image'), function (req, res) {
 
-    var title = sanitizeText(req.body.title, 200);
-    var game_description = sanitizeText(req.body.description, 4000);
-    var price = normalizeCsv(req.body.price, isMoney);
-    var platformid = normalizeCsv(req.body.platformid, isPositiveInteger);
-    var categoryid = normalizeCsv(req.body.categoryid, isPositiveInteger);
-    var year = normalizeText(req.body.year);
+    var title = req.body.title;
+    var game_description = req.body.description;
+    var price = req.body.price;
+    var platformid = req.body.platformid;
+    var categoryid = req.body.categoryid;
+    var year = req.body.year;
     var game_image = req.file;
-
-    if (!title || !game_description || !price || !platformid || !categoryid || !year || !game_image || !isYear(year)) {
-        return rejectBadRequest(res, 'Invalid game input');
-    }
-
-    if (price.split(',').length !== platformid.split(',').length) {
-        return rejectBadRequest(res, 'Price and platform counts must match');
-    }
+    console.log(price);
 
     gameDB.insertGame(title, game_description, year, game_image, function (err, results) {
 
         if (err) {
 
-            safeError(err);
+            console.log(err);
             res.status(500);
             res.type("json");
             res.send(`{"Message":"Internal Server Error"}`);
@@ -544,11 +550,12 @@ app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), functi
             // Get the gameid
             var gameID = results.insertId;
 
+            console.log(price);
             gameDB.insertGame_Platform(gameID, price, platformid, function (err) {
 
                 if (err) {
 
-                    safeError(err);
+                    console.log(err);
                     res.status(500);
                     res.type("json");
                     res.send(`{"Message":"Internal Server Error with game_platform"}`);
@@ -560,15 +567,13 @@ app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), functi
 
                         if (err) {
 
-                            safeError(err);
+                            console.log(err);
                             res.status(500);
                             res.type("json");
                             res.send(`{"Message":"Internal Server Error with game_category"}`);
                         }
 
                         else {
-
-                            audit('game_created', { gameID: gameID, title: title, by: req.userid });
 
                             res.status(201);
                             res.type("json");
@@ -587,17 +592,13 @@ app.post('/game', verifyToken, requireAdmin, upload.single('game_image'), functi
 //Get games based on platform name
 app.get('/game_platform/:platform', function (req, res) {
 
-    var platform_name = sanitizeText(req.params.platform, 100);
-
-    if (!platform_name) {
-        return rejectBadRequest(res, 'Invalid platform input');
-    }
+    var platform_name = req.params.platform;
 
     platformDB.getGameByPlatformName(platform_name, function (err, results) {
 
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -617,19 +618,15 @@ app.get('/game_platform/:platform', function (req, res) {
 //ENDPOINT 8
 //DELETE /game/:id
 //Delete a game
-app.delete('/game/:id', verifyToken, requireAdmin, function (req, res) {
+app.delete('/game/:id', function (req, res) {
 
     var gameID = req.params.id;
-
-    if (!isPositiveInteger(gameID)) {
-        return rejectBadRequest(res, 'Invalid game ID');
-    }
 
     gameDB.deleteGame(gameID, function (err, results) {
 
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -637,8 +634,6 @@ app.delete('/game/:id', verifyToken, requireAdmin, function (req, res) {
         }
 
         else {
-
-            audit('game_deleted', { gameID: gameID, by: req.userid });
 
             res.status(204);
             res.type("json");
@@ -651,72 +646,30 @@ app.delete('/game/:id', verifyToken, requireAdmin, function (req, res) {
 //ENDPOINT 10
 //POST /user/:uid/game/:gid/review
 //User add review to game
-app.post('/users/:uid/game/:gid/review', verifyToken, function (req, res) {
+app.post('/users/:uid/game/:gid/review', function (req, res) {
 
     var userid = req.params.uid;
     var gameID = req.params.gid;
-    var content = sanitizeText(req.body.content, 2000);
-    var rating = normalizeText(req.body.rating);
+    var content = req.body.content;
+    var rating = req.body.rating;
 
-    if (!isUuid(userid) || !isPositiveInteger(gameID) || !content || !isRating(rating)) {
-        return rejectBadRequest(res, 'Invalid review input');
-    }
+    reviewDB.insertReview(userid, gameID, content, rating, function (err, results) {
 
-    if (String(req.userid) !== String(userid)) {
-        audit('review_denied', { actor: req.userid, target: userid, gameID: gameID });
-        res.status(403);
-        return res.json({ auth: false, message: 'Not authorized!' });
-    }
+        if (err) {
 
-    userDB.getUserByEmail(req.cognitoEmail || '', function (lookupErr, users) {
+            console.log(err);
 
-        if (lookupErr) {
-            safeError(lookupErr);
-            res.status(500);
+            res.status(200);
             res.type("json");
-            return res.send(`{"Message":"Internal Server Error"}`);
+            res.send(`{"Message":"Internal Server Error"}`);
         }
 
-        function insertReviewWithLocalUser(localUserId) {
-            reviewDB.insertReview(localUserId, gameID, content, rating, function (err, results) {
+        else {
 
-                if (err) {
-
-                    safeError(err);
-
-                    res.status(500);
-                    res.type("json");
-                    res.send(`{"Message":"Internal Server Error"}`);
-                }
-
-                else {
-
-                    audit('review_created', { userid: localUserId, cognitoSub: userid, gameID: gameID, reviewid: results.insertId });
-
-                    res.status(201);
-                    res.type("json");
-                    res.send(`{"reviewid":"${results.insertId}"}`);
-                }
-            });
+            res.status(201);
+            res.type("json");
+            res.send(`{"reviewid":"${results.insertId}"}`);
         }
-
-        if (users && users.length > 0) {
-            return insertReviewWithLocalUser(users[0].userid);
-        }
-
-        userDB.insertCognitoUser(req.cognitoUsername || req.cognitoEmail || userid, req.cognitoEmail || '', req.type || 'user', function (createErr, createResults) {
-
-            if (createErr) {
-
-                safeError(createErr);
-
-                res.status(500);
-                res.type("json");
-                return res.send(`{"Message":"Internal Server Error"}`);
-            }
-
-            return insertReviewWithLocalUser(createResults.insertId);
-        });
     });
 });
 
@@ -728,16 +681,12 @@ app.get('/game/:id/review', function (req, res) {
 
     var gameID = req.params.id;
 
-    if (!isPositiveInteger(gameID)) {
-        return rejectBadRequest(res, 'Invalid game ID');
-    }
-
 
     reviewDB.getReviewByGameID(gameID, function (err, results) {
 
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -760,10 +709,6 @@ app.get('/game/:id/review', function (req, res) {
 app.get('/game/:id', function (req, res) {
 
     var gameID = req.params.id;
-
-    if (!isPositiveInteger(gameID)) {
-        return rejectBadRequest(res, 'Invalid game ID');
-    }
 
     gameDB.getGameByGameID(gameID, function (err, results) {
 
@@ -804,7 +749,7 @@ app.get('/game', function (req, res) {
 
         if (err) {
 
-            safeError(err);
+            console.log(err);
 
             res.status(500);
             res.type("json");
@@ -822,4 +767,5 @@ app.get('/game', function (req, res) {
 
 
 //---------------------
+
 module.exports = app;

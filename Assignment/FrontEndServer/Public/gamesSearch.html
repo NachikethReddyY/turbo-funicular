@@ -85,11 +85,9 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script type="module">
-    import { getAccessToken, getCurrentUser, wireLogoutLinks } from "./js/cognito-auth.js";
-
+  <script>
     (function () {
-      const apiBase = 'http://localhost:8081'; // same backend endpoints as games.html
+      const apiBase = 'https://localhost:443'; // same backend endpoints as games.html
 
       const searchInput = document.getElementById('search-input');
       const platformSelect = document.getElementById('platform');
@@ -124,31 +122,11 @@
 
           if (catsRes.ok) {
             const cats = await catsRes.json();
-            categorySelect.replaceChildren();
-            const catDefault = document.createElement('option');
-            catDefault.value = '';
-            catDefault.textContent = 'All Categories';
-            categorySelect.appendChild(catDefault);
-            cats.forEach(c => {
-              const opt = document.createElement('option');
-              opt.value = c.catname || '';
-              opt.textContent = c.catname || '';
-              categorySelect.appendChild(opt);
-            });
+            categorySelect.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${c.catname}">${c.catname}</option>`).join('');
           }
           if (platsRes.ok) {
             const plats = await platsRes.json();
-            platformSelect.replaceChildren();
-            const platDefault = document.createElement('option');
-            platDefault.value = '';
-            platDefault.textContent = 'All Platforms';
-            platformSelect.appendChild(platDefault);
-            plats.forEach(p => {
-              const opt = document.createElement('option');
-              opt.value = p.platform_name || '';
-              opt.textContent = p.platform_name || '';
-              platformSelect.appendChild(opt);
-            });
+            platformSelect.innerHTML = '<option value="">All Platforms</option>' + plats.map(p => `<option value="${p.platform_name}">${p.platform_name}</option>`).join('');
           }
         } catch (e) { console.error('Failed to load filters', e); }
       }
@@ -187,7 +165,7 @@
 
           const meta = document.createElement('div');
           meta.className = 'muted mb-2 small';
-          meta.textContent = `${g.platform_name || ''} - $${g.price || '0.00'}`;
+          meta.innerHTML = `${g.platform_name || ''} • $${g.price || '0.00'}`;
 
           const btnRow = document.createElement('div');
           btnRow.className = 'mt-auto d-flex justify-content-between align-items-center';
@@ -234,7 +212,7 @@
       // Initialize
       (async function init() {
         await loadFilters();
-        const token = getAccessToken();
+        const token = localStorage.getItem('Token');
         await checkRole(token);
 
         // If navigated from home with query param 'homeSearch'
@@ -248,9 +226,9 @@
         // show/hide login/logout
         const loginLink = document.getElementById('LoginLink');
         const logoutLink = document.getElementById('Logout');
-        function updateAuthLinks(){ const t = getAccessToken(); if(t){ if(loginLink) loginLink.style.display='none'; if(logoutLink) logoutLink.style.display='inline'; } else { if(loginLink) loginLink.style.display='inline'; if(logoutLink) logoutLink.style.display='none'; } }
+        function updateAuthLinks(){ const t = localStorage.getItem('Token'); if(t){ if(loginLink) loginLink.style.display='none'; if(logoutLink) logoutLink.style.display='inline'; } else { if(loginLink) loginLink.style.display='inline'; if(logoutLink) logoutLink.style.display='none'; } }
         updateAuthLinks();
-        wireLogoutLinks();
+        if(logoutLink) logoutLink.addEventListener('click', function(e){ e.preventDefault(); localStorage.clear(); alert('You have successfully logged out.'); updateAuthLinks(); });
       })();
 
     })();
