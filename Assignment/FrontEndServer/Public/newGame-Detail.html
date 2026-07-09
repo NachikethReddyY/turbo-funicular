@@ -62,9 +62,13 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
+  <script type="module">
+    import { fetchRemoteProfile } from "./js/cognito-auth.js";
+    import { displayUsername, getAvatarSrc } from "./js/profile-utils.js";
+    import { getGameImageSrc } from "./js/image-utils.js";
+
     (function(){
-      const apiBase = 'https://localhost:443';
+      const apiBase = 'http://54.210.15.31:8081';
 
       function showAlert(msg){ alert(msg); }
 
@@ -74,33 +78,78 @@
         const body = {};
         fd.forEach((v,k)=> body[k]=v);
 
+        if (!body.content || body.content.trim().length > 1000 || /[<>]/.test(body.content)) {
+          showAlert('Invalid review input');
+          return;
+        }
+
+        if (!/^[1-5]$/.test(String(body.rating))) {
+          showAlert('Invalid review input');
+          return;
+        }
+
         const gameID = new URLSearchParams(window.location.search).get('gameID');
         const user = JSON.parse(localStorage.getItem('user')||'null');
         const token = localStorage.getItem('Token');
         if(!user || !token){ showAlert('Please log in to add a review.'); return; }
 
+        try {
+          const profile = await fetchRemoteProfile();
+          if (profile && profile.profileComplete === false) {
+            window.location.href = 'complete-profile.html';
+            return;
+          }
+        } catch (error) {
+          console.error(error);
+        }
+
         try{
           const res = await fetch(`${apiBase}/users/${user.userid}/game/${gameID}/review`, { method:'POST', headers:{ 'Authorization':'Bearer '+token, 'Content-Type':'application/json' }, body: JSON.stringify(body) });
-          if(!res.ok){ const t = await res.text(); showAlert('Failed to submit review: '+t); return; }
+          if(!res.ok){
+            const data = await res.json().catch(() => null);
+            showAlert(data?.Message || 'Failed to submit review');
+            return;
+          }
           showAlert('Review added successfully'); reviewForm.reset(); loadReviews(gameID);
         }catch(e){ console.error(e); showAlert('Network error'); }
       }
 
       function renderReviews(reviews){
-        const out = document.getElementById('reviewDisplaySection'); out.innerHTML='';
-        if(!reviews || reviews.length===0){ out.innerHTML='<p class="muted">No reviews yet.</p>'; return; }
+        const out = document.getElementById('reviewDisplaySection');
+        out.replaceChildren();
+        if(!reviews || reviews.length===0){
+          const empty = document.createElement('p');
+          empty.className = 'muted';
+          empty.textContent = 'No reviews yet.';
+          out.appendChild(empty);
+          return;
+        }
         reviews.forEach(r=>{
-          const div = document.createElement('div'); div.className='card p-3 mb-3';
-          div.innerHTML = `
-            <div class="d-flex gap-3">
-              <img src="data:image/jpeg;base64,${r.profile_pic_url||''}" style="width:64px;height:64px;object-fit:cover;border-radius:50%" alt="user">
-              <div>
-                <strong>${r.username||'User'}</strong>
-                <div class="muted small">${r.created_at||''} • Rating: ${r.rating||''}</div>
-                <p class="mt-2">${r.content||''}</p>
-              </div>
-            </div>
-          `;
+          const div = document.createElement('div');
+          div.className='card p-3 mb-3';
+
+          const row = document.createElement('div');
+          row.className = 'd-flex gap-3';
+
+          const img = document.createElement('img');
+          img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:50%';
+          img.alt = 'user';
+          const reviewerName = displayUsername(r.username, r.email);
+          img.src = getAvatarSrc(r.profile_pic_url, reviewerName, 64);
+
+          const body = document.createElement('div');
+          const name = document.createElement('strong');
+          name.textContent = reviewerName;
+          const meta = document.createElement('div');
+          meta.className = 'muted small';
+          meta.textContent = `${r.created_at || ''} • Rating: ${r.rating || ''}`;
+          const content = document.createElement('p');
+          content.className = 'mt-2';
+          content.textContent = r.content || '';
+
+          body.append(name, meta, content);
+          row.append(img, body);
+          div.appendChild(row);
           out.appendChild(div);
         });
       }
@@ -115,18 +164,39 @@
           const platforms = (g.platforms||'').split(',');
           let pricesHTML = '';
           for(let i=0;i<platforms.length;i++) pricesHTML += `<li>${platforms[i]} — $${prices[i]||'0.00'}</li>`;
-          document.getElementById('Game-Info-Display').innerHTML = `
-            <div class="row g-3 align-items-start">
-              <div class="col-md-5"><img class="game-image" src="data:image/jpeg;base64,${g.game_image||''}" alt="${g.title||''}"></div>
-              <div class="col-md-7">
-                <h2>${g.title||''}</h2>
-                <p class="muted">${g.categories||''} • ${g.year||''}</p>
-                <p>${g.game_description||''}</p>
-                <h5>Prices</h5>
-                <ul>${pricesHTML}</ul>
-              </div>
-            </div>
-          `;
+          const display = document.getElementById('Game-Info-Display');
+          display.replaceChildren();
+
+          const row = document.createElement('div');
+          row.className = 'row g-3 align-items-start';
+          const left = document.createElement('div');
+          left.className = 'col-md-5';
+          const image = document.createElement('img');
+          image.className = 'game-image';
+          image.alt = g.title || '';
+          image.src = getGameImageSrc(g.game_image);
+          left.appendChild(image);
+
+          const right = document.createElement('div');
+          right.className = 'col-md-7';
+          const title = document.createElement('h2');
+          title.textContent = g.title || '';
+          const meta = document.createElement('p');
+          meta.className = 'muted';
+          meta.textContent = `${g.categories || ''} • ${g.year || ''}`;
+          const desc = document.createElement('p');
+          desc.textContent = g.game_description || '';
+          const priceTitle = document.createElement('h5');
+          priceTitle.textContent = 'Prices';
+          const priceList = document.createElement('ul');
+          for(let i=0;i<platforms.length;i++) {
+            const item = document.createElement('li');
+            item.textContent = `${platforms[i]} — $${prices[i] || '0.00'}`;
+            priceList.appendChild(item);
+          }
+          right.append(title, meta, desc, priceTitle, priceList);
+          row.append(left, right);
+          display.appendChild(row);
         }catch(e){console.error(e)}
       }
 

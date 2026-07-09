@@ -85,9 +85,12 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
+  <script type="module">
+    import { getAccessToken, wireLogoutLinks, updateAuthLinks } from "./js/cognito-auth.js";
+    import { getGameImageSrc } from "./js/image-utils.js";
+
     (function () {
-      const apiBase = 'https://localhost:443'; // same backend endpoints as games.html
+      const apiBase = 'http://54.210.15.31:8081'; // same backend endpoints as games.html
 
       const searchInput = document.getElementById('search-input');
       const platformSelect = document.getElementById('platform');
@@ -122,17 +125,19 @@
 
           if (catsRes.ok) {
             const cats = await catsRes.json();
-            categorySelect.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${c.catname}">${c.catname}</option>`).join('');
+            categorySelect.replaceChildren(new Option('All Categories', ''));
+            cats.forEach(c => categorySelect.add(new Option(c.catname || '', c.catname || '')));
           }
           if (platsRes.ok) {
             const plats = await platsRes.json();
-            platformSelect.innerHTML = '<option value="">All Platforms</option>' + plats.map(p => `<option value="${p.platform_name}">${p.platform_name}</option>`).join('');
+            platformSelect.replaceChildren(new Option('All Platforms', ''));
+            plats.forEach(p => platformSelect.add(new Option(p.platform_name || '', p.platform_name || '')));
           }
         } catch (e) { console.error('Failed to load filters', e); }
       }
 
       function renderGames(list) {
-        gameGrid.innerHTML = '';
+        gameGrid.replaceChildren();
         if (!list || list.length === 0) {
           noResults.classList.remove('d-none');
           resultsInfo.textContent = '';
@@ -154,7 +159,7 @@
           img.loading = 'lazy';
           img.style.objectFit = 'cover';
           img.style.height = '180px';
-          if (g.game_image) img.src = 'data:image/jpeg;base64,' + g.game_image; else img.src = 'img/placeholder.png';
+          if (g.game_image) img.src = getGameImageSrc(g.game_image); else img.src = 'img/placeholder.png';
 
           const body = document.createElement('div');
           body.className = 'card-body d-flex flex-column';
@@ -165,7 +170,7 @@
 
           const meta = document.createElement('div');
           meta.className = 'muted mb-2 small';
-          meta.innerHTML = `${g.platform_name || ''} • $${g.price || '0.00'}`;
+          meta.textContent = `${g.platform_name || ''} • $${g.price || '0.00'}`;
 
           const btnRow = document.createElement('div');
           btnRow.className = 'mt-auto d-flex justify-content-between align-items-center';
@@ -212,7 +217,7 @@
       // Initialize
       (async function init() {
         await loadFilters();
-        const token = localStorage.getItem('Token');
+        const token = getAccessToken();
         await checkRole(token);
 
         // If navigated from home with query param 'homeSearch'
@@ -223,12 +228,8 @@
         // initial search to show all games
         await searchGames();
 
-        // show/hide login/logout
-        const loginLink = document.getElementById('LoginLink');
-        const logoutLink = document.getElementById('Logout');
-        function updateAuthLinks(){ const t = localStorage.getItem('Token'); if(t){ if(loginLink) loginLink.style.display='none'; if(logoutLink) logoutLink.style.display='inline'; } else { if(loginLink) loginLink.style.display='inline'; if(logoutLink) logoutLink.style.display='none'; } }
+        wireLogoutLinks();
         updateAuthLinks();
-        if(logoutLink) logoutLink.addEventListener('click', function(e){ e.preventDefault(); localStorage.clear(); alert('You have successfully logged out.'); updateAuthLinks(); });
       })();
 
     })();

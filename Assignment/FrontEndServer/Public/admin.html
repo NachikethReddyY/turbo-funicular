@@ -12,13 +12,15 @@
     a{color:#93c5fd}
     .admin-grid .card{height:140px}
     .locked{opacity:.6}
+    .form-control,.form-control:focus{background:rgba(255,255,255,0.04);color:#fff;border-color:rgba(255,255,255,0.12)}
+    .table{color:#fff}
+    .table > :not(caption) > * > *{background:transparent;color:#fff;border-color:rgba(255,255,255,0.08)}
+    .badge-admin{background:#2563eb}
 
-    /* Ensure all textual elements are white for readability */
     h1,h2,h3,h4,h5,h6,p,label,li,span,div,strong,em,a,button,.form-label,.muted,.nav-link,.navbar-brand {
       color:#ffffff !important;
     }
 
-    /* Placeholder color */
     ::placeholder { color: rgba(255,255,255,0.6) !important; }
   </style>
 </head>
@@ -41,13 +43,13 @@
       <div class="row align-items-center">
         <div class="col-md-8">
           <h1 class="display-6">Admin Dashboard</h1>
-          <p class="muted">Quick links to manage categories, platforms and games.</p>
+          <p class="muted">Quick links to manage categories, platforms, games, and admin access.</p>
         </div>
       </div>
     </section>
 
     <section id="adminContent">
-      <div class="row admin-grid g-3">
+      <div class="row admin-grid g-3 mb-4">
         <div class="col-sm-6 col-md-4">
           <a href="addNewCategory.html" class="text-decoration-none">
             <div class="card p-3 h-100">
@@ -75,31 +77,232 @@
           </a>
         </div>
       </div>
+
+      <section class="card p-4">
+        <h2 class="h4 mb-2">Manage Admins</h2>
+        <p class="muted small mb-3">Grant or revoke admin access for Cognito users. Promoted users must sign out and sign in again.</p>
+
+        <form id="grantAdminForm" class="row g-2 align-items-end mb-4">
+          <div class="col-md-8">
+            <label for="adminEmail" class="form-label">User email</label>
+            <input id="adminEmail" class="form-control" type="email" required placeholder="user@example.com">
+          </div>
+          <div class="col-md-4 d-grid">
+            <button class="btn btn-primary" type="submit">Grant admin access</button>
+          </div>
+        </form>
+
+        <p id="adminStatus" class="small muted mb-3"></p>
+
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="adminUserRows">
+              <tr><td colspan="4" class="muted">Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </section>
 
     <div id="lockedMessage" class="alert alert-warning d-none mt-4">Admin access required. Please log in with an admin account.</div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    (function(){
-      const apiBase = 'https://localhost:443';
-      async function checkAdmin(){
-        const token = localStorage.getItem('Token');
-        if(!token){ lock(); return; }
-        try{
-          const res = await fetch(apiBase + '/CheckRole', { headers: { 'Authorization': 'Bearer ' + token } });
-          if(!res.ok){ lock(); return; }
-          const d = await res.json();
-          if(d.role !== 'Admin' && d.role !== 'admin'){ lock(); }
-        }catch(e){ console.error(e); lock(); }
+  <script type="module">
+    import { getAccessToken, getCurrentUser, wireLogoutLinks } from "./js/cognito-auth.js";
+    import { displayUsername } from "./js/profile-utils.js";
+
+    const apiBase = "http://54.210.15.31:8081";
+    const status = document.getElementById("adminStatus");
+    const rows = document.getElementById("adminUserRows");
+    const currentUser = getCurrentUser();
+    const token = getAccessToken();
+
+    function lock() {
+      document.getElementById("adminContent").classList.add("locked");
+      document.getElementById("lockedMessage").classList.remove("d-none");
+    }
+
+    function authHeaders() {
+      return {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "X-Profile-Email": currentUser?.email || ""
+      };
+    }
+
+    async function checkAdmin() {
+      if (!token) {
+        lock();
+        return false;
       }
-      function lock(){ document.getElementById('adminContent').classList.add('locked'); document.getElementById('lockedMessage').classList.remove('d-none'); }
 
-      document.getElementById('Logout').addEventListener('click', function(e){ e.preventDefault(); localStorage.clear(); alert('You have successfully Logged out.'); window.location.href = 'newHome.html'; });
+      try {
+        const res = await fetch(`${apiBase}/CheckRole`, { headers: authHeaders() });
+        if (!res.ok) {
+          lock();
+          return false;
+        }
 
-      checkAdmin();
-    })();
+        const data = await res.json();
+        if (data.role !== "Admin" && data.role !== "admin") {
+          lock();
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        console.error(error);
+        lock();
+        return false;
+      }
+    }
+
+    function renderUsers(users) {
+      rows.replaceChildren();
+
+      if (!users || users.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 4;
+        cell.className = "muted";
+        cell.textContent = "No users found.";
+        row.appendChild(cell);
+        rows.appendChild(row);
+        return;
+      }
+
+      users.forEach((user) => {
+        const row = document.createElement("tr");
+
+        const nameCell = document.createElement("td");
+        nameCell.textContent = displayUsername(user.username, user.email);
+
+        const emailCell = document.createElement("td");
+        emailCell.textContent = user.email;
+
+        const roleCell = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = user.isAdmin ? "badge badge-admin" : "badge text-bg-secondary";
+        badge.textContent = user.isAdmin ? "Admin" : "User";
+        roleCell.appendChild(badge);
+
+        const actionCell = document.createElement("td");
+        actionCell.className = "text-end";
+
+        const isSelf = (currentUser?.email || "").toLowerCase() === (user.email || "").toLowerCase();
+
+        if (user.isAdmin) {
+          const revokeBtn = document.createElement("button");
+          revokeBtn.className = "btn btn-outline-danger btn-sm";
+          revokeBtn.type = "button";
+          revokeBtn.textContent = "Revoke admin";
+          revokeBtn.disabled = isSelf;
+          revokeBtn.title = isSelf ? "You cannot remove your own admin access." : "";
+          revokeBtn.addEventListener("click", () => revokeAdmin(user.email));
+          actionCell.appendChild(revokeBtn);
+        } else {
+          const grantBtn = document.createElement("button");
+          grantBtn.className = "btn btn-outline-primary btn-sm";
+          grantBtn.type = "button";
+          grantBtn.textContent = "Make admin";
+          grantBtn.addEventListener("click", () => grantAdmin(user.email));
+          actionCell.appendChild(grantBtn);
+        }
+
+        row.append(nameCell, emailCell, roleCell, actionCell);
+        rows.appendChild(row);
+      });
+    }
+
+    async function loadUsers() {
+      try {
+        const res = await fetch(`${apiBase}/admin/users`, { headers: authHeaders() });
+        if (!res.ok) {
+          status.textContent = "Could not load users.";
+          return;
+        }
+
+        renderUsers(await res.json());
+      } catch (error) {
+        console.error(error);
+        status.textContent = "Network error while loading users.";
+      }
+    }
+
+    async function grantAdmin(email) {
+      status.textContent = `Granting admin access to ${email}...`;
+
+      try {
+        const res = await fetch(`${apiBase}/admin/users/grant-admin`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          status.textContent = data.Message || "Could not grant admin access.";
+          return;
+        }
+
+        status.textContent = data.Message;
+        await loadUsers();
+      } catch (error) {
+        console.error(error);
+        status.textContent = "Network error while granting admin access.";
+      }
+    }
+
+    async function revokeAdmin(email) {
+      if (!confirm(`Remove admin access for ${email}?`)) {
+        return;
+      }
+
+      status.textContent = `Revoking admin access for ${email}...`;
+
+      try {
+        const res = await fetch(`${apiBase}/admin/users/revoke-admin`, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          status.textContent = data.Message || "Could not revoke admin access.";
+          return;
+        }
+
+        status.textContent = data.Message;
+        await loadUsers();
+      } catch (error) {
+        console.error(error);
+        status.textContent = "Network error while revoking admin access.";
+      }
+    }
+
+    document.getElementById("grantAdminForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = document.getElementById("adminEmail").value.trim();
+      await grantAdmin(email);
+      document.getElementById("adminEmail").value = "";
+    });
+
+    wireLogoutLinks();
+
+    const isAdmin = await checkAdmin();
+    if (isAdmin) {
+      await loadUsers();
+    }
   </script>
 </body>
 </html>

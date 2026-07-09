@@ -6,6 +6,44 @@ Summary: The game.js is used create functions and what it does to the games.
 
 const db = require('./databaseConfig');
 
+function formatGameImageValue(value) {
+    if (value == null || value === '') {
+        return '';
+    }
+
+    if (typeof value === 'string') {
+        if (/^https?:\/\//i.test(value)) {
+            return value;
+        }
+
+        return value;
+    }
+
+    if (Buffer.isBuffer(value)) {
+        var asText = value.toString('utf8');
+
+        if (/^https?:\/\//i.test(asText)) {
+            return asText;
+        }
+
+        return value.toString('base64');
+    }
+
+    return '';
+}
+
+function formatGameRows(results) {
+    if (!Array.isArray(results)) {
+        return results;
+    }
+
+    results.forEach(function (result) {
+        result.game_image = formatGameImageValue(result.game_image);
+    });
+
+    return results;
+}
+
 
 var gameDB = {
 
@@ -46,14 +84,7 @@ var gameDB = {
                     else {
 
                         dbConn.end();
-
-                        // Convert longblob to base64
-                        results.forEach((result) => {
-                            const imageBuffer = result.game_image;
-                            const base64Image = imageBuffer.toString('base64');
-                            result.game_image = base64Image;
-                        });
-
+                        formatGameRows(results);
                         return callback(err, results);
                     }
                 });
@@ -125,14 +156,7 @@ var gameDB = {
                     else {
 
                         dbConn.end();
-
-                        // Convert longblob to base64
-                        results.forEach((result) => {
-                            const imageBuffer = result.game_image;
-                            const base64Image = imageBuffer.toString('base64');
-                            result.game_image = base64Image;
-                        });
-
+                        formatGameRows(results);
                         return callback(err, results);
                     }
 
@@ -156,8 +180,12 @@ var gameDB = {
 
             else {
 
+                var imageValue = typeof game_image === 'string'
+                    ? game_image
+                    : (game_image && game_image.buffer ? game_image.buffer : null);
+
                 var insertGameSql = `INSERT INTO game (title, game_description, year, game_image) VALUES (?, ?, ?, ?);`;
-                dbConn.query(insertGameSql, [title, game_description, year, game_image.buffer], function (err, results) {
+                dbConn.query(insertGameSql, [title, game_description, year, imageValue], function (err, results) {
 
                     if (err) {
 
@@ -302,8 +330,12 @@ var gameDB = {
 
             else {
 
+                var imageValue = typeof game_image === 'string'
+                    ? game_image
+                    : (game_image && game_image.buffer ? game_image.buffer : null);
+
                 var updateGameSql = `UPDATE game SET title=?, game_description=?, year=?, game_image=? WHERE gameID=?;`;
-                dbConn.query(updateGameSql, [title, game_description, year, game_image.buffer, gameID], function (err, results) {
+                dbConn.query(updateGameSql, [title, game_description, year, imageValue, gameID], function (err, results) {
 
                     if (err) {
 
@@ -314,6 +346,7 @@ var gameDB = {
                     else {
 
                         dbConn.end();
+                        formatGameRows(results);
                         return callback(err, results);
                     }
                 })
@@ -636,6 +669,7 @@ var gameDB = {
                     else {
 
                         dbConn.end();
+                        formatGameRows(results);
                         return callback(err, results);
                     }
 
@@ -675,6 +709,7 @@ var gameDB = {
                     else {
 
                         dbConn.end();
+                        formatGameRows(results);
                         return callback(err, results);
                     }
 

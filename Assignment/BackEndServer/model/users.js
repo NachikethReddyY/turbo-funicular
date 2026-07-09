@@ -10,6 +10,53 @@ var jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+const COGNITO_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isPlaceholderUsername(username) {
+    if (!username || typeof username !== 'string') {
+        return true;
+    }
+
+    var trimmed = username.trim();
+
+    if (!trimmed) {
+        return true;
+    }
+
+    if (/^pending_/i.test(trimmed)) {
+        return true;
+    }
+
+    if (COGNITO_UUID_RE.test(trimmed)) {
+        return true;
+    }
+
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_[0-9a-f]+$/i.test(trimmed)) {
+        return true;
+    }
+
+    return false;
+}
+
+function buildPendingUsername(sub) {
+    return ('pending_' + String(sub || '').replace(/-/g, '')).slice(0, 100);
+}
+
+function sanitizeProfile(user) {
+    if (!user) {
+        return null;
+    }
+
+    return {
+        userid: user.userid,
+        username: user.username,
+        email: user.email,
+        type: user.type,
+        profile_pic_url: user.profile_pic_url || '',
+        profileComplete: !isPlaceholderUsername(user.username)
+    };
+}
+
 
 var userDB = {
 
@@ -213,6 +260,283 @@ const token = jwt.sign(
 
     });
 },
+
+    isPlaceholderUsername: isPlaceholderUsername,
+
+    findCognitoUser: function (email, cognitoSub, cognitoUsername, callback) {
+
+        var dbConn = db.getConnection();
+
+        dbConn.connect(function (err) {
+
+            if (err) {
+                return callback(err, null);
+            }
+
+            var conditions = [];
+            var values = [];
+
+            if (email) {
+                conditions.push('email = ?');
+                values.push(email);
+            }
+
+            var usernames = [];
+
+            if (cognitoSub) {
+                usernames.push(cognitoSub);
+            }
+
+            if (cognitoUsername && cognitoUsername !== cognitoSub) {
+                usernames.push(cognitoUsername);
+            }
+
+            if (cognitoSub) {
+                usernames.push(buildPendingUsername(cognitoSub));
+            }
+
+            if (usernames.length > 0) {
+                conditions.push('username IN (' + usernames.map(function () {
+                    return '?';
+                }).join(', ') + ')');
+                values = values.concat(usernames);
+            }
+
+            if (conditions.length === 0) {
+                dbConn.end();
+                return callback(null, null);
+            }
+
+            var lookupSql = 'SELECT userid, username, email, type, profile_pic_url FROM users WHERE ' +
+                conditions.join(' OR ') + ' LIMIT 1';
+
+            dbConn.query(lookupSql, values, function (err, results) {
+
+                dbConn.end();
+
+                if (err) {
+                    return callback(err, null);
+                }
+
+                if (results && results.length > 0) {
+                    return callback(null, results[0]);
+                }
+
+                return callback(null, null);
+            });
+        });
+    },
+
+    getOrCreateCognitoUser: function (email, username, cognitoSub, type, callback) {
+
+        var dbConn = db.getConnection();
+        var safeType = type || 'user';
+
+        userDB.findCognitoUser(email, cognitoSub, username, function (err, existingUser) {
+
+            if (err) {
+                return callback(err, null);
+            }
+
+            if (existingUser) {
+                return callback(null, existingUser);
+            }
+
+            dbConn.connect(function (err) {
+
+                if (err) {
+                    return callback(err, null);
+                }
+
+                var safeEmail = email || ((cognitoSub || username || 'user') + '@cognito.local');
+                var safeUsername = buildPendingUsername(cognitoSub || username);
+
+                bcrypt.hash('COGNITO_USER_NO_LOCAL_PASSWORD_' + Date.now(), saltRounds, function (err, hashedPassword) {
+
+                    if (err) {
+                        dbConn.end();
+                        return callback(err, null);
+                    }
+
+                    var insertSql = 'INSERT INTO users(username, email, password, type, profile_pic_url) VALUES(?,?,?,?,?)';
+                    dbConn.query(insertSql, [safeUsername, safeEmail, hashedPassword, safeType, ''], function (err, insertResult) {
+
+                        dbConn.end();
+
+                        if (err) {
+                            return callback(err, null);
+                        }
+
+                        return callback(null, {
+                            userid: insertResult.insertId,
+                            username: safeUsername,
+                            email: safeEmail,
+                            type: safeType,
+                            profile_pic_url: ''
+                        });
+                    });
+                });
+            });
+        });
+    },
+
+    updateCognitoProfile: function (email, cognitoSub, cognitoUsername, username, profile_pic_url, callback) {
+
+        userDB.findCognitoUser(email, cognitoSub, cognitoUsername, function (err, user) {
+
+            if (err) {
+                return callback(err, null);
+            }
+
+            if (!user) {
+                var notFound = new Error('User profile not found.');
+                notFound.statusCode = 404;
+                return callback(notFound, null);
+            }
+
+            var dbConn = db.getConnection();
+
+            dbConn.connect(function (err) {
+
+                if (err) {
+                    return callback(err, null);
+                }
+
+                var updateSql = 'UPDATE users SET username = ?, profile_pic_url = ? WHERE userid = ?';
+                dbConn.query(updateSql, [username, profile_pic_url || '', user.userid], function (err) {
+
+                    dbConn.end();
+
+                    if (err) {
+                        return callback(err, null);
+                    }
+
+                    return callback(null, sanitizeProfile({
+                        userid: user.userid,
+                        username: username,
+                        email: user.email,
+                        type: user.type,
+                        profile_pic_url: profile_pic_url || ''
+                    }));
+                });
+            });
+        });
+    },
+
+    getLegacyUserProfile: function (userid, callback) {
+
+        userDB.getUserByUserid(userid, function (err, results) {
+
+            if (err) {
+                return callback(err, null);
+            }
+
+            if (!results || results.length === 0) {
+                var notFound = new Error('User profile not found.');
+                notFound.statusCode = 404;
+                return callback(notFound, null);
+            }
+
+            return callback(null, sanitizeProfile(results[0]));
+        });
+    },
+
+    getUsersForAdmin: function (callback) {
+
+        var dbConn = db.getConnection();
+
+        dbConn.connect(function (err) {
+
+            if (err) {
+                return callback(err, null);
+            }
+
+            var sql = `SELECT userid, username, email, type,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+                FROM users
+                ORDER BY type DESC, username ASC`;
+
+            dbConn.query(sql, [], function (err, results) {
+
+                dbConn.end();
+
+                if (err) {
+                    return callback(err, null);
+                }
+
+                var users = (results || []).map(function (user) {
+                    return {
+                        userid: user.userid,
+                        username: user.username,
+                        email: user.email,
+                        type: user.type,
+                        isAdmin: String(user.type || '').toLowerCase() === 'admin',
+                        created_at: user.created_at
+                    };
+                });
+
+                return callback(null, users);
+            });
+        });
+    },
+
+    getUserByEmail: function (email, callback) {
+
+        var dbConn = db.getConnection();
+
+        dbConn.connect(function (err) {
+
+            if (err) {
+                return callback(err, null);
+            }
+
+            dbConn.query(
+                'SELECT userid, username, email, type, profile_pic_url FROM users WHERE email = ? LIMIT 1',
+                [email],
+                function (err, results) {
+
+                    dbConn.end();
+
+                    if (err) {
+                        return callback(err, null);
+                    }
+
+                    if (!results || results.length === 0) {
+                        return callback(null, null);
+                    }
+
+                    return callback(null, results[0]);
+                }
+            );
+        });
+    },
+
+    setUserTypeByEmail: function (email, type, callback) {
+
+        var dbConn = db.getConnection();
+
+        dbConn.connect(function (err) {
+
+            if (err) {
+                return callback(err, null);
+            }
+
+            dbConn.query(
+                'UPDATE users SET type = ? WHERE email = ?',
+                [type, email],
+                function (err, results) {
+
+                    dbConn.end();
+
+                    if (err) {
+                        return callback(err, null);
+                    }
+
+                    return callback(null, results);
+                }
+            );
+        });
+    },
 
 }
 module.exports = userDB;

@@ -5,14 +5,18 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "node scripts/patch-node26.js",
     "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.1079.0",
+    "@aws-sdk/client-s3": "^3.1080.0",
     "@aws-sdk/client-secrets-manager": "^3.1075.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.22.2",
@@ -21,6 +25,7 @@
     "jsonwebtoken": "^9.0.1",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
-    "mysql2": "^3.10.2"
+    "mysql2": "^3.10.2",
+    "winston": "^3.19.0"
   }
 }

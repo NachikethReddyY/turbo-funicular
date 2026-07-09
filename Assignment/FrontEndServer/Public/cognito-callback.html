@@ -17,18 +17,18 @@
   </main>
 
   <script type="module">
-    import { completeSignIn } from "./js/cognito-auth.js";
+    import { completeSignIn, redirectAfterSignIn } from "./js/cognito-auth.js";
 
     const status = document.getElementById("status");
 
     completeSignIn()
       .then(() => {
-        status.textContent = "Signed in. Redirecting...";
-        window.location.replace("newHome.html");
+        status.textContent = "Signed in. Checking profile...";
+        return redirectAfterSignIn();
       })
       .catch((err) => {
         console.error(err);
-        status.textContent = "Sign-in failed. Check the Cognito callback URL, domain, and app client settings.";
+        status.textContent = `Sign-in failed: ${err.message}`;
       });
   </script>
 </body>

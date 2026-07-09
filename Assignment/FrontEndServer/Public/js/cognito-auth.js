@@ -6,7 +6,7 @@ const COGNITO_CONFIG = Object.freeze({
   redirectPath: "/cognito-callback.html",
   postLoginPath: "/newHome.html",
   postLogoutPath: "/newHome.html",
-  scopes: ["openid", "email", "profile"]
+  scopes: ["email", "openid", "phone", "profile"]
 });
 
 const STORAGE_KEYS = Object.freeze({
@@ -19,6 +19,7 @@ const STORAGE_KEYS = Object.freeze({
 });
 
 const ADMIN_GROUP = "Admin";
+const API_BASE = "http://54.210.15.31:8081";
 
 function getAbsoluteUrl(path) {
   return new URL(path, window.location.origin).toString();
@@ -176,10 +177,16 @@ export async function signIn() {
 
 export async function completeSignIn() {
   const params = new URLSearchParams(window.location.search);
+  const error = params.get("error");
+  const errorDescription = params.get("error_description");
   const code = params.get("code");
   const state = params.get("state");
   const expectedState = sessionStorage.getItem(STORAGE_KEYS.state);
   const codeVerifier = sessionStorage.getItem(STORAGE_KEYS.codeVerifier);
+
+  if (error) {
+    throw new Error(`Cognito returned ${error}: ${errorDescription || "No description provided."}`);
+  }
 
   if (!code) {
     throw new Error("Cognito callback did not include an authorization code.");
@@ -187,7 +194,7 @@ export async function completeSignIn() {
 
   if (!state || state !== expectedState || !codeVerifier) {
     clearAuthStorage();
-    throw new Error("Cognito callback state validation failed.");
+    throw new Error("Cognito callback state validation failed. Start login again from https://localhost:3001/login.html so sessionStorage is created on the same HTTPS origin.");
   }
 
   const tokens = await exchangeCodeForTokens(code, codeVerifier);
@@ -224,6 +231,61 @@ export function wireLogoutLinks() {
       signOut();
     });
   });
+}
+
+export function syncStoredUserProfile(profile) {
+  if (!profile) {
+    return null;
+  }
+
+  const current = getCurrentUser() || {};
+  const nextUser = {
+    ...current,
+    userid: profile.userid || current.userid,
+    username: profile.username || current.username,
+    email: profile.email || current.email,
+    type: profile.type || current.type,
+    profile_pic_url: profile.profile_pic_url || "",
+    profileComplete: profile.profileComplete !== false
+  };
+
+  localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(nextUser));
+  return nextUser;
+}
+
+export async function fetchRemoteProfile() {
+  const token = getAccessToken();
+  const currentUser = getCurrentUser();
+
+  if (!token) {
+    return null;
+  }
+
+  const response = await fetch(`${API_BASE}/users/me/profile`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "X-Profile-Email": currentUser?.email || ""
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Profile lookup failed: ${response.status}`);
+  }
+
+  const profile = await response.json();
+  return syncStoredUserProfile(profile);
+}
+
+export async function redirectAfterSignIn() {
+  const profile = await fetchRemoteProfile();
+
+  if (profile && profile.profileComplete === false) {
+    window.location.replace("complete-profile.html");
+    return profile;
+  }
+
+  window.location.replace(COGNITO_CONFIG.postLoginPath);
+  return profile;
 }
 
 export function updateAuthLinks() {

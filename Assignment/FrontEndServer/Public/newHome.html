@@ -60,28 +60,42 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // preserve logout behavior and role check from original home.html
-    (function(){
-      async function checkRole(token){
-        if(!token) return;
-        try{const res=await fetch('https://localhost:443/CheckRole',{headers:{'Authorization':'Bearer '+token}});if(res.ok){const d=await res.json(); if(!(d.role==='Admin')) document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none'); else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='block');}}
-        catch(e){console.error(e)}
-      }
-      const token = localStorage.getItem('Token'); if(token) checkRole(token); else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none');
+  <script type="module">
+    import { getAccessToken, wireLogoutLinks, updateAuthLinks, fetchRemoteProfile } from "./js/cognito-auth.js";
 
-      // show/hide login/logout links based on token
-      const loginLink = document.getElementById('LoginLink');
-      const logoutLink = document.getElementById('Logout');
-      function updateAuthLinks() {
-        const t = localStorage.getItem('Token');
-        if (t) { if (loginLink) loginLink.style.display = 'none'; if (logoutLink) logoutLink.style.display = 'inline'; }
-        else { if (loginLink) loginLink.style.display = 'inline'; if (logoutLink) logoutLink.style.display = 'none'; }
-      }
-      updateAuthLinks();
+    async function checkRole(token){
+      if(!token) return;
+      try{
+        const res=await fetch('http://54.210.15.31:8081/CheckRole',{headers:{'Authorization':'Bearer '+token}});
+        if(res.ok){
+          const d=await res.json();
+          if(!(d.role==='Admin')) document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none');
+          else document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='block');
+        }
+      } catch(e){console.error(e)}
+    }
 
-      logoutLink.addEventListener('click',function(e){e.preventDefault();localStorage.clear();alert('You have successfully Logged out.');document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none');updateAuthLinks();});
-    })();
+    async function ensureProfileComplete(token) {
+      if (!token) return;
+      try {
+        const profile = await fetchRemoteProfile();
+        if (profile && profile.profileComplete === false) {
+          window.location.replace("complete-profile.html");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    const token = getAccessToken();
+    if(token) {
+      ensureProfileComplete(token);
+      checkRole(token);
+    } else {
+      document.querySelectorAll('.admin-tab').forEach(e=>e.style.display='none');
+    }
+    wireLogoutLinks();
+    updateAuthLinks();
   </script>
 </body>
 </html>
